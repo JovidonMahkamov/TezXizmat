@@ -25,7 +25,7 @@ class _HomeContainerWidgetState extends State<HomeContainerWidget> {
     return GestureDetector(
       onTap: widget.onTap,
       child: Container(
-        margin: const EdgeInsets.only(top: 10, right: 15),
+        margin: const EdgeInsets.only(top: 8),
         padding: const EdgeInsets.symmetric(horizontal: 12),
         height: 85.h,
         decoration: BoxDecoration(
@@ -40,7 +40,7 @@ class _HomeContainerWidgetState extends State<HomeContainerWidget> {
             ),
             SizedBox(width: 12.w),
 
-            /// 🔥 ENG MUHIM JOY
+
             Expanded(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -69,10 +69,7 @@ class _HomeContainerWidgetState extends State<HomeContainerWidget> {
               ),
             ),
 
-            IconButton(
-              onPressed: (){},
-              icon: const Icon(Icons.arrow_forward_ios_outlined),
-            ),
+            Icon(Icons.arrow_forward_ios_outlined),
           ],
         ),
       ),

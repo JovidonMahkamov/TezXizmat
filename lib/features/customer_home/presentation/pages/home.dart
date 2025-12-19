@@ -84,27 +84,40 @@ class _HomePageState extends State<HomePage> {
                       fontWeight: FontWeight.w700,
                     ),
                   ),
-                  SizedBox(height: 10.h,),
-                  HomeContainerWidget(
-                    circularImage: AssetImage(
-                      "assets/circular_avatar/profile.png",
+                  SizedBox(height: 10.h),
+
+                  Padding(
+                    padding: const EdgeInsets.only(right: 20),
+
+                    child: Column(
+                      children: [
+                        HomeContainerWidget(
+                          circularImage: AssetImage(
+                            "assets/circular_avatar/profile.png",
+                          ),
+                          nameText: "Jovidon (Elektrik)",
+                          experienceText:
+                              "6 yildan beri elektrika ishlari bilan shug‘ullanaman ",
+                        ),
+
+                        HomeContainerWidget(
+                          circularImage: AssetImage(
+                            "assets/circular_avatar/profile1.png",
+                          ),
+                          nameText: "Firdavs (Santexnik)",
+                          experienceText:
+                              "4 yildan beri elektrika ishlari bilan shug‘ullanaman ",
+                        ),
+                        HomeContainerWidget(
+                          circularImage: AssetImage(
+                            "assets/circular_avatar/profile.png",
+                          ),
+                          nameText: "Jovidon (Elektrik)",
+                          experienceText:
+                              "6 yildan beri elektrika ishlari bilan shug‘ullanaman ",
+                        ),
+                      ],
                     ),
-                    nameText: "Jovidon (Elektrik)",
-                    experienceText: "6 yildan beri elektrika ishlari bilan shug‘ullanaman ",
-                  ),
-                  HomeContainerWidget(
-                    circularImage: AssetImage(
-                      "assets/circular_avatar/profile1.png",
-                    ),
-                    nameText: "Firdavs (Santexnik)",
-                    experienceText: "4 yildan beri elektrika ishlari bilan shug‘ullanaman ",
-                  ),
-                  HomeContainerWidget(
-                    circularImage: AssetImage(
-                      "assets/circular_avatar/profile.png",
-                    ),
-                    nameText: "Jovidon (Elektrik)",
-                    experienceText: "6 yildan beri elektrika ishlari bilan shug‘ullanaman ",
                   ),
                 ],
               ),

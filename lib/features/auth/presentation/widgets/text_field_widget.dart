@@ -9,6 +9,7 @@ class TextFieldWidget extends StatefulWidget {
   final bool obscureText;
   final IconButton? suffixIcon;
   final TextInputType? keyboardType;
+  final void Function(String)? onChanged;
 
   const TextFieldWidget({
     super.key,
@@ -16,7 +17,7 @@ class TextFieldWidget extends StatefulWidget {
     required this.text,
     required this.obscureText,
     this.suffixIcon,
-    this.keyboardType, this.errorText,
+    this.keyboardType, this.errorText, this.onChanged,
   });
 
   @override
@@ -27,6 +28,7 @@ class _TextFieldWidgetState extends State<TextFieldWidget> {
   @override
   Widget build(BuildContext context) {
     return TextField(
+      onChanged: widget.onChanged,
       keyboardType: widget.keyboardType,
       controller: widget.controller,
       textCapitalization: TextCapitalization.words,

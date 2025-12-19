@@ -11,4 +11,5 @@ class RouteNames {
   static const String customerNewPassword = '/customerNewPassword';
   static const String bottomNavBar = '/bottomNavBar';
   static const String search = '/search';
+  static const String workerInfo = '/workerInfo';
 }

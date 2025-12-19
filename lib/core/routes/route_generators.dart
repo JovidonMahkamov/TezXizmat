@@ -13,6 +13,7 @@ import 'package:tez_xizmat/features/auth/presentation/pages/role_select/select_p
 import 'package:tez_xizmat/features/auth/presentation/pages/splash/onboarding_page.dart';
 import 'package:tez_xizmat/features/auth/presentation/pages/splash/splash_page.dart';
 import 'package:tez_xizmat/features/customer_home/presentation/pages/search.dart';
+import 'package:tez_xizmat/features/customer_home/presentation/pages/worker_info.dart';
 
 class AppRoute {
   BuildContext context;
@@ -47,6 +48,8 @@ class AppRoute {
         return MaterialPageRoute(builder: (_) => const BottomNavBarPage());
       case RouteNames.search:
         return MaterialPageRoute(builder: (_) => const SearchPage());
+      case RouteNames.workerInfo:
+        return MaterialPageRoute(builder: (_) => const WorkerInfoPage());
       default:
         return _errorRoute();
     }
