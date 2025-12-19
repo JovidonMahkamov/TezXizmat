@@ -4,6 +4,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:tez_xizmat/features/customer_home/presentation/widgets/home_app_bar_widget.dart';
 import 'package:tez_xizmat/features/customer_home/presentation/widgets/home_carousel_widget.dart';
 import 'package:tez_xizmat/features/customer_home/presentation/widgets/home_circular_avatar_widget.dart';
+import 'package:tez_xizmat/features/customer_home/presentation/widgets/home_container_widget.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -50,16 +51,16 @@ class _HomePageState extends State<HomePage> {
                         ),
                         SizedBox(width: 18.w),
                         HomeCircularAvatarWidget(
-                          iconAvatar: Image.asset(
-                            "assets/circular_avatar/santexnik.png",
+                          iconAvatar: SvgPicture.asset(
+                            "assets/circular_avatar/santexnik.svg",
                           ),
                           circularColor: Color(0xffE5F3FB),
                           title: 'Santexnik',
                         ),
                         SizedBox(width: 18.w),
                         HomeCircularAvatarWidget(
-                          iconAvatar: Image.asset(
-                            "assets/circular_avatar/culler.png",
+                          iconAvatar: SvgPicture.asset(
+                            "assets/circular_avatar/culler.svg",
                           ),
                           circularColor: Color(0xffF4EAFB),
                           title: 'Konditsioner ustasi',
@@ -83,7 +84,28 @@ class _HomePageState extends State<HomePage> {
                       fontWeight: FontWeight.w700,
                     ),
                   ),
-
+                  SizedBox(height: 10.h,),
+                  HomeContainerWidget(
+                    circularImage: AssetImage(
+                      "assets/circular_avatar/profile.png",
+                    ),
+                    nameText: "Jovidon (Elektrik)",
+                    experienceText: "6 yildan beri elektrika ishlari bilan shug‘ullanaman ",
+                  ),
+                  HomeContainerWidget(
+                    circularImage: AssetImage(
+                      "assets/circular_avatar/profile1.png",
+                    ),
+                    nameText: "Firdavs (Santexnik)",
+                    experienceText: "4 yildan beri elektrika ishlari bilan shug‘ullanaman ",
+                  ),
+                  HomeContainerWidget(
+                    circularImage: AssetImage(
+                      "assets/circular_avatar/profile.png",
+                    ),
+                    nameText: "Jovidon (Elektrik)",
+                    experienceText: "6 yildan beri elektrika ishlari bilan shug‘ullanaman ",
+                  ),
                 ],
               ),
             ),

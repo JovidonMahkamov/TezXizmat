@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:tez_xizmat/core/routes/route_names.dart';
 
 class HomeAppBarWidget extends StatefulWidget implements PreferredSizeWidget {
   const HomeAppBarWidget({super.key});
@@ -34,7 +35,9 @@ class _HomeAppBarWidgetState extends State<HomeAppBarWidget> {
         ],
       ),
       actions: [
-        SvgPicture.asset("assets/home/search.svg"),
+        GestureDetector(child: SvgPicture.asset("assets/home/search.svg"), onTap: () {
+          Navigator.pushNamed(context, RouteNames.search);
+        },),
         SizedBox(width: 10.w),
         SvgPicture.asset("assets/home/notification.svg"),
         SizedBox(width: 15.w),
