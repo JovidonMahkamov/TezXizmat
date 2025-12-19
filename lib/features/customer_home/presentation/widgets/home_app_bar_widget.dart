@@ -4,7 +4,8 @@ import 'package:flutter_svg/svg.dart';
 import 'package:tez_xizmat/core/routes/route_names.dart';
 
 class HomeAppBarWidget extends StatefulWidget implements PreferredSizeWidget {
-  const HomeAppBarWidget({super.key});
+  const
+  HomeAppBarWidget({super.key});
 
   @override
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
