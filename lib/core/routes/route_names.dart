@@ -12,4 +12,7 @@ class RouteNames {
   static const String bottomNavBar = '/bottomNavBar';
   static const String search = '/search';
   static const String workerInfo = '/workerInfo';
+  static const String chatWithWorker = '/chatWithWorker';
+  static const String notification = '/notification';
+  static const String orderView = '/orderView';
 }

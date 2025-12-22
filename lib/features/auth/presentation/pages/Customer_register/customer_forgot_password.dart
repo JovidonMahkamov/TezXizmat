@@ -123,7 +123,7 @@ class _CustomerForgotPasswordPageState extends State<CustomerForgotPasswordPage>
                 /// BUTTON
                 ElevatedWidget(
                   onPressed: signInUser,
-                  text: 'Emailni tasdiqlash',
+                  text: 'Emailni tasdiqlash', backgroundColor:  Color(0xff1778F2), textColor:  Colors.white,
                 ),
 
                 SizedBox(height: 20.h),

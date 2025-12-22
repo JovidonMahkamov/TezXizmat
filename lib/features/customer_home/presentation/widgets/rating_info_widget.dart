@@ -18,6 +18,7 @@ void showRatingSheet(BuildContext context) {
         maxChildSize: 0.9,
         builder: (context, scrollController) {
           return Container(
+            color: Colors.white,
             padding: const EdgeInsets.all(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,

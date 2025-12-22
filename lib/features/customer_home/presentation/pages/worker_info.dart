@@ -230,9 +230,8 @@ class _WorkerInfoPageState extends State<WorkerInfoPage> {
               SizedBox(height: 20.h,),
               ElevatedWidget(onPressed: (){
                 showSuccessDialog(context);
-              }, text: "Bog'lanish"),
+              }, text: "Bog'lanish", backgroundColor:  Color(0xff1778F2), textColor: Colors.white,),
               SizedBox(height: 30.h,),
-
             ],
           ),
         ),

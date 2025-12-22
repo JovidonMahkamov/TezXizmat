@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-class TextFieldWidget extends StatefulWidget {
+class TextFieldWidgetTwo extends StatefulWidget {
   final TextEditingController? controller;
   final String text;
   final String? errorText;
@@ -10,25 +10,28 @@ class TextFieldWidget extends StatefulWidget {
   final IconButton? suffixIcon;
   final TextInputType? keyboardType;
   final void Function(String)? onChanged;
+  final int? mixLine;
+  final int? maxLine;
 
-
-  const TextFieldWidget({
+  const TextFieldWidgetTwo({
     super.key,
     this.controller,
     required this.text,
     required this.obscureText,
     this.suffixIcon,
-    this.keyboardType, this.errorText, this.onChanged,
+    this.keyboardType, this.errorText, this.onChanged, this.mixLine, this.maxLine,
   });
 
   @override
-  State<TextFieldWidget> createState() => _TextFieldWidgetState();
+  State<TextFieldWidgetTwo> createState() => _TextFieldWidgetState();
 }
 
-class _TextFieldWidgetState extends State<TextFieldWidget> {
+class _TextFieldWidgetState extends State<TextFieldWidgetTwo> {
   @override
   Widget build(BuildContext context) {
     return TextField(
+      minLines: widget.mixLine,
+      maxLines: widget.maxLine,
       onChanged: widget.onChanged,
       keyboardType: widget.keyboardType,
       controller: widget.controller,

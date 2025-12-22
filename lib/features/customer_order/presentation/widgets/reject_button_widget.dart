@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-class ElevatedWidget extends StatelessWidget {
+import 'package:flutter_svg/flutter_svg.dart';
+class RejectButtonWidget extends StatelessWidget {
   final double? size;
   final VoidCallback onPressed;
   final String text;
   final Color backgroundColor;
   final Color textColor;
-  const ElevatedWidget({super.key, required this.onPressed,required this.text, this.size, required this.backgroundColor, required this.textColor});
+  final Icon? iconImage;
+  const RejectButtonWidget({super.key, required this.onPressed,required this.text, this.size, required this.backgroundColor, required this.textColor, this.iconImage});
   @override
   Widget build (BuildContext context) {
     return SizedBox(
@@ -20,11 +22,15 @@ class ElevatedWidget extends StatelessWidget {
           backgroundColor: backgroundColor,
         ),
         onPressed:onPressed,
-        child:  Center(
-          child: Text(
-            text,
-            style: TextStyle (color: textColor),
-          ),
+        child:  Row(
+          children: [
+            SvgPicture.asset("assets/chat/undov.svg"),
+            SizedBox(width: 60.w,),
+            Text(
+              text,
+              style: TextStyle (color: textColor),
+            ),
+          ],
         ),
       ),
     );

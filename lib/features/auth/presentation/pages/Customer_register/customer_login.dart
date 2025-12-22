@@ -172,7 +172,7 @@ class _CustomerLoginPageState extends State<CustomerLoginPage> {
                 ),
                 SizedBox(height: 20.h),
 
-                ElevatedWidget(onPressed: signInUser, text: 'Tizimga kirish'),
+                ElevatedWidget(onPressed: signInUser, text: 'Tizimga kirish', backgroundColor:  Color(0xff1778F2), textColor:  Colors.white,),
                 SizedBox(height: 20.h),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,

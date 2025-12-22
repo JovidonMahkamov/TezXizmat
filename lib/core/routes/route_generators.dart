@@ -12,8 +12,11 @@ import 'package:tez_xizmat/features/auth/presentation/pages/Customer_register/ve
 import 'package:tez_xizmat/features/auth/presentation/pages/role_select/select_page.dart';
 import 'package:tez_xizmat/features/auth/presentation/pages/splash/onboarding_page.dart';
 import 'package:tez_xizmat/features/auth/presentation/pages/splash/splash_page.dart';
+import 'package:tez_xizmat/features/customer_chat/presentation/pages/chat_with_worker.dart';
+import 'package:tez_xizmat/features/customer_home/presentation/pages/notification.dart';
 import 'package:tez_xizmat/features/customer_home/presentation/pages/search.dart';
 import 'package:tez_xizmat/features/customer_home/presentation/pages/worker_info.dart';
+import 'package:tez_xizmat/features/customer_order/presentation/pages/order_view.dart';
 
 class AppRoute {
   BuildContext context;
@@ -50,6 +53,13 @@ class AppRoute {
         return MaterialPageRoute(builder: (_) => const SearchPage());
       case RouteNames.workerInfo:
         return MaterialPageRoute(builder: (_) => const WorkerInfoPage());
+      case RouteNames.chatWithWorker:
+        final urlPath = routeSettings.arguments as Map<String, dynamic>;
+        return MaterialPageRoute(builder: (_) =>  ChatWithWorkerPage(name: urlPath["name"], urlAsset: urlPath["urlAsset"],));
+      case RouteNames.notification:
+        return MaterialPageRoute(builder: (_) => const NotificationPage());
+      case RouteNames.orderView:
+        return MaterialPageRoute(builder: (_) => const OrderViewPage());
       default:
         return _errorRoute();
     }

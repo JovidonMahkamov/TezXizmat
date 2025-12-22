@@ -36,11 +36,13 @@ class _HomeAppBarWidgetState extends State<HomeAppBarWidget> {
         ],
       ),
       actions: [
-        GestureDetector(child: SvgPicture.asset("assets/home/search.svg"), onTap: () {
+        IconButton(onPressed:(){
           Navigator.pushNamed(context, RouteNames.search);
-        },),
+        }, icon: SvgPicture.asset("assets/home/search.svg")),
         SizedBox(width: 10.w),
-        SvgPicture.asset("assets/home/notification.svg"),
+        IconButton(onPressed:(){
+          Navigator.pushNamed(context, RouteNames.notification);
+        }, icon: SvgPicture.asset("assets/home/notification.svg")),
         SizedBox(width: 15.w),
       ],
     );
