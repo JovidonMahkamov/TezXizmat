@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:tez_xizmat/core/routes/route_names.dart';
 import 'package:tez_xizmat/features/auth/presentation/widgets/elevated_button_widget.dart';
 import 'package:tez_xizmat/features/auth/presentation/widgets/text_field_widget.dart';
 import 'package:tez_xizmat/features/customer_profile/presentation/widgets/edit_profile_widget.dart';
-import 'package:tez_xizmat/features/customer_profile/presentation/widgets/image_picker_widget.dart';
-import 'package:tez_xizmat/features/customer_profile/presentation/widgets/profile_log_out_widget.dart';
+import '../../../customer_home/presentation/widgets/rating_info_widget.dart';
+import '../widgets/worker_image_picker_widget.dart';
+import '../widgets/worker_log_out_widget.dart';
 
 class WorkerProfilePage extends StatefulWidget {
   const WorkerProfilePage({super.key});
@@ -28,7 +30,7 @@ class _WorkerInfoPageState extends State<WorkerProfilePage> {
       ),
       body: Column(
         children: [
-          Center(child: ImagePickerWidget()),
+          Center(child: WorkerImagePickerWidget()),
           SizedBox(height: 10.h),
           Text(
             "Sevinch Sharobidinova",
@@ -51,7 +53,16 @@ class _WorkerInfoPageState extends State<WorkerProfilePage> {
             text: "Profilni tahrirlash",
             icon: Icons.person_outline,
             onTab: () {
-              showEditProfileDialog(context);
+              Navigator.pushNamed(context, RouteNames.workerEditProfile);
+            },
+            icon1: Icons.arrow_forward_ios_outlined,
+            textStyle: TextStyle(fontSize: 18.sp),
+          ),
+          EditProfileWidget(
+            text: "Reyting va sharhlar",
+            icon: Icons.star_border_outlined,
+            onTab: () {
+              showRatingSheet(context);
             },
             icon1: Icons.arrow_forward_ios_outlined,
             textStyle: TextStyle(fontSize: 18.sp),
@@ -61,7 +72,7 @@ class _WorkerInfoPageState extends State<WorkerProfilePage> {
             icon: Icons.exit_to_app_outlined,
             iconColor: Colors.red,
             onTab: () {
-              showQuestionLogoutDialog(context);
+              workerLogOutProfileQuestion(context);
             },
             textStyle: TextStyle(color: Colors.red, fontSize: 18.sp),
           ),
