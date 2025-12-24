@@ -1,6 +1,5 @@
 
 import 'package:flutter/material.dart';
-import 'package:tez_xizmat/bottom_nav_bar.dart';
 import 'package:tez_xizmat/core/routes/route_names.dart';
 import 'package:tez_xizmat/features/auth/presentation/pages/Customer_register/customer_forgot_password.dart';
 import 'package:tez_xizmat/features/auth/presentation/pages/Customer_register/customer_forgot_password_otp.dart';
@@ -17,6 +16,11 @@ import 'package:tez_xizmat/features/customer_home/presentation/pages/notificatio
 import 'package:tez_xizmat/features/customer_home/presentation/pages/search.dart';
 import 'package:tez_xizmat/features/customer_home/presentation/pages/worker_info.dart';
 import 'package:tez_xizmat/features/customer_order/presentation/pages/order_view.dart';
+import 'package:tez_xizmat/features/select_bottom_navbar/customer_bottom_nav_bar.dart';
+import 'package:tez_xizmat/features/select_bottom_navbar/worker_bottom_nav_bar.dart';
+import 'package:tez_xizmat/features/worker_chat/presentation/pages/chat_with_customer.dart';
+import 'package:tez_xizmat/features/worker_profile/presentation/pages/worker_edit_profile.dart';
+import 'package:tez_xizmat/features/worker_profile/presentation/pages/worker_profile.dart';
 
 class AppRoute {
   BuildContext context;
@@ -47,8 +51,10 @@ class AppRoute {
         return MaterialPageRoute(builder: (_) =>  CustomerForgotPasswordOtpPage(phoneNumber: phone,));
       case RouteNames.customerNewPassword:
         return MaterialPageRoute(builder: (_) => const CustomerNewPasswordPage());
-      case RouteNames.bottomNavBar:
-        return MaterialPageRoute(builder: (_) => const BottomNavBarPage());
+      case RouteNames.customerBottomNavBar:
+        return MaterialPageRoute(builder: (_) => const CustomerBottomNavBarPage());
+      case RouteNames.workerBottomNavBar:
+        return MaterialPageRoute(builder: (_) => const WorkerBottomNavBarPage());
       case RouteNames.search:
         return MaterialPageRoute(builder: (_) => const SearchPage());
       case RouteNames.workerInfo:
@@ -60,6 +66,13 @@ class AppRoute {
         return MaterialPageRoute(builder: (_) => const NotificationPage());
       case RouteNames.orderView:
         return MaterialPageRoute(builder: (_) => const OrderViewPage());
+      case RouteNames.chatWithCustomer:
+        final urlPath = routeSettings.arguments as Map<String, dynamic>;
+        return MaterialPageRoute(builder: (_) =>  ChatWithCustomerPage(name: urlPath["name"], urlAsset: urlPath["urlAsset"],));
+      case RouteNames.workerProfile:
+        return MaterialPageRoute(builder: (_) => const WorkerProfilePage());
+      case RouteNames.workerEditProfile:
+        return MaterialPageRoute(builder: (_) => const WorkerEditProfilePage());
       default:
         return _errorRoute();
     }

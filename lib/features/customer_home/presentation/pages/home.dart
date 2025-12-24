@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:tez_xizmat/core/routes/route_names.dart';
 import 'package:tez_xizmat/features/customer_home/presentation/widgets/home_app_bar_widget.dart';
 import 'package:tez_xizmat/features/customer_home/presentation/widgets/home_carousel_widget.dart';
 import 'package:tez_xizmat/features/customer_home/presentation/widgets/home_circular_avatar_widget.dart';
@@ -92,6 +93,9 @@ class _HomePageState extends State<HomePage> {
                     child: Column(
                       children: [
                         HomeContainerWidget(
+                          onTap: (){
+                            Navigator.pushNamed(context, RouteNames.workerInfo);
+                          },
                           circularImage: AssetImage(
                             "assets/circular_avatar/profile.png",
                           ),
@@ -101,6 +105,9 @@ class _HomePageState extends State<HomePage> {
                         ),
 
                         HomeContainerWidget(
+                          onTap: (){
+                            Navigator.pushNamed(context, RouteNames.workerInfo);
+                          },
                           circularImage: AssetImage(
                             "assets/circular_avatar/profile1.png",
                           ),
@@ -109,6 +116,9 @@ class _HomePageState extends State<HomePage> {
                               "4 yildan beri elektrika ishlari bilan shug‘ullanaman ",
                         ),
                         HomeContainerWidget(
+                          onTap: (){
+                            Navigator.pushNamed(context, RouteNames.workerInfo);
+                          },
                           circularImage: AssetImage(
                             "assets/circular_avatar/profile.png",
                           ),

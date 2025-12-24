@@ -56,7 +56,7 @@ class _CustomerLoginPageState extends State<CustomerLoginPage> {
 
     Navigator.pushNamed(
       context,
-      RouteNames.bottomNavBar,
+      RouteNames.customerBottomNavBar,
       arguments: email,
     );
   }

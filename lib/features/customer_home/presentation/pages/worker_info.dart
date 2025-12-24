@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:readmore/readmore.dart';
+import 'package:tez_xizmat/core/routes/route_names.dart';
 import 'package:tez_xizmat/features/auth/presentation/widgets/elevated_button_widget.dart';
 import 'package:tez_xizmat/features/customer_home/presentation/widgets/pop_up_widget.dart';
 import 'package:tez_xizmat/features/customer_home/presentation/widgets/rating_info_widget.dart';
@@ -34,7 +35,9 @@ class _WorkerInfoPageState extends State<WorkerInfoPage> {
         ),
         actions: [
           IconButton(
-            onPressed: () {},
+            onPressed: () {
+              Navigator.pushNamed(context, RouteNames.chatWithWorker, arguments:{"name": "Jovidon (Santexnik)", "urlAsset": "assets/circular_avatar/profile.png"} );
+            },
             icon: SvgPicture.asset(
               "assets/home/message.svg",
               width: 28,

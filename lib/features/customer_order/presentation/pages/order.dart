@@ -20,7 +20,7 @@ class _OrderPageState extends State<OrderPage> {
         appBar: AppBar(
           automaticallyImplyLeading: false,
           title: Text(
-            "Buyurtmalar",
+                "Buyurtmalar",
             style: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.w700),
           ),
           centerTitle: true,

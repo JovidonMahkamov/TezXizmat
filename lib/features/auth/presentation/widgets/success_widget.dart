@@ -76,7 +76,7 @@ void showSuccessDialogTwo(BuildContext context) {
                         child: ElevatedButton(
                           onPressed: (){
                             Navigator.pop(context);
-                            Navigator.pushReplacementNamed(context, RouteNames.bottomNavBar);
+                            Navigator.pushReplacementNamed(context, RouteNames.customerBottomNavBar);
                           },
                           child: Text("Tasdiqlash"),
                           style: ElevatedButton.styleFrom(

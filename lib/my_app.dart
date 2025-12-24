@@ -26,7 +26,7 @@ class _MyAppState extends State<MyApp> {
             colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
             useMaterial3: true,
           ),
-          initialRoute: RouteNames.bottomNavBar,
+          initialRoute: RouteNames.workerBottomNavBar,
           onGenerateRoute: AppRoute(context: context).onGenerateRoute,
         );
       },

@@ -1,3 +1,4 @@
+/// workerning bitta user chati
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:tez_xizmat/features/auth/presentation/widgets/elevated_button_widget.dart';
@@ -5,16 +6,16 @@ import 'package:tez_xizmat/features/auth/presentation/widgets/text_field_widget_
 import 'package:tez_xizmat/features/customer_chat/presentation/widgets/chat_bubble_widget.dart';
 import 'package:tez_xizmat/features/customer_chat/presentation/widgets/chat_message.dart';
 
-class ChatWithWorkerPage extends StatefulWidget {
+class ChatWithCustomerPage extends StatefulWidget {
   final String name;
   final String urlAsset;
-  const ChatWithWorkerPage({super.key, required this.name, required this.urlAsset});
+  const ChatWithCustomerPage({super.key, required this.name, required this.urlAsset});
 
   @override
-  State<ChatWithWorkerPage> createState() => _ChatWithWorkerPageState();
+  State<ChatWithCustomerPage> createState() => _ChatWithWorkerPageState();
 }
 
-class _ChatWithWorkerPageState extends State<ChatWithWorkerPage> {
+class _ChatWithWorkerPageState extends State<ChatWithCustomerPage> {
   final TextEditingController _controller = TextEditingController();
 
   final List<ChatMessage> messages = [
@@ -37,11 +38,14 @@ class _ChatWithWorkerPageState extends State<ChatWithWorkerPage> {
       isMe: true,
     ),
   ];
+  String? lastSentMessage;
 
   void sendMessage() {
     if (_controller.text.trim().isEmpty) return;
 
     setState(() {
+      lastSentMessage = _controller.text;
+
       messages.add(
         ChatMessage(
           id: DateTime.now().toString(),
@@ -54,6 +58,8 @@ class _ChatWithWorkerPageState extends State<ChatWithWorkerPage> {
 
     _controller.clear();
   }
+
+
   void deleteMessage(int index) {
     setState(() {
       messages.removeAt(index);
@@ -78,10 +84,10 @@ class _ChatWithWorkerPageState extends State<ChatWithWorkerPage> {
           ),
           SizedBox(width: 30.w,),
           ElevatedWidget(
-              onPressed: (){setState(() {
-            message.text = controller.text;
-          });
-          Navigator.pop(context);}, text: "Saqlash",size: 150, backgroundColor: Color(0xff1778F2), textColor:  Colors.white,),
+            onPressed: (){setState(() {
+              message.text = controller.text;
+            });
+            Navigator.pop(context);}, text: "Saqlash",size: 150, backgroundColor: Color(0xff1778F2), textColor:  Colors.white,),
         ],
       ),
     );
@@ -95,9 +101,15 @@ class _ChatWithWorkerPageState extends State<ChatWithWorkerPage> {
         backgroundColor: Colors.white,
         leading: IconButton(
           onPressed: () {
-            Navigator.pop(context);
+            Navigator.pop(
+              context,
+              {
+                "lastMessage": lastSentMessage ?? messages.last.text,
+                "time": TimeOfDay.now().format(context),
+              },
+            );
           },
-          icon: Icon(Icons.arrow_back_ios),
+          icon: const Icon(Icons.arrow_back_ios),
         ),
         title: Row(
           children: [

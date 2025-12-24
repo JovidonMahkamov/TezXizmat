@@ -9,10 +9,14 @@ class RouteNames {
   static const String customerForgotPassword = '/customerForgotPassword';
   static const String customerForgotPasswordOtp = '/customerForgotPasswordOtp';
   static const String customerNewPassword = '/customerNewPassword';
-  static const String bottomNavBar = '/bottomNavBar';
+  static const String customerBottomNavBar = '/customerBottomNavBar';
+  static const String workerBottomNavBar = '/workerBottomNavBar';
   static const String search = '/search';
   static const String workerInfo = '/workerInfo';
   static const String chatWithWorker = '/chatWithWorker';
   static const String notification = '/notification';
   static const String orderView = '/orderView';
+  static const String chatWithCustomer = '/chatWithCustomer';
+  static const String workerProfile = '/workerProfile';
+  static const String workerEditProfile = '/workerEditProfile';
 }

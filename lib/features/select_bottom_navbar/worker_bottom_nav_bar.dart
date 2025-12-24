@@ -1,44 +1,40 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:tez_xizmat/features/customer_chat/presentation/pages/chat.dart';
-import 'package:tez_xizmat/features/customer_home/presentation/pages/home.dart';
-import 'package:tez_xizmat/features/customer_order/presentation/pages/order.dart';
-import 'package:tez_xizmat/features/customer_profile/presentation/pages/profile.dart';
+import 'package:tez_xizmat/features/worker_chat/presentation/pages/worker_chat.dart';
+import 'package:tez_xizmat/features/worker_home/presentation/pages/worker_home.dart';
+import 'package:tez_xizmat/features/worker_profile/presentation/pages/worker_profile.dart';
 
 
-class BottomNavBarPage extends StatefulWidget {
+class WorkerBottomNavBarPage extends StatefulWidget {
   final int initialIndex;
-  const BottomNavBarPage({super.key,  this.initialIndex= 0});
+  const WorkerBottomNavBarPage({super.key,  this.initialIndex= 0});
 
   @override
-  State<BottomNavBarPage> createState() => _BottomNavBarPageState();
+  State<WorkerBottomNavBarPage> createState() => _WorkerBottomNavBarPageState();
 }
 
-class _BottomNavBarPageState extends State<BottomNavBarPage> {
+class _WorkerBottomNavBarPageState extends State<WorkerBottomNavBarPage> {
   int _currentIndex = 0;
   void initState() {
     super.initState();
-    _currentIndex = widget.initialIndex; // initialIndex dan olamiz
+    _currentIndex = widget.initialIndex;
   }
 
   final List<Widget> pages = [
-    HomePage(),
-    OrderPage(),
-    ChatPage(),
-    ProfilePage(),
+    WorkerHomePage(),
+    WorkerChatPage(),
+    WorkerProfilePage(),
   ];
 
   final List<String> _icons = [
     "assets/bottom_nav_bar/home.svg",
-    "assets/bottom_nav_bar/order.svg",
     "assets/bottom_nav_bar/chat.svg",
     "assets/bottom_nav_bar/profile.svg",
   ];
 
   final List<String> _labels = [
     "Bosh sahifa",
-    "Buyurtma",
     "Xabarlar",
     "Profil",
   ];

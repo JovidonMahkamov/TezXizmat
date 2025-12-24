@@ -15,15 +15,15 @@ class _HomeCarouselWidgetState extends State<HomeCarouselWidget> {
   int _currentIndex = 0;
 
   final List<String> _images = [
-    'assets/home/carousel1.png',
-    'assets/home/carousel2.png',
+    'assets/home/carousel1.jpg',
+    'assets/home/carousel2.jpg',
   ];
 
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: EdgeInsets.only(left: 10,right: 10),
-      height: 200.h,
+      height: 230.h,
       width: double.infinity,
       child: CarouselSlider.builder(
         itemCount: _images.length,
@@ -38,7 +38,7 @@ class _HomeCarouselWidgetState extends State<HomeCarouselWidget> {
                   borderRadius: BorderRadius.circular(15.r),
                   child: Image.asset(
                     _images[index],
-                    height: 180.h,
+                    height: 220.h,
                     width: double.infinity,
                     fit: BoxFit.cover,
                   ),
@@ -49,7 +49,7 @@ class _HomeCarouselWidgetState extends State<HomeCarouselWidget> {
           );
         },
         options: CarouselOptions(
-          height: 220.h,
+          height: 230.h,
           autoPlay: true,
           autoPlayInterval: Duration(seconds: 3),
           viewportFraction: 1.0,

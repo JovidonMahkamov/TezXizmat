@@ -6,21 +6,21 @@ import 'package:tez_xizmat/features/customer_profile/presentation/widgets/edit_p
 import 'package:tez_xizmat/features/customer_profile/presentation/widgets/image_picker_widget.dart';
 import 'package:tez_xizmat/features/customer_profile/presentation/widgets/profile_log_out_widget.dart';
 
-class ProfilePage extends StatefulWidget {
-  const ProfilePage({super.key});
+class WorkerProfilePage extends StatefulWidget {
+  const WorkerProfilePage({super.key});
 
   @override
-  State<ProfilePage> createState() => _ProfilePageState();
+  State<WorkerProfilePage> createState() => _WorkerInfoPageState();
 }
 
-class _ProfilePageState extends State<ProfilePage> {
+class _WorkerInfoPageState extends State<WorkerProfilePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
         automaticallyImplyLeading: false,
+        backgroundColor: Colors.transparent,
         title: Text(
           "Profil",
           style: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.w700),
@@ -155,5 +155,11 @@ class _ProfilePageState extends State<ProfilePage> {
 
   }
 }
+
+
+
+
+
+
 
 
