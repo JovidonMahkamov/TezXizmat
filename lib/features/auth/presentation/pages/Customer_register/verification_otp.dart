@@ -1,14 +1,20 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:loading_indicator/loading_indicator.dart';
 import 'package:pinput/pinput.dart';
+import 'package:tez_xizmat/core/routes/route_names.dart';
+import 'package:tez_xizmat/features/auth/presentation/bloc/customer_auth_event.dart';
+import 'package:tez_xizmat/features/auth/presentation/bloc/customer_verify_email/customer_verify_email_bloc.dart';
+import 'package:tez_xizmat/features/auth/presentation/bloc/customer_verify_email/customer_verify_email_state.dart';
 import 'package:tez_xizmat/features/auth/presentation/pages/Customer_register/customer_register_info.dart';
 
 class VerificationPage extends StatefulWidget {
-  final String phoneNumber;
+  final String email;
 
-  const VerificationPage({super.key, required this.phoneNumber});
+  const VerificationPage({super.key, required this.email});
 
   @override
   State<VerificationPage> createState() => _VerificationPageState();
@@ -98,7 +104,7 @@ class _VerificationPageState extends State<VerificationPage> {
                 ),
                 SizedBox(height: 4.h),
                 Text(
-                  "Tasdiqlash kodi ${widget.phoneNumber} emailga yuborildi",
+                  "Tasdiqlash kodi ${widget.email} emailga yuborildi",
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 14.sp,
@@ -150,35 +156,74 @@ class _VerificationPageState extends State<VerificationPage> {
                   style: TextStyle(color: Colors.grey, fontSize: 14.sp),
                 ),
                 SizedBox(height: 48.h),
-
-                SizedBox(
-                  width: double.infinity,
-                  height: 50,
-                  child: ElevatedButton(
-                    onPressed: _isButtonEnabled
-                        ? () {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) =>  CustomerRegisterInfoPage(),
+                BlocListener<CustomerVerifyEmailBloc, CustomerVerifyEmailState>(
+                  listener: (context, state) {
+                    if (state is CustomerVerifyEmailError) {
+                      otpController.clear();
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(backgroundColor: Colors.red,
+                          content: Text(state.message, style: TextStyle()),
                         ),
                       );
-                          }
-                        : null,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: _isButtonEnabled
-                          ? const Color(0xff1778F2)
-                          : Colors.grey.shade300,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                    ),
-                    child: const Text(
-                      "Tasdiqlash",
-                      style: TextStyle(color: Colors.white),
-                    ),
+                    }
+                  },
+                  child: BlocConsumer<CustomerVerifyEmailBloc, CustomerVerifyEmailState>(
+                    listener: (context, state) {
+                      if (state is CustomerVerifyEmailSuccess) {
+                        Navigator.pushNamedAndRemoveUntil(
+                            context,
+                            RouteNames.customerRegisterInfo,(route) => false,
+                            arguments: widget.email,
+                        );
+                      }
+                    },
+                    builder: (context, state) {
+                      if (state is CustomerVerifyEmailLoading) {
+                        return const Center(
+                          child: SizedBox(
+                            width: 60,
+                            height: 60,
+                            child: LoadingIndicator(
+                              indicatorType: Indicator.ballSpinFadeLoader,
+                              colors: [Colors.blueAccent],
+                              strokeWidth: 2,
+                            ),
+                          ),
+                        );
+                      } else {
+                        return SizedBox(
+                          width: double.infinity,
+                          height: 50,
+                          child: ElevatedButton(
+                            onPressed: _isButtonEnabled
+                                ? () {
+                              BlocProvider.of<CustomerVerifyEmailBloc>(context).add(
+                                CustomerVerifyEmail(
+                                  email: widget.email,
+                                  password: otpController.text.trim(),
+                                ),
+                              );
+                            }
+                                : null,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: _isButtonEnabled
+                                  ? const Color(0xff1778F2)
+                                  : Colors.grey.shade300,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                            ),
+                            child: const Text(
+                              "Tasdiqlash",
+                              style: TextStyle(color: Colors.white),
+                            ),
+                          ),
+                        );
+                      }
+                    },
                   ),
                 ),
+
 
                 SizedBox(height: 30.h),
 

@@ -46,7 +46,7 @@ void showSuccessDialog(BuildContext context) {
                     style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w400),
                   ),
                   SizedBox(height: 8.h),
-                  TextFieldWidget(text: "Ismingizni kiriting", obscureText: false),
+                  TextFieldWidget(text: "Ismingizni kiriting", obscureText: false, readOnly: false,),
                   SizedBox(height: 10.h),
                   Text(
                     "Familiya",
@@ -55,7 +55,7 @@ void showSuccessDialog(BuildContext context) {
                   SizedBox(height: 8.h),
                   TextFieldWidget(
                     text: "Familiyangizni kiriting",
-                    obscureText: false,
+                    obscureText: false, readOnly: false,
                   ),
                   SizedBox(height: 10.h),
                   Text(

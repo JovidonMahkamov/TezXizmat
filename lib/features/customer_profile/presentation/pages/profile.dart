@@ -113,7 +113,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   TextFieldWidget(
                     text: "",
                     obscureText: false,
-                    controller: nameController,
+                    controller: nameController, readOnly: false,
                   ),
 
                   SizedBox(height: 16.h),
@@ -122,7 +122,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   TextFieldWidget(
                     text: "",
                     obscureText: false,
-                    controller: surnameController,
+                    controller: surnameController, readOnly: false,
                   ),
 
                   SizedBox(height: 24.h),

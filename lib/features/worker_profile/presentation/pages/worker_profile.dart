@@ -93,12 +93,12 @@ class _WorkerInfoPageState extends State<WorkerProfilePage> {
       builder: (context) {
         return Dialog(
           backgroundColor: Colors.white,
-          insetPadding: EdgeInsets.symmetric(horizontal: 16.w), // chetlar
+          insetPadding: EdgeInsets.symmetric(horizontal: 16.w),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
           child: SizedBox(
-            width: double.infinity, // 🔥 BUTUN WIDTH
+            width: double.infinity,
             child: Padding(
               padding: EdgeInsets.all(16.w),
               child: Column(
@@ -124,7 +124,7 @@ class _WorkerInfoPageState extends State<WorkerProfilePage> {
                   TextFieldWidget(
                     text: "",
                     obscureText: false,
-                    controller: nameController,
+                    controller: nameController, readOnly: false,
                   ),
 
                   SizedBox(height: 16.h),
@@ -133,7 +133,7 @@ class _WorkerInfoPageState extends State<WorkerProfilePage> {
                   TextFieldWidget(
                     text: "",
                     obscureText: false,
-                    controller: surnameController,
+                    controller: surnameController, readOnly: false,
                   ),
 
                   SizedBox(height: 24.h),

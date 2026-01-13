@@ -44,7 +44,6 @@ class _CustomerLoginPageState extends State<CustomerLoginPage> {
       return;
     }
 
-    // 3️⃣ Hammasi to‘g‘ri bo‘lsa
     setState(() {
       errorMessage = null;
     });
@@ -56,7 +55,7 @@ class _CustomerLoginPageState extends State<CustomerLoginPage> {
 
     Navigator.pushNamed(
       context,
-      RouteNames.customerBottomNavBar,
+      RouteNames.workerBottomNavBar,
       arguments: email,
     );
   }
@@ -119,7 +118,7 @@ class _CustomerLoginPageState extends State<CustomerLoginPage> {
                 TextFieldWidget(
                   controller: emailController,
                   text: 'example@gmail.com',
-                  obscureText: false,
+                  obscureText: false, readOnly: false,
                 ),
 
                 /// ERROR MESSAGE
@@ -149,7 +148,7 @@ class _CustomerLoginPageState extends State<CustomerLoginPage> {
                     onPressed: () {
                       setState(() => eye = !eye);
                     },
-                  ),
+                  ), readOnly: false,
                 ),
                 SizedBox(height: 15.h),
                 Align(

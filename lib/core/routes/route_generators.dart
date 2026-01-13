@@ -38,10 +38,11 @@ class AppRoute {
       case RouteNames.customerRegister:
         return MaterialPageRoute(builder: (_) =>  CustomerRegisterPage());
       case RouteNames.verificationOtp:
-        final phone = routeSettings.arguments as String;
-        return MaterialPageRoute(builder: (_) =>  VerificationPage(phoneNumber: phone,));
+        final email = routeSettings.arguments as String;
+        return MaterialPageRoute(builder: (_) =>  VerificationPage(email: email,));
       case RouteNames.customerRegisterInfo:
-        return MaterialPageRoute(builder: (_) =>  CustomerRegisterInfoPage());
+        final email = routeSettings.arguments as String;
+        return MaterialPageRoute(builder: (_) =>  CustomerRegisterInfoPage(email: email,));
       case RouteNames.customerLogin:
         return MaterialPageRoute(builder: (_) =>  CustomerLoginPage());
       case RouteNames.customerForgotPassword:

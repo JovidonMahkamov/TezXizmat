@@ -20,6 +20,7 @@ class _WorkerHomePageState extends State<WorkerHomePage> {
     return DefaultTabController(
       length: 3,
       child: Scaffold(
+        backgroundColor: Colors.white,
         appBar: HomeWorkerAppBarWidget(),
         body: SafeArea(
           child: Column(

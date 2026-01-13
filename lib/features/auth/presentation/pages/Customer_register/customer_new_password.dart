@@ -107,7 +107,7 @@ class _CustomerNewPasswordPageState extends State<CustomerNewPasswordPage> {
                       onPressed: () {
                         setState(() => eye = !eye);
                       },
-                    ),
+                    ), readOnly: false,
                   ),
 
                   SizedBox(height: 25.h),
@@ -122,7 +122,7 @@ class _CustomerNewPasswordPageState extends State<CustomerNewPasswordPage> {
                       onPressed: () {
                         setState(() => eye1 = !eye1);
                       },
-                    ),
+                    ), readOnly: false,
                   ),
 
                   SizedBox(height: 30.h),

@@ -17,12 +17,12 @@ void workerLogOutProfileQuestion(BuildContext context) {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Text(
-                "Profildan chiqishni xohlaysizmi?",
+               Text(
+                "Akkauntdan chiqishni xohlaysizmi?",
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   color: Colors.red,
-                  fontSize: 18,
+                  fontSize: 16.sp,
                 ),
               ),
               const SizedBox(height: 10),

@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:loading_indicator/loading_indicator.dart';
 import 'package:tez_xizmat/core/routes/route_names.dart';
+import 'package:tez_xizmat/features/auth/presentation/bloc/customer_auth_event.dart';
+import 'package:tez_xizmat/features/auth/presentation/bloc/customer_send_email/customer_send_email_bloc.dart';
+import 'package:tez_xizmat/features/auth/presentation/bloc/customer_send_email/customer_send_email_state.dart';
 import 'package:tez_xizmat/features/auth/presentation/widgets/elevated_button_widget.dart';
 import 'package:tez_xizmat/features/auth/presentation/widgets/text_field_widget.dart';
 
@@ -18,15 +23,14 @@ class _CustomerRegisterPageState extends State<CustomerRegisterPage> {
   void signInUser() {
     final email = emailController.text.trim();
 
-    // 1️⃣ Bo‘sh bo‘lsa
+    /// Bo‘sh bo‘lsa
     if (email.isEmpty) {
       setState(() {
         errorMessage = "Emailni kiriting";
       });
       return;
     }
-
-    // 2️⃣ Gmail emas bo‘lsa
+    /// Gmail (@.gmail.com)ni to'liq yozmagan taqdirda xatolik beradi
     if (!email.endsWith('@gmail.com')) {
       setState(() {
         errorMessage = "Gmail manzilingizni to‘liq kiriting";
@@ -34,16 +38,14 @@ class _CustomerRegisterPageState extends State<CustomerRegisterPage> {
       return;
     }
 
-    // 3️⃣ Hammasi to‘g‘ri bo‘lsa
+    /// Hammasi to‘g‘ri bo‘lsa
     setState(() {
       errorMessage = null;
     });
 
-    Navigator.pushNamed(
+    BlocProvider.of<CustomerSendEmailBloc>(
       context,
-      RouteNames.verificationOtp,
-      arguments: email,
-    );
+    ).add(CustomerSendEmail(email: email,));
   }
 
   @override
@@ -70,6 +72,7 @@ class _CustomerRegisterPageState extends State<CustomerRegisterPage> {
         ),
         body: SafeArea(
           child: SingleChildScrollView(
+            // physics: const ClampingScrollPhysics(),
             padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 32.h),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -102,8 +105,8 @@ class _CustomerRegisterPageState extends State<CustomerRegisterPage> {
                 /// EMAIL INPUT
                 TextFieldWidget(
                   controller: emailController,
-                  text: 'example@gmail.com',
-                  obscureText: false,
+                  text: 'emailingiz@gmail.com',
+                  obscureText: false, readOnly: false,
                 ),
 
                 /// ERROR MESSAGE
@@ -119,13 +122,47 @@ class _CustomerRegisterPageState extends State<CustomerRegisterPage> {
                 ],
 
                 SizedBox(height: 40.h),
-
-                /// BUTTON
-                ElevatedWidget(
-                  onPressed: signInUser,
-                  text: 'Emailni tasdiqlash', backgroundColor:  Color(0xff1778F2), textColor:  Colors.white,
+                BlocListener<CustomerSendEmailBloc, CustomerSendEmailState>(
+                  listener: (context, state) {
+                    if (state is CustomerSendEmailError) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(state.message, style: TextStyle()),
+                        ),
+                      );
+                    }
+                  },
+                  child: BlocConsumer<CustomerSendEmailBloc, CustomerSendEmailState>(
+                    listener: (context, state) {
+                      if (state is CustomerSendEmailSuccess) {
+                        Navigator.pushNamedAndRemoveUntil(
+                          context,
+                          RouteNames.verificationOtp,(route) => false,arguments: emailController.text.trim()
+                        );
+                      }
+                    },
+                    builder: (context, state) {
+                      if (state is CustomerSendEmailLoading) {
+                        return const Center(
+                          child: SizedBox(
+                            width: 60,
+                            height: 60,
+                            child: LoadingIndicator(
+                              indicatorType: Indicator.ballSpinFadeLoader,
+                              colors: [Colors.blueAccent],
+                              strokeWidth: 2,
+                            ),
+                          ),
+                        );
+                      } else {
+                        return ElevatedWidget(
+                          onPressed: signInUser,
+                          text: 'Emailni tasdiqlash', backgroundColor:  Color(0xff1778F2), textColor:  Colors.white,
+                        );
+                      }
+                    },
+                  ),
                 ),
-
                 SizedBox(height: 20.h),
 
                 /// LOGIN

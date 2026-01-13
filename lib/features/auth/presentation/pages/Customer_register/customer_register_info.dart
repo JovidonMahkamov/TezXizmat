@@ -1,19 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:iconly/iconly.dart';
+import 'package:loading_indicator/loading_indicator.dart';
 import 'package:tez_xizmat/core/routes/route_names.dart';
+import 'package:tez_xizmat/features/auth/presentation/bloc/customer_auth_event.dart';
+import 'package:tez_xizmat/features/auth/presentation/bloc/customer_register/customer_register_bloc.dart';
+import 'package:tez_xizmat/features/auth/presentation/bloc/customer_register/customer_register_state.dart';
 import 'package:tez_xizmat/features/auth/presentation/widgets/text_field_widget.dart';
 
 class CustomerRegisterInfoPage extends StatefulWidget {
-  const CustomerRegisterInfoPage({super.key});
+  final String email;
+
+  const CustomerRegisterInfoPage({super.key, required this.email});
 
   @override
   State<CustomerRegisterInfoPage> createState() =>
       _CustomerRegisterInfoPageState();
 }
 
-class _CustomerRegisterInfoPageState
-    extends State<CustomerRegisterInfoPage> {
+class _CustomerRegisterInfoPageState extends State<CustomerRegisterInfoPage> {
   final _nameController = TextEditingController();
   final _surnameController = TextEditingController();
   final _emailController = TextEditingController();
@@ -52,7 +58,11 @@ class _CustomerRegisterInfoPageState
       _emailError = null;
     }
   }
-
+@override
+  void initState() {
+    super.initState();
+    _emailController.text = widget.email;
+  }
   void _submit() {
     FocusManager.instance.primaryFocus?.unfocus();
 
@@ -72,24 +82,24 @@ class _CustomerRegisterInfoPageState
 
     if (_emailError != null || _passwordError != null) return;
 
-    if (_passwordController.text !=
-        _confirmPasswordController.text) {
+    if (_passwordController.text != _confirmPasswordController.text) {
       _showSnack("Parollar bir xil emas");
       return;
     }
 
-    /// ✅ HAMMASI TO‘G‘RI
-    Navigator.pushNamedAndRemoveUntil(
-      context,
-      RouteNames.customerLogin,
-          (route) => false,
+    BlocProvider.of<CustomerRegisterBloc>(context).add(
+      CustomerRegister(
+        email: _emailController.text.trim(),
+        password: _passwordController.text.trim(),
+        confirm_password: _confirmPasswordController.text.trim(),
+        name: _nameController.text.trim(),
+        surname: _surnameController.text.trim(),
+      ),
     );
   }
 
   void _showSnack(String text) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(text)),
-    );
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(text)));
   }
 
   @override
@@ -121,7 +131,7 @@ class _CustomerRegisterInfoPageState
                   TextFieldWidget(
                     controller: _nameController,
                     text: "Ismingizni kiriting",
-                    obscureText: false,
+                    obscureText: false, readOnly: false,
                   ),
 
                   SizedBox(height: 25.h),
@@ -130,7 +140,7 @@ class _CustomerRegisterInfoPageState
                   TextFieldWidget(
                     controller: _surnameController,
                     text: "Familiyangizni kiriting",
-                    obscureText: false,
+                    obscureText: false, readOnly: false,
                   ),
 
                   SizedBox(height: 25.h),
@@ -139,9 +149,10 @@ class _CustomerRegisterInfoPageState
                   _label("Emailingiz"),
                   TextFieldWidget(
                     controller: _emailController,
-                    text: "example@gmail.com",
+                    text: "${widget.email}",
                     obscureText: false,
                     errorText: _emailError,
+                    readOnly: true,
                   ),
 
                   SizedBox(height: 25.h),
@@ -153,13 +164,11 @@ class _CustomerRegisterInfoPageState
                     obscureText: eye,
                     errorText: _passwordError,
                     suffixIcon: IconButton(
-                      icon: Icon(
-                        eye ? IconlyLight.hide : IconlyLight.show,
-                      ),
+                      icon: Icon(eye ? IconlyLight.hide : IconlyLight.show),
                       onPressed: () {
                         setState(() => eye = !eye);
                       },
-                    ),
+                    ), readOnly: false,
                   ),
 
                   SizedBox(height: 25.h),
@@ -170,46 +179,81 @@ class _CustomerRegisterInfoPageState
                     text: "********",
                     obscureText: eye1,
                     suffixIcon: IconButton(
-                      icon: Icon(
-                        eye1 ? IconlyLight.hide : IconlyLight.show,
-                      ),
+                      icon: Icon(eye1 ? IconlyLight.hide : IconlyLight.show),
                       onPressed: () {
                         setState(() => eye1 = !eye1);
                       },
-                    ),
+                    ), readOnly: false,
                   ),
 
                   SizedBox(height: 30.h),
 
                   Text(
                     "Ro‘yxatdan o‘tish orqali siz "
-                        "Foydalanish shartlari va "
-                        "Maxfiylik siyosatimizga rozilik bildirasiz.",
+                    "Foydalanish shartlari va "
+                    "Maxfiylik siyosatimizga rozilik bildirasiz.",
                     textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: Colors.grey,
-                      fontSize: 14.sp,
-                    ),
+                    style: TextStyle(color: Colors.grey, fontSize: 14.sp),
                   ),
 
                   SizedBox(height: 20.h),
 
-                  SizedBox(
-                    width: double.infinity,
-                    height: 47.h,
-                    child: ElevatedButton(
-                      onPressed: _submit,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blueAccent,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
+                  BlocListener<CustomerRegisterBloc, CustomerRegisterState>(
+                    listener: (context, state) {
+                      if (state is CustomerRegisterError) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            backgroundColor: Colors.red,
+                            content: Text(state.message, style: TextStyle()),
+                          ),
+                        );
+                      }
+                    },
+                    child:
+                        BlocConsumer<CustomerRegisterBloc, CustomerRegisterState>(
+                          listener: (context, state) {
+                            if (state is CustomerRegisterSuccess) {
+                              Navigator.pushNamedAndRemoveUntil(
+                                context,
+                                RouteNames.customerLogin,
+                                (route) => false,
+                              );
+                            }
+                          },
+                          builder: (context, state) {
+                            if (state is CustomerRegisterLoading) {
+                              return const Center(
+                                child: SizedBox(
+                                  width: 60,
+                                  height: 60,
+                                  child: LoadingIndicator(
+                                    indicatorType: Indicator.ballSpinFadeLoader,
+                                    colors: [Colors.blueAccent],
+                                    strokeWidth: 2,
+                                  ),
+                                ),
+                              );
+                            } else {
+                              return SizedBox(
+                                width: double.infinity,
+                                height: 47.h,
+                                child: ElevatedButton(
+                                  onPressed: _submit,
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.blueAccent,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                  ),
+                                  child: const Text(
+                                    "Ro'yxatdan o'tish",
+                                    style: TextStyle(color: Colors.white),
+                                  ),
+                                ),
+                              );
+                            }
+                          },
                         ),
-                      ),
-                      child: const Text(
-                        "Ro'yxatdan o'tish",
-                        style: TextStyle(color: Colors.white),
-                      ),
-                    ),
                   ),
 
                   SizedBox(height: 30.h),
@@ -225,10 +269,7 @@ class _CustomerRegisterInfoPageState
   Widget _label(String text) {
     return Align(
       alignment: Alignment.centerLeft,
-      child: Text(
-        text,
-        style: TextStyle(fontSize: 16.sp),
-      ),
+      child: Text(text, style: TextStyle(fontSize: 16.sp)),
     );
   }
 }

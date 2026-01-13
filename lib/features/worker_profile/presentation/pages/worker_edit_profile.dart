@@ -58,7 +58,7 @@ class _WorkerEditProfilePageState extends State<WorkerEditProfilePage> {
               TextFieldWidget(
                 text: "",
                 obscureText: false,
-                controller: nameController,
+                controller: nameController, readOnly: false,
               ),
           
               SizedBox(height: 14.h),
@@ -70,7 +70,7 @@ class _WorkerEditProfilePageState extends State<WorkerEditProfilePage> {
               TextFieldWidget(
                 text: "",
                 obscureText: false,
-                controller: surnameController,
+                controller: surnameController, readOnly: false,
               ),
           
               SizedBox(height: 14.h),

@@ -54,7 +54,7 @@ class _SearchPageState extends State<SearchPage> {
                 setState(() {
 
                 });
-              },
+              }, readOnly: false,
             ),
             SizedBox(height: 24.h),
             HomeContainerWidget(circularImage: AssetImage("assets/circular_avatar/profile.png"), nameText: "Jovidon (Elektrik)", experienceText: "6- yildan beri tajribaga egaman.", onTap: (){

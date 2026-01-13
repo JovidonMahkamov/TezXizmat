@@ -6,6 +6,7 @@ class TextFieldWidget extends StatefulWidget {
   final TextEditingController? controller;
   final String text;
   final String? errorText;
+  final bool readOnly;
   final bool obscureText;
   final IconButton? suffixIcon;
   final TextInputType? keyboardType;
@@ -18,7 +19,7 @@ class TextFieldWidget extends StatefulWidget {
     required this.text,
     required this.obscureText,
     this.suffixIcon,
-    this.keyboardType, this.errorText, this.onChanged,
+    this.keyboardType, this.errorText, this.onChanged, required this.readOnly,
   });
 
   @override
@@ -29,6 +30,7 @@ class _TextFieldWidgetState extends State<TextFieldWidget> {
   @override
   Widget build(BuildContext context) {
     return TextField(
+      readOnly: widget.readOnly,
       onChanged: widget.onChanged,
       keyboardType: widget.keyboardType,
       controller: widget.controller,

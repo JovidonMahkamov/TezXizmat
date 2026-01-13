@@ -92,7 +92,7 @@ class _SelectPageState extends State<SelectPage> {
                       borderRadius: BorderRadius.circular(16),
                     ),
                   ),
-                  onPressed: () {},
+                  onPressed: () {Navigator.pushNamed(context, RouteNames.customerRegister);},
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [

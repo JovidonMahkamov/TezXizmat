@@ -17,6 +17,7 @@ class _HomeAppBarWidgetState extends State<HomeWorkerAppBarWidget> {
   @override
   Widget build(BuildContext context) {
     return AppBar(
+      backgroundColor: Colors.white,
       automaticallyImplyLeading: false,
       title: Row(
         children: [

@@ -103,7 +103,7 @@ class _CustomerForgotPasswordPageState extends State<CustomerForgotPasswordPage>
                 TextFieldWidget(
                   controller: emailController,
                   text: 'example@gmail.com',
-                  obscureText: false,
+                  obscureText: false, readOnly: false,
                 ),
 
                 /// ERROR MESSAGE
