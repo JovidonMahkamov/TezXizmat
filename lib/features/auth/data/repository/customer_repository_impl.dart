@@ -1,4 +1,5 @@
 import 'package:tez_xizmat/features/auth/data/datasource/remote/customer_remote_data_source.dart';
+import 'package:tez_xizmat/features/auth/domain/entities/customer_login_entity.dart';
 import 'package:tez_xizmat/features/auth/domain/entities/customer_register_entity.dart';
 import 'package:tez_xizmat/features/auth/domain/entities/customer_send_email_entity.dart';
 import 'package:tez_xizmat/features/auth/domain/entities/customer_verify_email_entity.dart';
@@ -22,5 +23,10 @@ class CustomerRepositoryImpl implements CustomerRepository {
   @override
   Future<CustomerRegisterEntity> registerCustomer({required String name, required String surname, required String email, required String password, required String confirm_password}) {
     return customerRemoteDataSource.registerCustomer(name: name, surname: surname, email: email, password: password, confirm_password: confirm_password);
+  }
+
+  @override
+  Future<CustomerLoginEntity> loginCustomer({required String email, required String password,}) {
+    return customerRemoteDataSource.loginCustomer( email: email, password: password,);
   }
 }

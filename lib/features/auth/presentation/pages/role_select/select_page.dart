@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:tez_xizmat/core/routes/route_names.dart';
+import 'package:tez_xizmat/core/di/services_locator.dart';
+import 'package:tez_xizmat/features/auth/data/datasource/local/auth_local_data_source.dart';
+
 
 class SelectPage extends StatefulWidget {
   const SelectPage({super.key});
@@ -11,6 +14,8 @@ class SelectPage extends StatefulWidget {
 }
 
 class _SelectPageState extends State<SelectPage> {
+  final authLocal = sl<AuthLocalDataSource>();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -63,7 +68,10 @@ class _SelectPageState extends State<SelectPage> {
                       borderRadius: BorderRadius.circular(16),
                     ),
                   ),
-                  onPressed: () {Navigator.pushNamed(context, RouteNames.customerRegister);},
+                  onPressed: () async {
+                    await authLocal.saveRole('customer');
+                    Navigator.pushNamed(context, RouteNames.customerRegister
+                    );},
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -92,7 +100,10 @@ class _SelectPageState extends State<SelectPage> {
                       borderRadius: BorderRadius.circular(16),
                     ),
                   ),
-                  onPressed: () {Navigator.pushNamed(context, RouteNames.customerRegister);},
+                  onPressed: () async{
+                    await authLocal.saveRole('staff');
+                    Navigator.pushNamed(context, RouteNames.customerRegister);
+                    },
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [

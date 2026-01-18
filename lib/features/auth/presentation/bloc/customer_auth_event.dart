@@ -22,3 +22,12 @@ class CustomerRegister extends CustomerAuthEvent {
 
   const CustomerRegister({required this.confirm_password, required this.name, required this.surname, required this.email,required this.password,});
 }
+
+class CustomerLogin extends CustomerAuthEvent {
+  final String email;
+  final String password;
+
+
+
+  const CustomerLogin({required this.email, required this.password,});
+}

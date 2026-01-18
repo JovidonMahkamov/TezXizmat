@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:hive_flutter/adapters.dart';
 
 import 'core/routes/route_generators.dart';
 import 'core/routes/route_names.dart';
 
 class MyApp extends StatefulWidget {
-  const MyApp({super.key});
+  final Box box;
+
+  const MyApp({super.key, required this.box});
 
   @override
   State<MyApp> createState() => _MyAppState();

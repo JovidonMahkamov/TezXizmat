@@ -1,7 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:iconly/iconly.dart';
+import 'package:loading_indicator/loading_indicator.dart';
+import 'package:tez_xizmat/core/di/services_locator.dart';
 import 'package:tez_xizmat/core/routes/route_names.dart';
+import 'package:tez_xizmat/core/untils/logger.dart';
+import 'package:tez_xizmat/features/auth/data/datasource/local/auth_local_data_source.dart';
+import 'package:tez_xizmat/features/auth/presentation/bloc/customer_auth_event.dart';
+import 'package:tez_xizmat/features/auth/presentation/bloc/customer_login/customer_login_bloc.dart';
+import 'package:tez_xizmat/features/auth/presentation/bloc/customer_login/customer_login_state.dart';
 import 'package:tez_xizmat/features/auth/presentation/widgets/elevated_button_widget.dart';
 import 'package:tez_xizmat/features/auth/presentation/widgets/text_field_widget.dart';
 
@@ -15,6 +23,8 @@ class CustomerLoginPage extends StatefulWidget {
 class _CustomerLoginPageState extends State<CustomerLoginPage> {
   final TextEditingController emailController = TextEditingController();
   TextEditingController _passwordController = TextEditingController();
+  final authLocalDataSource = sl<AuthLocalDataSource>();
+
   String? errorMessage;
   String? _passwordError;
   void _validatePassword(String value) {
@@ -25,38 +35,64 @@ class _CustomerLoginPageState extends State<CustomerLoginPage> {
     }
   }
 
+  void saveAuthAccessToken(String token) {
+    authLocalDataSource
+        .saveAccessToken(token)
+        .then((_) {
+      LoggerService.info("Auth AccessToken saved : $token");
+    })
+        .catchError((error) {
+      LoggerService.error("Error saving Auth Token: $error");
+    });
+  }
+  void saveAuthRefreshToken(String token) {
+    authLocalDataSource
+        .saveRefreshToken(token)
+        .then((_) {
+      LoggerService.info("Auth RefreshToken saved : $token");
+    })
+        .catchError((error) {
+      LoggerService.error("Error saving Auth Token: $error");
+    });
+  }
+
+
+  void saveRememberMe(String email, String password) {
+    authLocalDataSource
+        .saveRememberMe(email, password)
+        .then((_) {
+      LoggerService.info("Remember Me saved : $email - $password");
+    })
+        .catchError((error) {
+      LoggerService.error("Error saving Remember Me: $error");
+    });
+  }
+
+
   void signInUser() {
     final email = emailController.text.trim();
+    final pass = _passwordController.text.trim();
 
-    // 1️⃣ Bo‘sh bo‘lsa
     if (email.isEmpty) {
-      setState(() {
-        errorMessage = "Emailni kiriting";
-      });
+      setState(() => errorMessage = "Emailni kiriting");
       return;
     }
 
-    // 2️⃣ Gmail emas bo‘lsa
     if (!email.endsWith('@gmail.com')) {
-      setState(() {
-        errorMessage = "Gmail manzilingizni to‘liq kiriting";
-      });
+      setState(() => errorMessage = "Gmail manzilingizni to‘liq kiriting");
       return;
     }
 
-    setState(() {
-      errorMessage = null;
-    });
-    _validatePassword(_passwordController.text);
+    setState(() => errorMessage = null);
+
+    _validatePassword(pass);
     if (_passwordError != null) {
       setState(() {});
       return;
     }
 
-    Navigator.pushNamed(
-      context,
-      RouteNames.workerBottomNavBar,
-      arguments: email,
+    context.read<CustomerLoginBloc>().add(
+      CustomerLogin(email: email, password: pass),
     );
   }
 
@@ -66,6 +102,7 @@ class _CustomerLoginPageState extends State<CustomerLoginPage> {
     super.dispose();
   }
   bool eye = true;
+
 
   @override
   Widget build(BuildContext context) {
@@ -91,21 +128,14 @@ class _CustomerLoginPageState extends State<CustomerLoginPage> {
               children: [
                 SizedBox(height: 40.h),
                 Text(
-                  "Ro’yxatdan o’tish",
+                  "Tizimga kirish",
                   style: TextStyle(
                     fontSize: 30.sp,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
-                SizedBox(height: 8.h),
-                Text(
-                  "Emailingizga 6 xonali tasdiqlash kodi yuboriladi.",
-                  style: TextStyle(
-                    fontSize: 14.sp,
-                    fontWeight: FontWeight.w400,
-                  ),
-                ),
-                SizedBox(height: 60.h),
+
+                SizedBox(height: 40.h),
 
                 /// EMAIL LABEL
                 Text(
@@ -171,7 +201,61 @@ class _CustomerLoginPageState extends State<CustomerLoginPage> {
                 ),
                 SizedBox(height: 20.h),
 
-                ElevatedWidget(onPressed: signInUser, text: 'Tizimga kirish', backgroundColor:  Color(0xff1778F2), textColor:  Colors.white,),
+                BlocConsumer<CustomerLoginBloc, CustomerLoginState>(
+                  listener: (context, state) {
+                    if (state is CustomerLoginSuccess) {
+                      saveRememberMe(
+                        emailController.text,
+                        _passwordController.text,
+                      );
+                      saveAuthAccessToken(state.customerLoginEntity.access);
+                      saveAuthRefreshToken(state.customerLoginEntity.refresh);
+
+                      final role = authLocalDataSource.getRole() ?? 'customer';
+
+                      Navigator.pushNamedAndRemoveUntil(
+                        context,
+                        role == 'staff'
+                            ? RouteNames.workerBottomNavBar
+                            : RouteNames.customerBottomNavBar,
+                            (route) => false,
+                      );
+
+                    }
+
+                    if (state is CustomerLoginError) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(backgroundColor: Colors.red, content: Text(state.message)),
+                      );
+                    }
+                  },
+                  builder: (context, state) {
+                    if (state is CustomerLoginLoading) {
+                      return const SizedBox(
+                        width: double.infinity,
+                        height: 50,
+                        child: Center(
+                          child: SizedBox(
+                            width: 40,
+                            height: 40,
+                            child: LoadingIndicator(
+                              indicatorType: Indicator.ballSpinFadeLoader,
+                              colors: [Colors.blueAccent],
+                              strokeWidth: 2,
+                            ),
+                          ),
+                        ),
+                      );
+                    }
+
+                    return ElevatedWidget(
+                      onPressed: signInUser,
+                      text: 'Tizimga kirish',
+                      backgroundColor: const Color(0xff1778F2),
+                      textColor: Colors.white,
+                    );
+                  },
+                ),
                 SizedBox(height: 20.h),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,

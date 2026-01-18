@@ -38,8 +38,8 @@ class AppRoute {
       case RouteNames.customerRegister:
         return MaterialPageRoute(builder: (_) =>  CustomerRegisterPage());
       case RouteNames.verificationOtp:
-        final email = routeSettings.arguments as String;
-        return MaterialPageRoute(builder: (_) =>  VerificationPage(email: email,));
+        final email = routeSettings.arguments as Map<String, dynamic>;
+        return MaterialPageRoute(builder: (_) =>  VerificationPage(email: email["email"], expires_at: email["expires_at"],));
       case RouteNames.customerRegisterInfo:
         final email = routeSettings.arguments as String;
         return MaterialPageRoute(builder: (_) =>  CustomerRegisterInfoPage(email: email,));

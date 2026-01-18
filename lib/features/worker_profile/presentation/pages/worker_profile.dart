@@ -72,7 +72,12 @@ class _WorkerInfoPageState extends State<WorkerProfilePage> {
             icon: Icons.exit_to_app_outlined,
             iconColor: Colors.red,
             onTab: () {
-              workerLogOutProfileQuestion(context);
+              showDialog(
+                context: context,
+                barrierDismissible: false,
+                builder: (_) => const WorkerLogOutWidget(),
+              );
+
             },
             textStyle: TextStyle(color: Colors.red, fontSize: 18.sp),
           ),

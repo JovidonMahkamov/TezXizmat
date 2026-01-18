@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 import 'package:tez_xizmat/core/routes/route_names.dart';
+import 'package:tez_xizmat/features/auth/domain/entities/customer_send_email_entity.dart';
 import 'package:tez_xizmat/features/auth/presentation/bloc/customer_auth_event.dart';
 import 'package:tez_xizmat/features/auth/presentation/bloc/customer_send_email/customer_send_email_bloc.dart';
 import 'package:tez_xizmat/features/auth/presentation/bloc/customer_send_email/customer_send_email_state.dart';
@@ -65,7 +66,7 @@ class _CustomerRegisterPageState extends State<CustomerRegisterPage> {
           elevation: 0,
           leading: IconButton(
             onPressed: () {
-              Navigator.pop(context);
+              Navigator.pushNamed(context, RouteNames.select);
             },
             icon: const Icon(Icons.arrow_back_ios_new_outlined),
           ),
@@ -137,7 +138,8 @@ class _CustomerRegisterPageState extends State<CustomerRegisterPage> {
                       if (state is CustomerSendEmailSuccess) {
                         Navigator.pushNamedAndRemoveUntil(
                           context,
-                          RouteNames.verificationOtp,(route) => false,arguments: emailController.text.trim()
+                          RouteNames.verificationOtp,(route) => false,
+                            arguments: {"email":state.customerSendEmailEntity.email, "expires_at":state.customerSendEmailEntity.expires_at}
                         );
                       }
                     },
