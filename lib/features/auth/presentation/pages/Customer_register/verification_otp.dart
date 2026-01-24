@@ -40,7 +40,7 @@ class _VerificationPageState extends State<VerificationPage> {
   void initState() {
     super.initState();
 
-    // MUHIM: expires_at ni birinchi init qilib ol
+    // expires_at ni birinchi init qilib ol
     _expiresAt = DateTime.parse(widget.expires_at).toLocal();
 
     _startTimer();
@@ -212,7 +212,7 @@ class _VerificationPageState extends State<VerificationPage> {
                             context.read<CustomerVerifyEmailBloc>().add(
                               CustomerVerifyEmail(
                                 email: widget.email,
-                                // ⚠️ bu joy backendga qarab "code/otp" bo'lishi kerak
+                                // bu joy backendga qarab "code/otp" bo'lishi kerak
                                 password: otpController.text.trim(),
                               ),
                             );

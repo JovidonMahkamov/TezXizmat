@@ -33,7 +33,7 @@ class CustomerLoginBloc extends Bloc<CustomerAuthEvent, CustomerLoginState> {
         error.error is SocketException) {
       return "Internet ulanmagan. Iltimos, tarmoqni tekshiring.";
     } else if (error.response?.statusCode == 400) {
-      return "Kiritilgan email tasdiqlanmagan";
+      return "Kiritilgan parol xato,yoki email tasdiqlanmagan";
     } else if (error.type == DioExceptionType.connectionTimeout ||
         error.type == DioExceptionType.receiveTimeout) {
       return "So‘rov vaqtida javob kelmadi. Keyinroq urinib ko‘ring.";

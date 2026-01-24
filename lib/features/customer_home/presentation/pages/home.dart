@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:tez_xizmat/core/routes/route_names.dart';
+import 'package:tez_xizmat/features/customer_home/presentation/bloc/customer_get_all_staff/customer_get_all_staff_bloc.dart';
+import 'package:tez_xizmat/features/customer_home/presentation/bloc/customer_get_all_staff/customer_get_all_staff_state.dart';
+import 'package:tez_xizmat/features/customer_home/presentation/bloc/customer_home_event.dart';
 import 'package:tez_xizmat/features/customer_home/presentation/widgets/home_app_bar_widget.dart';
 import 'package:tez_xizmat/features/customer_home/presentation/widgets/home_carousel_widget.dart';
 import 'package:tez_xizmat/features/customer_home/presentation/widgets/home_circular_avatar_widget.dart';
@@ -15,6 +19,12 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  @override
+  void initState() {
+    super.initState();
+    // UI ochilishi bilan API chaqiriladi
+    context.read<CustomerGetAllStaffBloc>().add(CustomerGetAllStaff());
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -87,48 +97,84 @@ class _HomePageState extends State<HomePage> {
                   ),
                   SizedBox(height: 10.h),
 
-                  Padding(
-                    padding: const EdgeInsets.only(right: 20),
+                  BlocBuilder<CustomerGetAllStaffBloc, CustomerGetAllStaffState>(
+                    builder: (context, state) {
+                      if (state is CustomerGetAllStaffLoading) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
 
-                    child: Column(
-                      children: [
-                        HomeContainerWidget(
-                          onTap: (){
-                            Navigator.pushNamed(context, RouteNames.workerInfo);
-                          },
-                          circularImage: AssetImage(
-                            "assets/circular_avatar/profile.png",
+                      if (state is CustomerGetAllStaffError) {
+                        return Center(
+                          child: Padding(
+                            padding: const EdgeInsets.all(16),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(state.message, textAlign: TextAlign.center),
+                                const SizedBox(height: 12),
+                                ElevatedButton(
+                                  onPressed: () {
+                                    context.read<CustomerGetAllStaffBloc>().add(CustomerGetAllStaff());
+                                  },
+                                  child: const Text("Qayta urinish"),
+                                ),
+                              ],
+                            ),
                           ),
-                          nameText: "Jovidon (Elektrik)",
-                          experienceText:
-                              "6 yildan beri elektrika ishlari bilan shug‘ullanaman ",
-                        ),
+                        );
+                      }
 
-                        HomeContainerWidget(
-                          onTap: (){
-                            Navigator.pushNamed(context, RouteNames.workerInfo);
-                          },
-                          circularImage: AssetImage(
-                            "assets/circular_avatar/profile1.png",
+                      if (state is CustomerGetAllStaffSuccess) {
+                        final staffList = state.customerGetAllStaffEntity; // ✅ List
+
+                        if (staffList.isEmpty) {
+                          return const Padding(
+                            padding: EdgeInsets.all(16),
+                            child: Text("Hozircha ishchilar topilmadi"),
+                          );
+                        }
+
+                        return Padding(
+                          padding: const EdgeInsets.only(right: 20),
+                          child: ListView.builder(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            itemCount: staffList.length,
+                            itemBuilder: (context, index) {
+                              final staff = staffList[index];
+
+                              final raw = staff.image; // String? bo‘lishi kerak
+                              final imageUrl = (raw != null && raw.trim().isNotEmpty)
+                                  ? (raw.startsWith('http') ? raw : 'https://tezxizmatlar.uz$raw')
+                                  : null;
+
+
+                              return HomeContainerWidget(
+                                onTap: () {
+                                  Navigator.pushNamed(
+                                    context,
+                                    RouteNames.workerInfo,
+                                    arguments: staff.id,
+                                  );
+                                },
+                                circularImage: imageUrl != null
+                                    ? NetworkImage(imageUrl)
+                                    : const AssetImage("assets/circular_avatar/profile.png")
+                                as ImageProvider,
+                                nameText: "${staff.first_name} (${staff.profession})",
+                                experienceText: staff.price,
+                              );
+                            },
                           ),
-                          nameText: "Firdavs (Santexnik)",
-                          experienceText:
-                              "4 yildan beri elektrika ishlari bilan shug‘ullanaman ",
-                        ),
-                        HomeContainerWidget(
-                          onTap: (){
-                            Navigator.pushNamed(context, RouteNames.workerInfo);
-                          },
-                          circularImage: AssetImage(
-                            "assets/circular_avatar/profile.png",
-                          ),
-                          nameText: "Jovidon (Elektrik)",
-                          experienceText:
-                              "6 yildan beri elektrika ishlari bilan shug‘ullanaman ",
-                        ),
-                      ],
-                    ),
+                        );
+                      }
+
+                      return const SizedBox.shrink();
+                    },
                   ),
+
+
+
                 ],
               ),
             ),

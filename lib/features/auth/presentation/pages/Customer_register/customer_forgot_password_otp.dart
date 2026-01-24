@@ -1,30 +1,49 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:loading_indicator/loading_indicator.dart';
 import 'package:pinput/pinput.dart';
 import 'package:tez_xizmat/core/routes/route_names.dart';
+import 'package:tez_xizmat/features/auth/domain/entities/verify_purpose.dart';
+import 'package:tez_xizmat/features/auth/presentation/bloc/customer_auth_event.dart';
+import 'package:tez_xizmat/features/auth/presentation/bloc/customer_send_email/customer_send_email_bloc.dart';
+import 'package:tez_xizmat/features/auth/presentation/bloc/customer_send_email/customer_send_email_state.dart';
+import 'package:tez_xizmat/features/auth/presentation/bloc/customer_verify_email/customer_verify_email_bloc.dart';
+import 'package:tez_xizmat/features/auth/presentation/bloc/customer_verify_email/customer_verify_email_state.dart';
 
-class CustomerForgotPasswordOtpPage extends StatefulWidget {
-  final String phoneNumber;
+class CustomerForgotPasswordOtPage extends StatefulWidget {
+  final String email;
+  final String expiresAt;
 
-  const CustomerForgotPasswordOtpPage({super.key, required this.phoneNumber});
+  const CustomerForgotPasswordOtPage({
+    super.key,
+    required this.email,
+    required this.expiresAt,
+  });
 
   @override
-  State<CustomerForgotPasswordOtpPage> createState() => _CustomerForgotPasswordOtpPageState();
+  State<CustomerForgotPasswordOtPage> createState() => _CustomerForgotPasswordOtPageState();
 }
 
-class _CustomerForgotPasswordOtpPageState extends State<CustomerForgotPasswordOtpPage> {
+class _CustomerForgotPasswordOtPageState extends State<CustomerForgotPasswordOtPage> {
   final TextEditingController otpController = TextEditingController();
 
-  String _otp = "";
+  late DateTime _expiresAt;
   Timer? _timer;
-  int _secondsRemaining = 60;
+
+  String _otp = "";
+  Duration _remaining = Duration.zero;
   bool _canResend = false;
 
   @override
   void initState() {
     super.initState();
+
+    // expires_at ni birinchi init qilib ol
+    _expiresAt = DateTime.parse(widget.expiresAt).toLocal();
+
     _startTimer();
   }
 
@@ -38,22 +57,26 @@ class _CustomerForgotPasswordOtpPageState extends State<CustomerForgotPasswordOt
   void _startTimer() {
     _timer?.cancel();
 
-    setState(() {
-      _secondsRemaining = 60;
-      _canResend = false;
-    });
+    // darhol 1 marta hisoblab qo'yamiz (UI yangilansin)
+    _syncRemaining();
 
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (!mounted) return;
+      _syncRemaining();
 
-      setState(() {
-        if (_secondsRemaining > 0) {
-          _secondsRemaining--;
-        } else {
-          _canResend = true;
-          timer.cancel();
-        }
-      });
+      if (_canResend) {
+        timer.cancel();
+      }
+    });
+  }
+
+  void _syncRemaining() {
+    final now = DateTime.now();
+    final diff = _expiresAt.difference(now);
+
+    setState(() {
+      _remaining = diff.isNegative ? Duration.zero : diff;
+      _canResend = _remaining == Duration.zero;
     });
   }
 
@@ -61,19 +84,21 @@ class _CustomerForgotPasswordOtpPageState extends State<CustomerForgotPasswordOt
     if (!_canResend) return;
 
     otpController.clear();
+    setState(() => _otp = "");
 
-    setState(() {
-      _otp = "";
-    });
-
-    _startTimer();
-
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(const SnackBar(content: Text("Yangi kod yuborildi")));
+    // resend => API chaqiradi
+    context.read<CustomerSendEmailBloc>().add(
+      CustomerSendEmail(email: widget.email),
+    );
   }
 
   bool get _isButtonEnabled => _otp.length == 6;
+
+  String get _remainingText {
+    final seconds = _remaining.inSeconds;
+    if (seconds <= 0) return "0";
+    return seconds.toString();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -98,7 +123,7 @@ class _CustomerForgotPasswordOtpPageState extends State<CustomerForgotPasswordOt
                 ),
                 SizedBox(height: 4.h),
                 Text(
-                  "Tasdiqlash kodi ${widget.phoneNumber} emailga yuborildi",
+                  "Tasdiqlash kodi ${widget.email} emailga yuborildi",
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 14.sp,
@@ -106,26 +131,16 @@ class _CustomerForgotPasswordOtpPageState extends State<CustomerForgotPasswordOt
                   ),
                 ),
                 SizedBox(height: 40.h),
+
                 Pinput(
                   controller: otpController,
                   length: 6,
-                  onChanged: (value) {
-                    setState(() {
-                      _otp = value;
-                    });
-                  },
-                  onCompleted: (pin) {
-                    setState(() {
-                      _otp = pin;
-                    });
-                  },
+                  onChanged: (value) => setState(() => _otp = value),
+                  onCompleted: (pin) => setState(() => _otp = pin),
                   defaultPinTheme: PinTheme(
                     width: 83,
                     height: 61,
-                    textStyle: const TextStyle(
-                      fontSize: 20,
-                      color: Colors.black,
-                    ),
+                    textStyle: const TextStyle(fontSize: 20, color: Colors.black),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(color: const Color(0xffCCCCCC)),
@@ -134,74 +149,138 @@ class _CustomerForgotPasswordOtpPageState extends State<CustomerForgotPasswordOt
                   focusedPinTheme: PinTheme(
                     width: 83,
                     height: 61,
-                    textStyle: const TextStyle(
-                      fontSize: 20,
-                      color: Colors.black,
-                    ),
+                    textStyle: const TextStyle(fontSize: 20, color: Colors.black),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(color: Colors.blue, width: 1.3),
                     ),
                   ),
                 ),
+
                 SizedBox(height: 10.h),
                 Text(
                   "Emailga kelgan kodni kiriting",
                   style: TextStyle(color: Colors.grey, fontSize: 14.sp),
                 ),
+
                 SizedBox(height: 48.h),
 
-                SizedBox(
-                  width: double.infinity,
-                  height: 50,
-                  child: ElevatedButton(
-                    onPressed: _isButtonEnabled
-                        ? () {
-                      Navigator.pushNamedAndRemoveUntil(
-                        context,
-                        RouteNames.customerNewPassword,
-                            (route) => false,
+                /// Verify listeners
+                BlocListener<CustomerVerifyEmailBloc, CustomerVerifyEmailState>(
+                  listener: (context, state) {
+                    if (state is CustomerVerifyEmailError) {
+                      otpController.clear();
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          backgroundColor: Colors.red,
+                          content: Text(state.message),
+                        ),
                       );
                     }
-                        : null,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: _isButtonEnabled
-                          ? const Color(0xff1778F2)
-                          : Colors.grey.shade300,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                    ),
-                    child: const Text(
-                      "Tasdiqlash",
-                      style: TextStyle(color: Colors.white),
-                    ),
+                  },
+                  child: BlocConsumer<CustomerVerifyEmailBloc, CustomerVerifyEmailState>(
+                    listener: (context, state) {
+                      if (state is CustomerVerifyEmailSuccess) {
+                        Navigator.pushNamedAndRemoveUntil(
+                          context,
+                          RouteNames.customerNewPassword,
+                              (route) => false,
+                          arguments: widget.email,
+                        );
+                      }
+                    },
+                    builder: (context, state) {
+                      if (state is CustomerVerifyEmailLoading) {
+                        return const Center(
+                          child: SizedBox(
+                            width: 60,
+                            height: 60,
+                            child: LoadingIndicator(
+                              indicatorType: Indicator.ballSpinFadeLoader,
+                              colors: [Colors.blueAccent],
+                              strokeWidth: 2,
+                            ),
+                          ),
+                        );
+                      }
+
+                      return SizedBox(
+                        width: double.infinity,
+                        height: 50,
+                        child: ElevatedButton(
+                          onPressed: _isButtonEnabled
+                              ? () {
+                            context.read<CustomerVerifyEmailBloc>().add(
+                              CustomerVerifyEmail(
+                                email: widget.email,
+                                // bu joy backendga qarab "code/otp" bo'lishi kerak
+                                password: otpController.text.trim(),
+                                purpose: VerifyPurpose.reset,
+                              ),
+                            );
+                          }
+                              : null,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: _isButtonEnabled
+                                ? const Color(0xff1778F2)
+                                : Colors.grey.shade300,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
+                          child: const Text(
+                            "Tasdiqlash",
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ),
+                      );
+                    },
                   ),
                 ),
 
                 SizedBox(height: 30.h),
 
-                /// Resend section
+                /// Resend
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      _canResend
-                          ? "Kod kelmadimi?"
-                          : "Qayta yuborish $_secondsRemaining s",
+                      _canResend ? "Kod kelmadimi?" : "Qayta yuborish $_remainingText s",
                       style: TextStyle(fontSize: 14.sp, color: Colors.black54),
                     ),
-                    TextButton(
-                      onPressed: _canResend ? _resendCode : null,
-                      child: Text(
-                        "Qayta yuborish",
-                        style: TextStyle(
-                          color: _canResend
-                              ? Colors.blue
-                              : Colors.grey.shade400,
+
+                    BlocListener<CustomerSendEmailBloc, CustomerSendEmailState>(
+                      listener: (context, state) {
+                        if (state is CustomerSendEmailSuccess) {
+                          // ✅ yangi expires_at ni olib, timer restart qilamiz
+                          setState(() {
+                            _expiresAt = DateTime.parse(
+                              state.customerSendEmailEntity.expires_at,
+                            ).toLocal();
+                          });
+                          _startTimer();
+
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text("Yangi kod yuborildi")),
+                          );
+                        }
+
+                        if (state is CustomerSendEmailError) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text(state.message)),
+                          );
+                        }
+                      },
+                      child: TextButton(
+                        onPressed: _canResend ? _resendCode : null,
+                        child: Text(
+                          "Qayta yuborish",
+                          style: TextStyle(
+                            color: _canResend ? Colors.blue : Colors.grey.shade400,
+                          ),
                         ),
                       ),
-                    ),
+                    )
                   ],
                 ),
               ],

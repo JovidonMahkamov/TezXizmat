@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:hive_flutter/adapters.dart';
+import 'package:tez_xizmat/core/network/dio_client.dart';
 import 'package:tez_xizmat/features/auth/data/datasource/local/auth_local_data_source.dart';
 import 'package:tez_xizmat/features/auth/data/datasource/local/auth_local_remote_data_source.dart';
 import 'package:tez_xizmat/features/auth/data/datasource/remote/customer_remote_data_source.dart';
@@ -10,12 +11,48 @@ import 'package:tez_xizmat/features/auth/data/repository/customer_repository_imp
 import 'package:tez_xizmat/features/auth/domain/repository/customer_repository.dart';
 import 'package:tez_xizmat/features/auth/domain/usecase/customer_login_use_case.dart';
 import 'package:tez_xizmat/features/auth/domain/usecase/customer_register_use_case.dart';
+import 'package:tez_xizmat/features/auth/domain/usecase/customer_resend_email_use_case.dart';
 import 'package:tez_xizmat/features/auth/domain/usecase/customer_send_email_use_case.dart';
 import 'package:tez_xizmat/features/auth/domain/usecase/customer_verify_email_use_case.dart';
+import 'package:tez_xizmat/features/auth/domain/usecase/reset_password_use_case.dart';
 import 'package:tez_xizmat/features/auth/presentation/bloc/customer_login/customer_login_bloc.dart';
 import 'package:tez_xizmat/features/auth/presentation/bloc/customer_register/customer_register_bloc.dart';
+import 'package:tez_xizmat/features/auth/presentation/bloc/customer_resend_email/customer_resend_email_bloc.dart';
+import 'package:tez_xizmat/features/auth/presentation/bloc/customer_reset_password/customer_reset_password_bloc.dart';
 import 'package:tez_xizmat/features/auth/presentation/bloc/customer_send_email/customer_send_email_bloc.dart';
 import 'package:tez_xizmat/features/auth/presentation/bloc/customer_verify_email/customer_verify_email_bloc.dart';
+import 'package:tez_xizmat/features/customer_home/data/datasource/customer_home_data_source.dart';
+import 'package:tez_xizmat/features/customer_home/data/datasource/customer_home_data_source_impl.dart';
+import 'package:tez_xizmat/features/customer_home/data/repository/customer_home_repository_impl.dart';
+import 'package:tez_xizmat/features/customer_home/domain/repository/customer_home_repository.dart';
+import 'package:tez_xizmat/features/customer_home/domain/usecase/customer_get_all_staff_use_case.dart';
+import 'package:tez_xizmat/features/customer_home/domain/usecase/get_worker_info_use_case.dart';
+import 'package:tez_xizmat/features/customer_home/presentation/bloc/customer_get_all_staff/customer_get_all_staff_bloc.dart';
+import 'package:tez_xizmat/features/customer_home/presentation/bloc/get_worker_info/get_worker_info_bloc.dart';
+import 'package:tez_xizmat/features/customer_order/data/datasource/customer_order_data_source.dart';
+import 'package:tez_xizmat/features/customer_order/data/datasource/customer_order_data_source_impl.dart';
+import 'package:tez_xizmat/features/customer_order/data/repository/customer_order_repository_impl.dart';
+import 'package:tez_xizmat/features/customer_order/domain/repository/customer_order_repository.dart';
+import 'package:tez_xizmat/features/customer_order/domain/usecase/customer_create_order_use_case.dart';
+import 'package:tez_xizmat/features/customer_order/presentation/bloc/customer_create_order/customer_create_order_bloc.dart';
+import 'package:tez_xizmat/features/customer_profile/data/datasource/customer_profile_data_source.dart';
+import 'package:tez_xizmat/features/customer_profile/data/datasource/customer_profile_data_source_impl.dart';
+import 'package:tez_xizmat/features/customer_profile/data/repository/customer_profile_repository_impl.dart';
+import 'package:tez_xizmat/features/customer_profile/domain/repository/customer_profile_repository.dart';
+import 'package:tez_xizmat/features/customer_profile/domain/usecase/customer_profile_use_case.dart';
+import 'package:tez_xizmat/features/customer_profile/domain/usecase/customer_update_profile_use_case.dart';
+import 'package:tez_xizmat/features/customer_profile/presentation/bloc/profile_bloc/customer_profile_bloc.dart';
+import 'package:tez_xizmat/features/customer_profile/presentation/bloc/update_profile_bloc/customer_update_profile_bloc.dart';
+import 'package:tez_xizmat/features/worker_profile/data/datasources/worker_remote_data_source.dart';
+import 'package:tez_xizmat/features/worker_profile/data/datasources/worker_remote_data_source_impl.dart';
+import 'package:tez_xizmat/features/worker_profile/data/repositories/worker_profile_repository_impl.dart';
+import 'package:tez_xizmat/features/worker_profile/domain/repositories/worker_repository.dart';
+import 'package:tez_xizmat/features/worker_profile/domain/usecases/worker_edit_profile_use_case.dart';
+import 'package:tez_xizmat/features/worker_profile/domain/usecases/worker_profile_image_use_case.dart';
+import 'package:tez_xizmat/features/worker_profile/domain/usecases/worker_profile_use_case.dart';
+import 'package:tez_xizmat/features/worker_profile/presentation/bloc/worker_edit_profile/worker_edit_profile_bloc.dart';
+import 'package:tez_xizmat/features/worker_profile/presentation/bloc/worker_profile/worker_profile_bloc.dart';
+import 'package:tez_xizmat/features/worker_profile/presentation/bloc/worker_profile_image/worker_profile_image_bloc.dart';
 
 final sl = GetIt.instance;
 
@@ -28,18 +65,55 @@ Future<void> setup() async {
   sl.registerLazySingleton<AuthLocalDataSource>(
         () => AuthLocalDataSourceImpl(authBox),
   );
+  /// DioClient
+  sl.registerLazySingleton<DioClient>(() => DioClient(local: sl()));
 
   ///! DataSource
   ///* Auth
   sl.registerLazySingleton<CustomerRemoteDataSource>(
-        () => CustomerRemoteDataSourceImpl(local: sl()),
+        () => CustomerRemoteDataSourceImpl(dioClient: sl(), local: sl()),
+  );
+  ///* Profile Customer
+  sl.registerLazySingleton<CustomerProfileDataSource>(
+        () => CustomerProfileDataSourceImpl(sl(), sl()),
+  );
+  ///* Profile Staff
+  sl.registerLazySingleton<WorkerRemoteDataSource>(
+          () => WorkerRemoteDataSourceImpl(sl(), sl()),
   );
 
+  ///* Customer Order
+  sl.registerLazySingleton<CustomerOrderDataSource>(
+        () => CustomerOrderDataSourceImpl(sl(), sl()),
+  );
+
+  ///* Customer Home
+  sl.registerLazySingleton<CustomerHomeDataSource>(
+        () => CustomerHomeDataSourceImpl(sl(),),
+  );
 
   ///! Repository
   ///* Auth
   sl.registerLazySingleton<CustomerRepository>(
     () => CustomerRepositoryImpl(customerRemoteDataSource: sl()),
+  );
+  ///* Profile Customer
+  sl.registerLazySingleton<CustomerProfileRepository>(
+        () => CustomerProfileRepositoryImpl(customerProfileDataSource: sl()),
+  );
+  ///* Profile Staff
+  sl.registerLazySingleton<WorkerRepository>(
+        () => WorkerProfileRepositoryImpl(workerRemoteDataSource: sl()),
+  );
+  ///* Customer Order
+  sl.registerLazySingleton<CustomerOrderRepository>(
+        () => CustomerOrderRepositoryImpl(customerOrderRemoteDataSource: sl()),
+  );
+
+
+  ///* Customer Home
+  sl.registerLazySingleton<CustomerHomeRepository>(
+        () => CustomerHomeRepositoryImpl(customerHomeDataSource: sl()),
   );
 
   ///! UseCase
@@ -48,6 +122,24 @@ Future<void> setup() async {
   sl.registerLazySingleton(()=>CustomerVerifyEmailUseCase(sl()));
   sl.registerLazySingleton(()=>CustomerRegisterUseCase(sl()));
   sl.registerLazySingleton(()=>CustomerLoginUseCase(sl()));
+  sl.registerLazySingleton(()=>CustomerResendEmailUseCase(sl()));
+  sl.registerLazySingleton(()=>ResetPasswordUseCase(sl()));
+
+
+  ///* Profile Customer
+  sl.registerLazySingleton(()=>CustomerProfileUseCase(sl()));
+  sl.registerLazySingleton(()=>CustomerUpdateProfileUseCase(sl()));
+  ///* Customer Order
+  sl.registerLazySingleton(()=>CustomerCreateOrderUseCase(sl()));
+  ///* Customer Home
+  sl.registerLazySingleton(()=>CustomerGetAllStaffUseCase(sl()));
+  ///* Worker Info
+  sl.registerLazySingleton(()=>GetWorkerInfoUseCase(sl()));
+
+  ///* Profile Staff
+  sl.registerLazySingleton(()=>WorkerProfileUseCase(sl()));
+  sl.registerLazySingleton(()=>WorkerEditProfileUseCase(sl()));
+  sl.registerLazySingleton(()=>WorkerProfileImageUseCase(sl()));
 
   ///! Bloc
   ///* Auth
@@ -55,4 +147,23 @@ Future<void> setup() async {
   sl.registerLazySingleton(()=> CustomerVerifyEmailBloc(sl()));
   sl.registerLazySingleton(()=> CustomerRegisterBloc(sl()));
   sl.registerLazySingleton(()=> CustomerLoginBloc(sl()));
+  sl.registerLazySingleton(()=> CustomerResendEmailBloc(sl()));
+  sl.registerLazySingleton(()=> CustomerResetPasswordBloc(sl()));
+
+  ///* Profile Customer
+  sl.registerFactory(() => CustomerProfileBloc(sl()));
+  sl.registerFactory(() => CustomerUpdateProfileBloc(sl()));
+  ///* Customer Order
+  sl.registerFactory(() => CustomerCreateOrderBloc(sl()));
+
+  ///* Customer Home
+  sl.registerFactory(() => CustomerGetAllStaffBloc(sl()));
+  ///* Worker Info
+  sl.registerFactory(() => GetWorkerInfoBloc(sl()));
+
+  ///* Profile Staff
+  sl.registerFactory(() => WorkerProfileBloc(sl()));
+  sl.registerFactory(() => WorkerEditProfileBloc(sl()));
+  sl.registerFactory(() => WorkerProfileImageBloc(sl()));
+
 }

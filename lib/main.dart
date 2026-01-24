@@ -1,5 +1,4 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:tez_xizmat/bloc_provider.dart';
 import 'package:tez_xizmat/core/di/services_locator.dart';

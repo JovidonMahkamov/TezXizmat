@@ -19,4 +19,6 @@ class RouteNames {
   static const String chatWithCustomer = '/chatWithCustomer';
   static const String workerProfile = '/workerProfile';
   static const String workerEditProfile = '/workerEditProfile';
+  static const String resendOtp = '/resendOtp';
+  static const String workerSettings = '/workerSettings';
 }

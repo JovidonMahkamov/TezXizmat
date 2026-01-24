@@ -1,12 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:iconly/iconly.dart';
+import 'package:loading_indicator/loading_indicator.dart';
 import 'package:tez_xizmat/core/routes/route_names.dart';
+import 'package:tez_xizmat/features/auth/presentation/bloc/customer_auth_event.dart';
+import 'package:tez_xizmat/features/auth/presentation/bloc/customer_reset_password/customer_reset_password_bloc.dart';
+import 'package:tez_xizmat/features/auth/presentation/bloc/customer_reset_password/customer_reset_password_state.dart';
 import 'package:tez_xizmat/features/auth/presentation/widgets/text_field_widget.dart';
 
 class CustomerNewPasswordPage extends StatefulWidget {
-  const CustomerNewPasswordPage({super.key});
+  final String email;
+  const CustomerNewPasswordPage({super.key,required this.email});
 
   @override
   State<CustomerNewPasswordPage> createState() =>
@@ -61,10 +67,12 @@ class _CustomerNewPasswordPageState extends State<CustomerNewPasswordPage> {
       _showSnack("Parollar bir xil emas");
       return;
     }
-    Navigator.pushNamedAndRemoveUntil(
-      context,
-      RouteNames.customerLogin,
-      (route) => false,
+    BlocProvider.of<CustomerResetPasswordBloc>(context).add(
+      CustomerResetPassword(
+        email: widget.email,
+        password: _passwordController.text.trim(),
+        confirm_password: _confirmPasswordController.text.trim(),
+      ),
     );
   }
 
@@ -107,7 +115,8 @@ class _CustomerNewPasswordPageState extends State<CustomerNewPasswordPage> {
                       onPressed: () {
                         setState(() => eye = !eye);
                       },
-                    ), readOnly: false,
+                    ),
+                    readOnly: false,
                   ),
 
                   SizedBox(height: 25.h),
@@ -122,27 +131,73 @@ class _CustomerNewPasswordPageState extends State<CustomerNewPasswordPage> {
                       onPressed: () {
                         setState(() => eye1 = !eye1);
                       },
-                    ), readOnly: false,
+                    ),
+                    readOnly: false,
                   ),
 
                   SizedBox(height: 30.h),
 
-                  SizedBox(
-                    width: double.infinity,
-                    height: 47.h,
-                    child: ElevatedButton(
-                      onPressed: _submit,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blueAccent,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
+                  BlocListener<
+                    CustomerResetPasswordBloc,
+                    CustomerResetPasswordState
+                  >(
+                    listener: (context, state) {
+                      if (state is CustomerResetPasswordError) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(state.message, style: TextStyle()),
+                          ),
+                        );
+                      }
+                    },
+                    child:
+                        BlocConsumer<
+                          CustomerResetPasswordBloc,
+                          CustomerResetPasswordState
+                        >(
+                          listener: (context, state) {
+                            if (state is CustomerResetPasswordSuccess) {
+                              Navigator.pushNamedAndRemoveUntil(
+                                context,
+                                RouteNames.customerLogin,
+                                (route) => false,
+                              );
+                            }
+                          },
+                          builder: (context, state) {
+                            if (state is CustomerResetPasswordLoading) {
+                              return const Center(
+                                child: SizedBox(
+                                  width: 60,
+                                  height: 60,
+                                  child: LoadingIndicator(
+                                    indicatorType: Indicator.ballSpinFadeLoader,
+                                    colors: [Colors.blueAccent],
+                                    strokeWidth: 2,
+                                  ),
+                                ),
+                              );
+                            } else {
+                              return SizedBox(
+                                width: double.infinity,
+                                height: 47.h,
+                                child: ElevatedButton(
+                                  onPressed: _submit,
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.blueAccent,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                  ),
+                                  child: const Text(
+                                    "Parolni saqlash",
+                                    style: TextStyle(color: Colors.white),
+                                  ),
+                                ),
+                              );
+                            }
+                          },
                         ),
-                      ),
-                      child: const Text(
-                        "Parolni saqlash",
-                        style: TextStyle(color: Colors.white),
-                      ),
-                    ),
                   ),
 
                   SizedBox(height: 30.h),

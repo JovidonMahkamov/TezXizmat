@@ -18,6 +18,8 @@ class CustomerVerifyEmailBloc extends Bloc<CustomerAuthEvent, CustomerVerifyEmai
       final result = await customerVerifyEmailUseCase(
         email: event.email,
         password: event.password,
+        purpose: event.purpose,
+
       );
       emit(CustomerVerifyEmailSuccess(customerVerifyEmailEntity: result));
     } on DioException catch (e) {

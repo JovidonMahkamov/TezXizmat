@@ -1,11 +1,19 @@
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:image_picker/image_picker.dart';
 
 class WorkerImagePickerWidget extends StatefulWidget {
-  const WorkerImagePickerWidget({super.key});
+  const WorkerImagePickerWidget({
+    super.key,
+    required this.uploadImage, // <-- tashqaridan beramiz
+    required this.baseUrl,     // <-- "https://tezxizmatlar.uz"
+    this.initialImagePath,     // <-- "/media/staff/....png" bo‘lsa
+  });
+
+  final Future<String> Function(String filePath) uploadImage;
+  final String baseUrl;
+  final String? initialImagePath;
 
   @override
   State<WorkerImagePickerWidget> createState() => _ImagePickerWidgetState();
@@ -13,41 +21,81 @@ class WorkerImagePickerWidget extends StatefulWidget {
 
 class _ImagePickerWidgetState extends State<WorkerImagePickerWidget> {
   File? _imageFile;
+  String? _serverImagePath; // "/media/..."
+  bool _loading = false;
 
-  Future<void> _pickImage() async {
-    final pickedFile =
-    await ImagePicker().pickImage(source: ImageSource.gallery);
-    if (pickedFile != null) {
+  @override
+  void initState() {
+    super.initState();
+    _serverImagePath = widget.initialImagePath;
+  }
+
+  Future<void> _pickAndUploadImage() async {
+    final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
+    if (pickedFile == null) return;
+
+    setState(() {
+      _imageFile = File(pickedFile.path); // darrov preview
+      _loading = true;
+    });
+
+    try {
+      // serverga yuboramiz (usecase/repo orqali)
+      final pathFromServer = await widget.uploadImage(pickedFile.path);
+
       setState(() {
-        _imageFile = File(pickedFile.path);
+        _serverImagePath = pathFromServer; // "/media/..."
       });
+    } catch (e) {
+      // xato bo‘lsa snack chiqsin
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Rasm yuklashda xato: $e")),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _loading = false);
+      }
     }
   }
+
   @override
   Widget build(BuildContext context) {
+    final serverUrl = (_serverImagePath != null && _serverImagePath!.isNotEmpty)
+        ? "${widget.baseUrl}${_serverImagePath!}"
+        : null;
+
+    ImageProvider avatarProvider;
+
+    if (_imageFile != null) {
+      avatarProvider = FileImage(_imageFile!); // lokal preview
+    } else if (serverUrl != null) {
+      avatarProvider = NetworkImage(serverUrl); // serverdagi rasm
+    } else {
+      avatarProvider = const AssetImage('assets/circular_avatar/profile.png');
+    }
+
     return Stack(
       children: [
         CircleAvatar(
           radius: 60,
-          backgroundImage: _imageFile != null
-              ? FileImage(_imageFile!)
-              : const AssetImage('assets/circular_avatar/profile.png')
-          as ImageProvider,
+          backgroundImage: avatarProvider,
+          child: _loading
+              ? const CircularProgressIndicator()
+              : null,
         ),
         Positioned(
           bottom: 0,
           right: 0,
           child: GestureDetector(
-            onTap: _pickImage,
+            onTap: _loading ? null : _pickAndUploadImage,
             child: Container(
-                padding: EdgeInsets.only(left: 8),
-                decoration: const BoxDecoration(
-                  shape: BoxShape.circle,
-                  // color: Colors.blue,
-                ),
-                child:   SvgPicture.asset("assets/profile/edit.svg")),
+              padding: const EdgeInsets.only(left: 8),
+              decoration: const BoxDecoration(shape: BoxShape.circle),
+              child: SvgPicture.asset("assets/profile/edit.svg"),
+            ),
           ),
-
         ),
       ],
     );

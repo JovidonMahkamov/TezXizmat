@@ -35,7 +35,7 @@ class _WorkerLogOutWidgetState extends State<WorkerLogOutWidget> {
 
       Navigator.pushNamedAndRemoveUntil(
         context,
-        RouteNames.customerRegister,
+        RouteNames.select,
         (route) => false,
       );
     } catch (e) {

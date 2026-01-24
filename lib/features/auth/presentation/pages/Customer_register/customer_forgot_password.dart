@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:loading_indicator/loading_indicator.dart';
 import 'package:tez_xizmat/core/routes/route_names.dart';
+import 'package:tez_xizmat/features/auth/presentation/bloc/customer_auth_event.dart';
+import 'package:tez_xizmat/features/auth/presentation/bloc/customer_resend_email/customer_resend_email_bloc.dart';
+import 'package:tez_xizmat/features/auth/presentation/bloc/customer_resend_email/customer_resend_email_state.dart';
 import 'package:tez_xizmat/features/auth/presentation/widgets/elevated_button_widget.dart';
 import 'package:tez_xizmat/features/auth/presentation/widgets/text_field_widget.dart';
 
@@ -8,10 +13,12 @@ class CustomerForgotPasswordPage extends StatefulWidget {
   const CustomerForgotPasswordPage({super.key});
 
   @override
-  State<CustomerForgotPasswordPage> createState() => _CustomerForgotPasswordPageState();
+  State<CustomerForgotPasswordPage> createState() =>
+      _CustomerForgotPasswordPageState();
 }
 
-class _CustomerForgotPasswordPageState extends State<CustomerForgotPasswordPage> {
+class _CustomerForgotPasswordPageState
+    extends State<CustomerForgotPasswordPage> {
   final TextEditingController emailController = TextEditingController();
   String? errorMessage;
 
@@ -39,11 +46,9 @@ class _CustomerForgotPasswordPageState extends State<CustomerForgotPasswordPage>
       errorMessage = null;
     });
 
-    Navigator.pushNamed(
+    BlocProvider.of<CustomerResendEmailBloc>(
       context,
-      RouteNames.customerForgotPasswordOtp,
-      arguments: email,
-    );
+    ).add(CustomerResendEmail(email: email,));
   }
 
   @override
@@ -93,17 +98,15 @@ class _CustomerForgotPasswordPageState extends State<CustomerForgotPasswordPage>
                 SizedBox(height: 40.h),
 
                 /// EMAIL LABEL
-                Text(
-                  "Email",
-                  style: TextStyle(fontSize: 16.sp),
-                ),
+                Text("Email", style: TextStyle(fontSize: 16.sp)),
                 SizedBox(height: 8.h),
 
                 /// EMAIL INPUT
                 TextFieldWidget(
                   controller: emailController,
                   text: 'example@gmail.com',
-                  obscureText: false, readOnly: false,
+                  obscureText: false,
+                  readOnly: false,
                 ),
 
                 /// ERROR MESSAGE
@@ -111,20 +114,62 @@ class _CustomerForgotPasswordPageState extends State<CustomerForgotPasswordPage>
                   SizedBox(height: 8.h),
                   Text(
                     errorMessage!,
-                    style: const TextStyle(
-                      color: Colors.red,
-                      fontSize: 14,
-                    ),
+                    style: const TextStyle(color: Colors.red, fontSize: 14),
                   ),
                 ],
 
                 SizedBox(height: 40.h),
 
-                /// BUTTON
-                ElevatedWidget(
-                  onPressed: signInUser,
-                  text: 'Emailni tasdiqlash', backgroundColor:  Color(0xff1778F2), textColor:  Colors.white,
+                BlocListener<CustomerResendEmailBloc, CustomerResendEmailState>(
+                  listener: (context, state) {
+                    if (state is CustomerResendEmailError) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(state.message, style: TextStyle()),
+                        ),
+                      );
+                    }
+                  },
+                  child: BlocConsumer<CustomerResendEmailBloc, CustomerResendEmailState>(
+                        listener: (context, state) {
+                          if (state is CustomerResendEmailSuccess) {
+                            Navigator.pushNamedAndRemoveUntil(
+                              context,
+                              RouteNames.customerForgotPasswordOtp,
+                              (route) => false,
+                              arguments: {
+                                "email": emailController.text.trim(),
+                                "expires_at":
+                                    state.customerResendEmailEntity.expires_at,
+                              },
+                            );
+                          }
+                        },
+                        builder: (context, state) {
+                          if (state is CustomerResendEmailLoading) {
+                            return const Center(
+                              child: SizedBox(
+                                width: 60,
+                                height: 60,
+                                child: LoadingIndicator(
+                                  indicatorType: Indicator.ballSpinFadeLoader,
+                                  colors: [Colors.blueAccent],
+                                  strokeWidth: 2,
+                                ),
+                              ),
+                            );
+                          } else {
+                            return ElevatedWidget(
+                              onPressed: signInUser,
+                              text: 'Emailni tasdiqlash',
+                              backgroundColor: Color(0xff1778F2),
+                              textColor: Colors.white,
+                            );
+                          }
+                        },
+                      ),
                 ),
+
 
                 SizedBox(height: 20.h),
 
@@ -138,17 +183,11 @@ class _CustomerForgotPasswordPageState extends State<CustomerForgotPasswordPage>
                     ),
                     TextButton(
                       onPressed: () {
-                        Navigator.pushNamed(
-                          context,
-                          RouteNames.customerLogin,
-                        );
+                        Navigator.pushNamed(context, RouteNames.customerLogin);
                       },
                       child: const Text(
                         "Tizimga kirish",
-                        style: TextStyle(
-                          color: Colors.blue,
-                          fontSize: 16,
-                        ),
+                        style: TextStyle(color: Colors.blue, fontSize: 16),
                       ),
                     ),
                   ],

@@ -2,24 +2,27 @@ import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-class CustomDropdown extends StatefulWidget {
-  const CustomDropdown({super.key});
 
-  @override
-  State<CustomDropdown> createState() => _CustomDropdownState();
-}
 
-class _CustomDropdownState extends State<CustomDropdown> {
-  final List<String> items = [
-    'Elektrik',
-    'Santexnik',
-    'Konditsioner ustasi',
-    'Uy tozalovchi',
-  ];
-  String? selectedValue;
+class CustomDropdown extends StatelessWidget {
+  final String? value;
+  final ValueChanged<String?> onChanged;
+
+  const CustomDropdown({
+    super.key,
+    required this.value,
+    required this.onChanged,
+  });
 
   @override
   Widget build(BuildContext context) {
+    final List<String> items = [
+      'Elektrik',
+      'Santexnik',
+      'Konditsioner ustasi',
+      'Uy tozalovchi',
+    ];
+
     return DropdownButtonHideUnderline(
       child: Container(
         height: 58.h,
@@ -34,7 +37,7 @@ class _CustomDropdownState extends State<CustomDropdown> {
             ),
           ),
           items: items.map((String item) {
-            final bool isSelected = selectedValue == item;
+            final bool isSelected = value == item;
             return DropdownMenuItem<String>(
               value: item,
               child: Container(
@@ -54,12 +57,8 @@ class _CustomDropdownState extends State<CustomDropdown> {
               ),
             );
           }).toList(),
-          value: selectedValue,
-          onChanged: (String? value) {
-            setState(() {
-              selectedValue = value;
-            });
-          },
+          value: value,
+          onChanged: onChanged, // ✅ eng muhim joy
           buttonStyleData: ButtonStyleData(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             height: 50,
@@ -68,31 +67,15 @@ class _CustomDropdownState extends State<CustomDropdown> {
               color: Colors.white,
               borderRadius: BorderRadius.circular(12),
               border: Border.all(color: Colors.grey.shade300),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.grey.shade200,
-                  blurRadius: 4,
-                  offset: const Offset(0, 2),
-                ),
-              ],
             ),
           ),
           dropdownStyleData: DropdownStyleData(
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(12),
               color: Colors.grey.shade100,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.grey.shade300,
-                  blurRadius: 6,
-                  offset: const Offset(0, 3),
-                ),
-              ],
             ),
           ),
-          menuItemStyleData: const MenuItemStyleData(
-            height: 50,
-          ),
+          menuItemStyleData: const MenuItemStyleData(height: 50),
           iconStyleData: const IconStyleData(
             icon: Icon(Icons.keyboard_arrow_down_rounded),
             iconSize: 24,
@@ -104,3 +87,4 @@ class _CustomDropdownState extends State<CustomDropdown> {
     );
   }
 }
+

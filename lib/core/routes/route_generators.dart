@@ -21,6 +21,7 @@ import 'package:tez_xizmat/features/select_bottom_navbar/worker_bottom_nav_bar.d
 import 'package:tez_xizmat/features/worker_chat/presentation/pages/chat_with_customer.dart';
 import 'package:tez_xizmat/features/worker_profile/presentation/pages/worker_edit_profile.dart';
 import 'package:tez_xizmat/features/worker_profile/presentation/pages/worker_profile.dart';
+import 'package:tez_xizmat/features/worker_profile/presentation/pages/worker_profile_settings.dart';
 
 class AppRoute {
   BuildContext context;
@@ -48,10 +49,17 @@ class AppRoute {
       case RouteNames.customerForgotPassword:
         return MaterialPageRoute(builder: (_) =>  CustomerForgotPasswordPage());
       case RouteNames.customerForgotPasswordOtp:
-        final phone = routeSettings.arguments as String;
-        return MaterialPageRoute(builder: (_) =>  CustomerForgotPasswordOtpPage(phoneNumber: phone,));
+        final args = routeSettings.arguments as Map<String, dynamic>;
+        return MaterialPageRoute(
+          builder: (_) => CustomerForgotPasswordOtPage(
+            email: args["email"],
+            expiresAt: args["expires_at"],
+          ),
+        );
+
       case RouteNames.customerNewPassword:
-        return MaterialPageRoute(builder: (_) => const CustomerNewPasswordPage());
+        final email = routeSettings.arguments as String;
+        return MaterialPageRoute(builder: (_) =>  CustomerNewPasswordPage(email: email,));
       case RouteNames.customerBottomNavBar:
         return MaterialPageRoute(builder: (_) => const CustomerBottomNavBarPage());
       case RouteNames.workerBottomNavBar:
@@ -59,7 +67,8 @@ class AppRoute {
       case RouteNames.search:
         return MaterialPageRoute(builder: (_) => const SearchPage());
       case RouteNames.workerInfo:
-        return MaterialPageRoute(builder: (_) => const WorkerInfoPage());
+        final id = routeSettings.arguments as int;
+        return MaterialPageRoute(builder: (_) => WorkerInfoPage(id: id));
       case RouteNames.chatWithWorker:
         final urlPath = routeSettings.arguments as Map<String, dynamic>;
         return MaterialPageRoute(builder: (_) =>  ChatWithWorkerPage(name: urlPath["name"], urlAsset: urlPath["urlAsset"],));
@@ -74,6 +83,9 @@ class AppRoute {
         return MaterialPageRoute(builder: (_) => const WorkerProfilePage());
       case RouteNames.workerEditProfile:
         return MaterialPageRoute(builder: (_) => const WorkerEditProfilePage());
+      case RouteNames.workerSettings:
+        return MaterialPageRoute(builder: (_) => const WorkerProfileSettingsPage());
+
       default:
         return _errorRoute();
     }
