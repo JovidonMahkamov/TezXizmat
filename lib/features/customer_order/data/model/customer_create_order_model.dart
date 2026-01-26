@@ -6,7 +6,7 @@ class CustomerCreateOrderModel extends CustomerCreateOrderEntity {
   });
   factory CustomerCreateOrderModel.fromJson(Map<String, dynamic> json) {
     return CustomerCreateOrderModel(
-      id: json['id'], name: json['name'], surname: json['surname'], description: json['description'], address: json['address'],
+      id: json['id'], name: json['name'], surname: json['surname'], description: json['description'] ?? "", address: json['address'] ?? "",
     );
   }
 }

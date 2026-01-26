@@ -27,14 +27,18 @@ import 'package:tez_xizmat/features/customer_home/data/repository/customer_home_
 import 'package:tez_xizmat/features/customer_home/domain/repository/customer_home_repository.dart';
 import 'package:tez_xizmat/features/customer_home/domain/usecase/customer_get_all_staff_use_case.dart';
 import 'package:tez_xizmat/features/customer_home/domain/usecase/get_worker_info_use_case.dart';
+import 'package:tez_xizmat/features/customer_home/domain/usecase/get_worker_reviews_use_case.dart';
 import 'package:tez_xizmat/features/customer_home/presentation/bloc/customer_get_all_staff/customer_get_all_staff_bloc.dart';
 import 'package:tez_xizmat/features/customer_home/presentation/bloc/get_worker_info/get_worker_info_bloc.dart';
+import 'package:tez_xizmat/features/customer_home/presentation/bloc/get_worker_reviews/get_worker_reviews_bloc.dart';
 import 'package:tez_xizmat/features/customer_order/data/datasource/customer_order_data_source.dart';
 import 'package:tez_xizmat/features/customer_order/data/datasource/customer_order_data_source_impl.dart';
 import 'package:tez_xizmat/features/customer_order/data/repository/customer_order_repository_impl.dart';
 import 'package:tez_xizmat/features/customer_order/domain/repository/customer_order_repository.dart';
 import 'package:tez_xizmat/features/customer_order/domain/usecase/customer_create_order_use_case.dart';
+import 'package:tez_xizmat/features/customer_order/domain/usecase/customer_get_all_orders_use_case.dart';
 import 'package:tez_xizmat/features/customer_order/presentation/bloc/customer_create_order/customer_create_order_bloc.dart';
+import 'package:tez_xizmat/features/customer_order/presentation/bloc/get_customer_all_orders/get_customer_all_orders_bloc.dart';
 import 'package:tez_xizmat/features/customer_profile/data/datasource/customer_profile_data_source.dart';
 import 'package:tez_xizmat/features/customer_profile/data/datasource/customer_profile_data_source_impl.dart';
 import 'package:tez_xizmat/features/customer_profile/data/repository/customer_profile_repository_impl.dart';
@@ -43,17 +47,25 @@ import 'package:tez_xizmat/features/customer_profile/domain/usecase/customer_pro
 import 'package:tez_xizmat/features/customer_profile/domain/usecase/customer_update_profile_use_case.dart';
 import 'package:tez_xizmat/features/customer_profile/presentation/bloc/profile_bloc/customer_profile_bloc.dart';
 import 'package:tez_xizmat/features/customer_profile/presentation/bloc/update_profile_bloc/customer_update_profile_bloc.dart';
+import 'package:tez_xizmat/features/worker_home/data/datasource/worker_home_data_source.dart';
+import 'package:tez_xizmat/features/worker_home/data/datasource/worker_home_data_source_impl.dart';
+import 'package:tez_xizmat/features/worker_home/data/repository/worker_home_repository_impl.dart';
+import 'package:tez_xizmat/features/worker_home/domain/repository/worker_home_repository.dart';
+import 'package:tez_xizmat/features/worker_home/presentation/bloc/get_staff_orders/get_staff_orders_bloc.dart';
 import 'package:tez_xizmat/features/worker_profile/data/datasources/worker_remote_data_source.dart';
 import 'package:tez_xizmat/features/worker_profile/data/datasources/worker_remote_data_source_impl.dart';
 import 'package:tez_xizmat/features/worker_profile/data/repositories/worker_profile_repository_impl.dart';
 import 'package:tez_xizmat/features/worker_profile/domain/repositories/worker_repository.dart';
 import 'package:tez_xizmat/features/worker_profile/domain/usecases/worker_edit_profile_use_case.dart';
-import 'package:tez_xizmat/features/worker_profile/domain/usecases/worker_profile_image_use_case.dart';
-import 'package:tez_xizmat/features/worker_profile/domain/usecases/worker_profile_use_case.dart';
-import 'package:tez_xizmat/features/worker_profile/presentation/bloc/worker_edit_profile/worker_edit_profile_bloc.dart';
-import 'package:tez_xizmat/features/worker_profile/presentation/bloc/worker_profile/worker_profile_bloc.dart';
-import 'package:tez_xizmat/features/worker_profile/presentation/bloc/worker_profile_image/worker_profile_image_bloc.dart';
 
+import '../../features/worker_home/domain/usecase/get_staff_orders_use_case.dart';
+import '../../features/worker_home/domain/usecase/put_orders_state_use_case.dart';
+import '../../features/worker_home/presentation/bloc/put_orders_state/put_orders_state_bloc.dart';
+import '../../features/worker_profile/domain/usecases/worker_profile_image_use_case.dart';
+import '../../features/worker_profile/domain/usecases/worker_profile_use_case.dart';
+import '../../features/worker_profile/presentation/bloc/worker_edit_profile/worker_edit_profile_bloc.dart';
+import '../../features/worker_profile/presentation/bloc/worker_profile/worker_profile_bloc.dart';
+import '../../features/worker_profile/presentation/bloc/worker_profile_image/worker_profile_image_bloc.dart';
 final sl = GetIt.instance;
 
 Future<void> setup() async {
@@ -92,6 +104,11 @@ Future<void> setup() async {
         () => CustomerHomeDataSourceImpl(sl(),),
   );
 
+  ///* Worker Home
+  sl.registerLazySingleton<WorkerHomeDataSource>(
+        () => WorkerHomeDataSourceImpl(sl(),),
+  );
+
   ///! Repository
   ///* Auth
   sl.registerLazySingleton<CustomerRepository>(
@@ -110,10 +127,14 @@ Future<void> setup() async {
         () => CustomerOrderRepositoryImpl(customerOrderRemoteDataSource: sl()),
   );
 
-
   ///* Customer Home
   sl.registerLazySingleton<CustomerHomeRepository>(
         () => CustomerHomeRepositoryImpl(customerHomeDataSource: sl()),
+  );
+
+  ///* Worker Home
+  sl.registerLazySingleton<WorkerHomeRepository>(
+        () => WorkerHomeRepositoryImpl(workerHomeDataSource: sl()),
   );
 
   ///! UseCase
@@ -131,10 +152,15 @@ Future<void> setup() async {
   sl.registerLazySingleton(()=>CustomerUpdateProfileUseCase(sl()));
   ///* Customer Order
   sl.registerLazySingleton(()=>CustomerCreateOrderUseCase(sl()));
+  sl.registerLazySingleton(()=>CustomerGetAllOrdersUseCase(sl()));
   ///* Customer Home
   sl.registerLazySingleton(()=>CustomerGetAllStaffUseCase(sl()));
+
+  ///* Worker Home
+  sl.registerLazySingleton(()=>GetStaffOrdersUseCase(sl()));
   ///* Worker Info
   sl.registerLazySingleton(()=>GetWorkerInfoUseCase(sl()));
+  sl.registerLazySingleton(()=>GetWorkerReviewsUseCase(sl()));
 
   ///* Profile Staff
   sl.registerLazySingleton(()=>WorkerProfileUseCase(sl()));
@@ -155,15 +181,28 @@ Future<void> setup() async {
   sl.registerFactory(() => CustomerUpdateProfileBloc(sl()));
   ///* Customer Order
   sl.registerFactory(() => CustomerCreateOrderBloc(sl()));
+  sl.registerFactory(() => GetCustomerAllOrdersBloc(sl()));
 
   ///* Customer Home
   sl.registerFactory(() => CustomerGetAllStaffBloc(sl()));
+  ///* Worker Home
+  sl.registerFactory(() => GetStaffOrdersBloc(sl()));
   ///* Worker Info
   sl.registerFactory(() => GetWorkerInfoBloc(sl()));
+  sl.registerFactory(() => GetWorkerReviewsBloc(sl()));
 
   ///* Profile Staff
   sl.registerFactory(() => WorkerProfileBloc(sl()));
   sl.registerFactory(() => WorkerEditProfileBloc(sl()));
   sl.registerFactory(() => WorkerProfileImageBloc(sl()));
 
+  ///* Worker Home
+  sl.registerLazySingleton(() => PutOrdersStateUseCase(sl()));
+
+  ///! Bloc
+  ///* Worker Home
+  sl.registerFactory(() => PutStaffOrderBloc(putOrdersStateUseCase: sl()));
+
 }
+
+

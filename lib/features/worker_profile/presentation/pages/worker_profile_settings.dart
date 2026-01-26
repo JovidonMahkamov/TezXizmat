@@ -51,7 +51,7 @@ class _WorkerProfileSettingsPageState extends State<WorkerProfileSettingsPage> {
             text: "Reyting va sharhlar",
             icon: Icons.star_border_outlined,
             onTab: () {
-              showRatingSheet(context);
+              RatingSheetBody();
             },
             icon1: Icons.arrow_forward_ios_outlined,
             textStyle: TextStyle(fontSize: 18.sp),

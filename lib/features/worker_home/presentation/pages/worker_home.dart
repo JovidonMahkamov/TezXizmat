@@ -1,13 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:tez_xizmat/core/routes/route_names.dart';
 import 'package:tez_xizmat/features/customer_home/presentation/widgets/home_carousel_widget.dart';
+import 'package:tez_xizmat/features/worker_home/domain/entities/get_staff_orders_entity.dart';
+import 'package:tez_xizmat/features/worker_home/presentation/bloc/get_staff_orders/get_staff_orders_bloc.dart';
+import 'package:tez_xizmat/features/worker_home/presentation/bloc/get_staff_orders/get_staff_orders_state.dart';
 import 'package:tez_xizmat/features/worker_home/presentation/widgets/customer_info_widget.dart';
 import 'package:tez_xizmat/features/worker_home/presentation/widgets/home_worker_app_bar_widget.dart';
 import 'package:tez_xizmat/features/worker_home/presentation/widgets/order_widget.dart';
 import 'package:tez_xizmat/features/worker_home/presentation/widgets/order_widget_two.dart';
 
+import '../bloc/worker_home_event.dart';
+
 class WorkerHomePage extends StatefulWidget {
+
   const WorkerHomePage({super.key});
 
   @override
@@ -15,6 +22,194 @@ class WorkerHomePage extends StatefulWidget {
 }
 
 class _WorkerHomePageState extends State<WorkerHomePage> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<GetStaffOrdersBloc>().add(const GetStaffOrdersE());
+    });
+  }
+
+  Future<void> _reload() async {
+    context.read<GetStaffOrdersBloc>().add(const GetStaffOrdersE());
+  }
+
+  bool _isCompleted(String s) {
+    final up = s.toUpperCase();
+    return up == 'COMPLETED' || up == 'DONE' || up == 'FINISHED';
+  }
+
+  bool _isCanceled(String s) {
+    final up = s.toUpperCase();
+    return up == 'CANCELED' || up == 'CANCELLED';
+  }
+
+  List<GetStaffOrdersEntity> _active(List<GetStaffOrdersEntity> all) {
+    return all.where((o) => !_isCompleted(o.status) && !_isCanceled(o.status)).toList();
+  }
+
+  List<GetStaffOrdersEntity> _completed(List<GetStaffOrdersEntity> all) {
+    return all.where((o) => _isCompleted(o.status)).toList();
+  }
+
+  List<GetStaffOrdersEntity> _canceled(List<GetStaffOrdersEntity> all) {
+    return all.where((o) => _isCanceled(o.status)).toList();
+  }
+
+  String _formatTime(String? iso) {
+    if (iso == null || iso.isEmpty) return "--:--";
+    try {
+      final dt = DateTime.parse(iso).toLocal();
+      final hh = dt.hour.toString().padLeft(2, '0');
+      final mm = dt.minute.toString().padLeft(2, '0');
+      return "$hh:$mm";
+    } catch (_) {
+      return "--:--";
+    }
+  }
+
+  String _statusText(String status) {
+    switch (status.toUpperCase()) {
+      case 'PENDING':
+        return "Hali qabul qilmagansiz";
+      case 'ACCEPTED':
+        return "Qabul qildingiz";
+      case 'IN_PROGRESS':
+        return "Jarayonda";
+      case 'COMPLETED':
+        return "Ish muvaffaqiyatli yakunlangan";
+      case 'CANCELED':
+      case 'CANCELLED':
+        return "Ishni bekor qilgansiz";
+      default:
+        return status;
+    }
+  }
+
+  Color _statusColor(String status) {
+    switch (status.toUpperCase()) {
+      case 'PENDING':
+        return Colors.orange;
+      case 'ACCEPTED':
+      case 'IN_PROGRESS':
+        return Colors.blueAccent;
+      case 'COMPLETED':
+        return Colors.green;
+      case 'CANCELED':
+      case 'CANCELLED':
+        return Colors.red;
+      default:
+        return Colors.grey;
+    }
+  }
+
+  Widget _empty(String text) {
+    return Center(
+      child: Padding(
+        padding: EdgeInsets.all(16.sp),
+        child: Text(
+          text,
+          textAlign: TextAlign.center,
+          style: TextStyle(fontSize: 14.sp, color: Colors.grey),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildActive(List<GetStaffOrdersEntity> list) {
+    if (list.isEmpty) return _empty("Faol buyurtmalar yo‘q.");
+
+    return RefreshIndicator(
+      onRefresh: _reload,
+      child: ListView.separated(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: EdgeInsets.only(top: 23.h),
+        itemCount: list.length,
+        separatorBuilder: (_, __) => SizedBox(height: 10.h),
+        itemBuilder: (context, index) {
+          final o = list[index];
+
+          return OrderWidget(
+            // Worker tarafda bu “customer_name” bo‘lishi kerak,
+            // lekin entityda yo‘q bo‘lsa title chiqib qoladi.
+            // Agar API customer_name qaytarsa entityga ham qo‘shib olamiz.
+            name: o.title, // vaqtinchalik
+            description: o.description,
+            time: _formatTime(o.created_at),
+            statusText: _statusText(o.status),
+            statusColor: _statusColor(o.status),
+            imageUrl: "assets/circular_avatar/profile.png",
+            onViewTap: () {
+              customerShowInfoWidget(context, order: o);
+              // agar orderni dialogga uzatmoqchi bo‘lsang:
+              // customerShowInfoWidget(context, order: o);
+            },
+            onChatTap: () {
+              Navigator.pushNamed(
+                context,
+                RouteNames.chatWithWorker,
+                arguments: {
+                  "name": "Mijoz",
+                  "urlAsset": "assets/circular_avatar/profile.png",
+                },
+              );
+            },
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildCompleted(List<GetStaffOrdersEntity> list) {
+    if (list.isEmpty) return _empty("Yakunlangan buyurtmalar yo‘q.");
+
+    return RefreshIndicator(
+      onRefresh: _reload,
+      child: ListView.separated(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: EdgeInsets.only(top: 23.h),
+        itemCount: list.length,
+        separatorBuilder: (_, __) => SizedBox(height: 10.h),
+        itemBuilder: (context, index) {
+          final o = list[index];
+          return OrderWidgetTwo(
+            name: o.title,
+            description: o.description,
+            time: _formatTime(o.completed_at),
+            statusText: _statusText(o.status),
+            statusColor: _statusColor(o.status),
+            imageUrl: "assets/circular_avatar/profile.png",
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildCanceled(List<GetStaffOrdersEntity> list) {
+    if (list.isEmpty) return _empty("Bekor qilingan buyurtmalar yo‘q.");
+
+    return RefreshIndicator(
+      onRefresh: _reload,
+      child: ListView.separated(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: EdgeInsets.only(top: 23.h),
+        itemCount: list.length,
+        separatorBuilder: (_, __) => SizedBox(height: 10.h),
+        itemBuilder: (context, index) {
+          final o = list[index];
+          return OrderWidgetTwo(
+            name: o.title,
+            description: o.description,
+            time: _formatTime(o.canceled_at),
+            statusText: _statusText(o.status),
+            statusColor: _statusColor(o.status),
+            imageUrl: "assets/circular_avatar/profile.png",
+          );
+        },
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
@@ -36,12 +231,8 @@ class _WorkerHomePageState extends State<WorkerHomePage> {
                     children: [
                       Text(
                         "Buyurtmalar",
-                        style: TextStyle(
-                          fontSize: 20.sp,
-                          fontWeight: FontWeight.w700,
-                        ),
+                        style: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.w700),
                       ),
-
                       SizedBox(height: 10.h),
                       PreferredSize(
                         preferredSize: const Size.fromHeight(70),
@@ -51,103 +242,63 @@ class _WorkerHomePageState extends State<WorkerHomePage> {
                           dividerColor: Colors.transparent,
                           isScrollable: true,
                           labelColor: Colors.blueAccent,
-                          unselectedLabelColor: Color(0xffB8BFE1),
-                          labelStyle: TextStyle(
-                            fontSize: 17.sp,
-                            fontWeight: FontWeight.w500,
-                          ),
+                          unselectedLabelColor: const Color(0xffB8BFE1),
+                          labelStyle: TextStyle(fontSize: 17.sp, fontWeight: FontWeight.w500),
                           tabs: const [
-                            Tab(
-                              child: Text(
-                                "Faol",
-                                style: TextStyle(fontWeight: FontWeight.w700),
-                              ),
-                            ),
-                            Tab(
-                              child: Text(
-                                "Yakunlangan",
-                                style: TextStyle(fontWeight: FontWeight.w700),
-                              ),
-                            ),
-                            Tab(
-                              child: Text(
-                                "Bekor qilingan",
-                                style: TextStyle(fontWeight: FontWeight.w700),
-                              ),
-                            ),
+                            Tab(child: Text("Faol", style: TextStyle(fontWeight: FontWeight.w700))),
+                            Tab(child: Text("Yakunlangan", style: TextStyle(fontWeight: FontWeight.w700))),
+                            Tab(child: Text("Bekor qilingan", style: TextStyle(fontWeight: FontWeight.w700))),
                           ],
                         ),
                       ),
-
                       Expanded(
-                        child: TabBarView(
-                          children: [
-                            SingleChildScrollView(
-                              child: Column(
+                        child: BlocBuilder<GetStaffOrdersBloc, GetStaffOrdersState>(
+                          builder: (context, state) {
+                            if (state is GetStaffOrdersLoading) {
+                              return const Center(child: CircularProgressIndicator());
+                            }
+
+                            if (state is GetStaffOrdersError) {
+                              return Center(
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text(state.message, textAlign: TextAlign.center),
+                                    SizedBox(height: 12.h),
+                                    ElevatedButton(
+                                      onPressed: _reload,
+                                      child: const Text("Qayta urinish"),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            }
+
+                            if (state is GetStaffOrdersSuccess) {
+                              final all = state.getStaffOrdersEntity; // <- sendeda list nomi shunaqa bo‘lishi kerak
+                              final active = _active(all);
+                              final completed = _completed(all);
+                              final canceled = _canceled(all);
+
+                              return TabBarView(
                                 children: [
-                                  SizedBox(height: 23.h),
-                                  OrderWidget(
-                                    name: "Sevinch",
-                                    description:
-                                    "Uyda quvur buzildi, zudlik bilan to'g'irlash kerak, yana bir ikki elektr muammolari bor",
-                                    time: "14:20",
-                                    statusText: "Hali qabul kilmadingiz",
-                                    statusColor: Colors.orange,
-                                    imageUrl: "assets/circular_avatar/profile.png",
-                                    onViewTap: () {
-                                      customerShowInfoWidget(context);
-                                    },
-                                    onChatTap: () {
-                                      Navigator.pushNamed(
-                                        context,
-                                        arguments: {
-                                          "name": "Jovidon",
-                                          "urlAsset":
-                                          "assets/circular_avatar/profile.png",
-                                        },
-                                        RouteNames.chatWithWorker,
-                                      );
-                                    },
-                                  ),
+                                  _buildActive(active),
+                                  _buildCompleted(completed),
+                                  _buildCanceled(canceled),
                                 ],
+                              );
+                            }
+
+                            return RefreshIndicator(
+                              onRefresh: _reload,
+                              child: ListView(
+                                physics: const AlwaysScrollableScrollPhysics(),
+                                children: const [SizedBox(height: 200)],
                               ),
-                            ),
-                            SingleChildScrollView(
-                              child: Column(
-                                children: [
-                                  SizedBox(height: 23.h),
-                                  OrderWidgetTwo(
-                                    name: "Jovidon",
-                                    description:
-                                    "Uyda quvur buzildi, zudlik bilan to'g'irlash kerak, yana bir ikki elektr muammolari bor",
-                                    time: "14:20",
-                                    statusText: "Ish muvaffaqiyatli yakunlangan",
-                                    statusColor: Colors.green,
-                                    imageUrl: "assets/circular_avatar/profile.png",
-                                  ),
-                                ],
-                              ),
-                            ),
-                            SingleChildScrollView(
-                              child: Column(
-                                children: [
-                                  SizedBox(height: 23.h),
-                                  OrderWidgetTwo(
-                                    name: "Jovidon",
-                                    description:
-                                    "Uyda quvur buzildi, zudlik bilan to'g'irlash kerak, yana bir ikki elektr muammolari bor",
-                                    time: "14:20",
-                                    statusText: "Ishni bekor qilgansiz",
-                                    statusColor: Colors.red,
-                                    imageUrl: "assets/circular_avatar/profile.png",
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
+                            );
+                          },
                         ),
                       ),
-
                     ],
                   ),
                 ),

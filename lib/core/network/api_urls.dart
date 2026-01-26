@@ -16,10 +16,20 @@ abstract class ApiUrls{
 
   // Order Customer
   static const String createOrder = '/api/orders/create/';
+  static const String getCusAllOrders = '/api/orders/customer-orders/';
   // Customer Home
   static const String getAllStaff = '/api/staff/';
+  // Worker Home
+  static const String getStaffOrders = '/api/orders/staff-orders/';
+  // Worker Orders State
+  static String acceptOrder(int id) => "/api/orders/$id/accept/";
+  static String cancelOrder(int id) => "/api/orders/$id/cancel/";
+  static String completeOrder(int id) => "/api/orders/$id/complete/";
+
+
   // Worker Info
   static const String getWorkerInfo = '/api/staff/';
+  static const String getWorkerReviews = '/api/reviews/staff/';
 
 
   //Auth Staff

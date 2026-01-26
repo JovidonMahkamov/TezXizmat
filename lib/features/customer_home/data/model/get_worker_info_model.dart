@@ -13,7 +13,7 @@ class GetWorkerInfoModel extends GetWorkerInfoEntity {
       first_name: json['first_name'],
       last_name: json['last_name'],
       price: json['price'],
-      avg_rating: json['avg_rating'],
+      avg_rating: json['avg_rating']?? 0.0,
       image: (json['image'] ?? '') as String,
       profession: json['profession'],
       free_time: json['free_time'],

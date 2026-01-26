@@ -11,3 +11,7 @@ class CustomerCreateOrder extends CustomerOrderEvent {
 
   const CustomerCreateOrder({required this.staff_id, required this.surname, required this.name, required this.description, required this.address});
 }
+
+class GetCustomerAllOrdersE extends CustomerOrderEvent {
+  const GetCustomerAllOrdersE();
+}

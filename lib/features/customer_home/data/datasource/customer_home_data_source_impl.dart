@@ -4,6 +4,7 @@ import 'package:tez_xizmat/core/untils/logger.dart';
 import 'package:tez_xizmat/features/customer_home/data/datasource/customer_home_data_source.dart';
 import 'package:tez_xizmat/features/customer_home/data/model/customer_get_all_staff_model.dart';
 import 'package:tez_xizmat/features/customer_home/data/model/get_worker_info_model.dart';
+import 'package:tez_xizmat/features/customer_home/data/model/get_worker_reviews_model.dart';
 
 class CustomerHomeDataSourceImpl implements CustomerHomeDataSource {
   final DioClient dioClient;
@@ -43,6 +44,32 @@ class CustomerHomeDataSourceImpl implements CustomerHomeDataSource {
       if (response.statusCode == 200 || response.statusCode == 201) {
         LoggerService.info('get worker info successful: ${response.data}');
         return GetWorkerInfoModel.fromJson(response.data);
+      } else {
+        LoggerService.warning(
+          "get worker info  failed: ${response.statusCode}",
+        );
+        throw Exception('get worker info  failed: ${response.statusCode}');
+      }
+    } catch (e, s) {
+      LoggerService.error('Error during get worker info : $e');
+      print(e);
+      print(s);
+      rethrow;
+    }
+  }
+
+  @override
+  Future<List<GetWorkerReviewsModel>> getWorkerReviews({required int id}) async {
+    try {
+      final response = await dioClient.get("${ApiUrls.getWorkerReviews}$id/");
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        LoggerService.info('get worker info successful: ${response.data}');
+        final data = response.data;
+        final List list = data is List ? data : (data['results'] as List);
+
+        return list
+            .map((e) => GetWorkerReviewsModel.fromJson(e as Map<String, dynamic>))
+            .toList();
       } else {
         LoggerService.warning(
           "get worker info  failed: ${response.statusCode}",

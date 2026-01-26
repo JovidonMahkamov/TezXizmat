@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:tez_xizmat/features/auth/presentation/widgets/elevated_button_widget.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:tez_xizmat/features/worker_home/domain/entities/get_staff_orders_entity.dart';
+import 'package:tez_xizmat/features/worker_home/presentation/bloc/put_orders_state/put_orders_state_bloc.dart';
+import 'package:tez_xizmat/features/worker_home/presentation/bloc/put_orders_state/put_orders_state.dart';
+import 'package:tez_xizmat/features/worker_home/presentation/bloc/worker_home_event.dart';
+import '../bloc/get_staff_orders/get_staff_orders_bloc.dart';
 
-
-void customerShowInfoWidget(BuildContext context) {
+void customerShowInfoWidget(BuildContext context, {required GetStaffOrdersEntity order}) {
   showDialog(
     context: context,
     barrierDismissible: false,
@@ -150,31 +155,153 @@ void customerShowInfoWidget(BuildContext context) {
                   ],
                 ),
                 SizedBox(height: 30.h),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    Expanded(
+                BlocConsumer<PutStaffOrderBloc, PutOrdersState>(
+                  listener: (context, state) {
+                    if (state is PutOrdersStateSuccess) {
+                      Navigator.pop(context);
+
+                      // SnackBar
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text("Amal muvaffaqiyatli bajarildi ✅")),
+                      );
+
+                      context.read<GetStaffOrdersBloc>().add(const GetStaffOrdersE());
+                    }
+
+                    if (state is PutOrdersStateError) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text(state.message)),
+                      );
+                    }
+                  },
+                  builder: (context, state) {
+                    final isLoading = state is PutOrdersStateLoading;
+                    final st = order.status.toUpperCase();
+
+                    final isPending = st == "PENDING";
+                    final isAcceptedOrProgress = st == "ACCEPTED" || st == "IN_PROGRESS";
+
+                    void doAccept() {
+                      if (isLoading) return;
+                      context.read<PutStaffOrderBloc>().add(AcceptStaffOrderE(order.id));
+                    }
+
+                    void doCancel() {
+                      if (isLoading) return;
+                      context.read<PutStaffOrderBloc>().add(CancelStaffOrderE(order.id));
+                    }
+
+                    void doComplete() {
+                      if (isLoading) return;
+                      context.read<PutStaffOrderBloc>().add(CompleteStaffOrderE(order.id));
+                    }
+
+                    if (isPending) {
+                      return Row(
+                        children: [
+                          Expanded(
+                            child: SizedBox(
+                              height: 46.h,
+                              child: ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  backgroundColor: Colors.blue,
+                                ),
+                                onPressed:isLoading ? null : doCancel,
+                                child:  Center(
+                                  child: Text(
+                                    isLoading ? "..." : "Bekor qilish",
+                                    style: TextStyle (color: Colors.black),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                          SizedBox(width: 20.w),
+                          Expanded(
+                            child:SizedBox(
+                              height: 46.h,
+                              child: ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  backgroundColor: Colors.blue,
+                                ),
+                                onPressed:isLoading ? null : doAccept,
+                                child:  Center(
+                                  child: Text(
+                                    isLoading ? "..." : "Qabul qilish",
+                                    style: TextStyle (color: Colors.black),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      );
+                    }
+
+                    if (isAcceptedOrProgress) {
+                      return Row(
+                        children: [
+                          Expanded(
+                            child: SizedBox(
+                              height: 46.h,
+                              child: ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  backgroundColor: Colors.blue,
+                                ),
+                                onPressed:isLoading ? null : doCancel,
+                                child:  Center(
+                                  child: Text(
+                                      isLoading ? "..." : "Bekor qilish",
+                                    style: TextStyle (color: Colors.black),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                          SizedBox(width: 20.w),
+                          Expanded(
+                            child:SizedBox(
+                              height: 46.h,
+                              child: ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  backgroundColor: Colors.blue,
+                                ),
+                                onPressed:isLoading ? null : doComplete,
+                                child:  Center(
+                                  child: Text(
+                                    isLoading ? "..." : "Yakunlash",
+                                    style: TextStyle (color: Colors.black),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      );
+                    }
+
+                    return SizedBox(
+                      width: double.infinity,
                       child: ElevatedWidget(
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                        text: "Rad etish",
-                        backgroundColor: Colors.red,
+                        onPressed: () => Navigator.pop(context),
+                        text: "Yopish",
+                        backgroundColor: Colors.grey,
                         textColor: Colors.white,
                       ),
-                    ),
-                    SizedBox(width: 20.w),
-                    Expanded(
-                      child: ElevatedWidget(
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                        text: "Qabul qilish",
-                        backgroundColor: Colors.blue,
-                        textColor: Colors.white,
-                      ),
-                    ),
-                  ],
+                    );
+                  },
                 ),
               ],
             ),

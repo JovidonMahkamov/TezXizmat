@@ -8,14 +8,15 @@ import 'package:tez_xizmat/features/auth/presentation/widgets/elevated_button_wi
 import 'package:tez_xizmat/features/customer_home/presentation/bloc/customer_home_event.dart';
 import 'package:tez_xizmat/features/customer_home/presentation/bloc/get_worker_info/get_worker_info_bloc.dart';
 import 'package:tez_xizmat/features/customer_home/presentation/bloc/get_worker_info/get_worker_info_state.dart';
+import 'package:tez_xizmat/features/customer_home/presentation/bloc/get_worker_reviews/get_worker_reviews_bloc.dart';
 import 'package:tez_xizmat/features/customer_home/presentation/widgets/pop_up_widget.dart';
 import 'package:tez_xizmat/features/customer_home/presentation/widgets/rating_info_widget.dart';
 import 'package:tez_xizmat/features/customer_home/presentation/widgets/service_widget.dart';
 
 class WorkerInfoPage extends StatefulWidget {
   final int id;
-  const WorkerInfoPage({super.key, required this.id,});
 
+  const WorkerInfoPage({super.key, required this.id});
 
   @override
   State<WorkerInfoPage> createState() => _WorkerInfoPageState();
@@ -47,7 +48,14 @@ class _WorkerInfoPageState extends State<WorkerInfoPage> {
         actions: [
           IconButton(
             onPressed: () {
-              Navigator.pushNamed(context, RouteNames.chatWithWorker, arguments:{"name": "Jovidon (Santexnik)", "urlAsset": "assets/circular_avatar/profile.png"} );
+              Navigator.pushNamed(
+                context,
+                RouteNames.chatWithWorker,
+                arguments: {
+                  "name": "Jovidon (Santexnik)",
+                  "urlAsset": "assets/circular_avatar/profile.png",
+                },
+              );
             },
             icon: SvgPicture.asset(
               "assets/home/message.svg",
@@ -57,9 +65,6 @@ class _WorkerInfoPageState extends State<WorkerInfoPage> {
           ),
         ],
       ),
-
-
-
       body: BlocBuilder<GetWorkerInfoBloc, GetWorkerInfoState>(
         builder: (context, state) {
           // 1) LOADING
@@ -79,7 +84,9 @@ class _WorkerInfoPageState extends State<WorkerInfoPage> {
                     const SizedBox(height: 12),
                     ElevatedButton(
                       onPressed: () {
-                        context.read<GetWorkerInfoBloc>().add(GetWorkerInfoE(id: widget.id));
+                        context.read<GetWorkerInfoBloc>().add(
+                          GetWorkerInfoE(id: widget.id),
+                        );
                       },
                       child: const Text("Qayta urinish"),
                     ),
@@ -91,13 +98,13 @@ class _WorkerInfoPageState extends State<WorkerInfoPage> {
 
           // 3) LOADED
           if (state is GetWorkerInfoSuccess) {
-
             final getWorkerInfo = state.getWorkerInfoEntity;
             final img = getWorkerInfo.image.trim();
-            // String? bo‘lsin
             final imageUrl = img.isEmpty
                 ? null
-                : (img.startsWith('http') ? img : 'https://tezxizmatlar.uz$img');
+                : (img.startsWith('http')
+                      ? img
+                      : 'https://tezxizmatlar.uz$img');
             return SingleChildScrollView(
               child: Padding(
                 padding: const EdgeInsets.only(left: 24, right: 24, top: 20),
@@ -107,16 +114,17 @@ class _WorkerInfoPageState extends State<WorkerInfoPage> {
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        CircleAvatar(
+                          radius: 50,
+                          backgroundImage: imageUrl != null
+                              ? NetworkImage(imageUrl)
+                              : const AssetImage(
+                                      "assets/circular_avatar/profile.png",
+                                    )
+                                    as ImageProvider,
+                        ),
 
-
-              CircleAvatar(
-              radius: 50,
-                backgroundImage: imageUrl != null
-                    ? NetworkImage(imageUrl)
-                    : const AssetImage("assets/circular_avatar/profile.png") as ImageProvider,
-            ),
-
-            SizedBox(width: 14.w),
+                        SizedBox(width: 14.w),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -156,7 +164,17 @@ class _WorkerInfoPageState extends State<WorkerInfoPage> {
                                   Flexible(
                                     child: TextButton(
                                       onPressed: () {
-                                        showRatingSheet(context);
+                                        context
+                                            .read<GetWorkerReviewsBloc>()
+                                            .add(
+                                              GetWorkerReviewsE(id: widget.id),
+                                            );
+                                        showModalBottomSheet(
+                                          context: context,
+                                          isScrollControlled: true,
+                                          backgroundColor: Colors.transparent,
+                                          builder: (_) => RatingSheetBody(),
+                                        );
                                       },
                                       child: Text(
                                         getWorkerInfo.ratings_count.toString(),
@@ -209,48 +227,76 @@ class _WorkerInfoPageState extends State<WorkerInfoPage> {
                     SizedBox(child: Divider()),
                     Text(
                       "Xizmatlar",
-                      style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.w700),
+                      style: TextStyle(
+                        fontSize: 18.sp,
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
                     SizedBox(height: 10.h),
-                    serviceWidget(text: getWorkerInfo.skills),
-                    serviceWidget(text: getWorkerInfo.skills),
-                    serviceWidget(text: getWorkerInfo.skills),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: getWorkerInfo.skills
+                          .split(',')
+                          .map((e) => e.trim())
+                          .where((e) => e.isNotEmpty)
+                          .map((skill) => Padding(
+                        padding: EdgeInsets.only(bottom: 6.h),
+                        child: serviceWidget(text: skill),
+                      ))
+                          .toList(),
+                    ),
                     SizedBox(child: Divider()),
                     Text(
                       "Narx",
-                      style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.w700),
+                      style: TextStyle(
+                        fontSize: 18.sp,
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
                     SizedBox(height: 10.h),
                     Text(
                       getWorkerInfo.price,
-                      style: TextStyle(fontSize: 14.sp,color: Color(0xff4D4D4D)),
+                      style: TextStyle(
+                        fontSize: 14.sp,
+                        color: Color(0xff4D4D4D),
+                      ),
                     ),
-                    SizedBox(child: Divider(),),
+                    SizedBox(child: Divider()),
                     Text(
                       "Mavjud vaqt",
-                      style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.w700),
+                      style: TextStyle(
+                        fontSize: 18.sp,
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
                     SizedBox(height: 10.h),
                     Text(
                       getWorkerInfo.free_time,
-                      style: TextStyle(fontSize: 14.sp,color: Color(0xff4D4D4D)),
+                      style: TextStyle(
+                        fontSize: 14.sp,
+                        color: Color(0xff4D4D4D),
+                      ),
                     ),
-                    SizedBox(child: Divider(),),
-                    SizedBox(height: 20.h,),
-                    ElevatedWidget(onPressed: (){
-                      showDialog(
-                        context: context,
-                        barrierDismissible: false,
-                        builder: (_) => CreateOrderDialog(staffId: getWorkerInfo.id,
-                        ),
-                      );
-                    }, text: "Bog'lanish", backgroundColor:  Color(0xff1778F2), textColor: Colors.white,),
-                    SizedBox(height: 30.h,),
+                    SizedBox(child: Divider()),
+                    SizedBox(height: 20.h),
+                    ElevatedWidget(
+                      onPressed: () {
+                        showDialog(
+                          context: context,
+                          barrierDismissible: false,
+                          builder: (_) =>
+                              CreateOrderDialog(staffId: getWorkerInfo.id),
+                        );
+                      },
+                      text: "Bog'lanish",
+                      backgroundColor: Color(0xff1778F2),
+                      textColor: Colors.white,
+                    ),
+                    SizedBox(height: 30.h),
                   ],
                 ),
               ),
             );
-
           }
 
           // Default (agar state initial bo‘lsa)
@@ -260,12 +306,3 @@ class _WorkerInfoPageState extends State<WorkerInfoPage> {
     );
   }
 }
-
-
-
-
-
-
-
-
-

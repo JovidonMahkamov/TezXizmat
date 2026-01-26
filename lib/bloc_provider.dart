@@ -9,12 +9,17 @@ import 'package:tez_xizmat/features/auth/presentation/bloc/customer_send_email/c
 import 'package:tez_xizmat/features/auth/presentation/bloc/customer_verify_email/customer_verify_email_bloc.dart';
 import 'package:tez_xizmat/features/customer_home/presentation/bloc/customer_get_all_staff/customer_get_all_staff_bloc.dart';
 import 'package:tez_xizmat/features/customer_home/presentation/bloc/get_worker_info/get_worker_info_bloc.dart';
+import 'package:tez_xizmat/features/customer_home/presentation/bloc/get_worker_reviews/get_worker_reviews_bloc.dart';
 import 'package:tez_xizmat/features/customer_order/presentation/bloc/customer_create_order/customer_create_order_bloc.dart';
+import 'package:tez_xizmat/features/customer_order/presentation/bloc/get_customer_all_orders/get_customer_all_orders_bloc.dart';
 import 'package:tez_xizmat/features/customer_profile/presentation/bloc/profile_bloc/customer_profile_bloc.dart';
 import 'package:tez_xizmat/features/customer_profile/presentation/bloc/update_profile_bloc/customer_update_profile_bloc.dart';
+import 'package:tez_xizmat/features/worker_home/presentation/bloc/get_staff_orders/get_staff_orders_bloc.dart';
 import 'package:tez_xizmat/features/worker_profile/presentation/bloc/worker_edit_profile/worker_edit_profile_bloc.dart';
 import 'package:tez_xizmat/features/worker_profile/presentation/bloc/worker_profile/worker_profile_bloc.dart';
 import 'package:tez_xizmat/features/worker_profile/presentation/bloc/worker_profile_image/worker_profile_image_bloc.dart';
+
+import 'features/worker_home/presentation/bloc/put_orders_state/put_orders_state_bloc.dart';
 
 class MyBlocProvider extends StatelessWidget {
   const MyBlocProvider({super.key, required this.child});
@@ -39,6 +44,10 @@ class MyBlocProvider extends StatelessWidget {
         BlocProvider<CustomerCreateOrderBloc>(create: (context) => sl<CustomerCreateOrderBloc>()),
         BlocProvider<CustomerGetAllStaffBloc>(create: (context) => sl<CustomerGetAllStaffBloc>()),
         BlocProvider<GetWorkerInfoBloc>(create: (context) => sl<GetWorkerInfoBloc>()),
+        BlocProvider<GetWorkerReviewsBloc>(create: (context) => sl<GetWorkerReviewsBloc>()),
+        BlocProvider<GetCustomerAllOrdersBloc>(create: (context) => sl<GetCustomerAllOrdersBloc>()),
+        BlocProvider<GetStaffOrdersBloc>(create: (context) => sl<GetStaffOrdersBloc>()),
+        BlocProvider<PutStaffOrderBloc>(create: (context) => sl<PutStaffOrderBloc>()),
       ],
       child: child,
     );

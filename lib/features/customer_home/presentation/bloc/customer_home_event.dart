@@ -11,3 +11,8 @@ class GetWorkerInfoE extends CustomerHomeEvent {
 
   const GetWorkerInfoE({required this.id});
 }
+
+class GetWorkerReviewsE extends CustomerHomeEvent{
+  final int id;
+  const GetWorkerReviewsE({required this.id});
+}

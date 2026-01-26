@@ -9,7 +9,7 @@ class CustomerGetAllStaffBloc extends Bloc<CustomerHomeEvent, CustomerGetAllStaf
   final CustomerGetAllStaffUseCase customerGetAllStaffUseCase;
 
   CustomerGetAllStaffBloc(this.customerGetAllStaffUseCase) : super(CustomerGetAllStaffInitial()) {
-    on<CustomerHomeEvent>(onLogInUser);
+    on<CustomerGetAllStaff>(onLogInUser);
   }
 
   Future<void> onLogInUser(event, emit) async {
