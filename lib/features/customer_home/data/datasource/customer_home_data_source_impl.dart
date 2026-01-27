@@ -1,5 +1,6 @@
-import 'package:tez_xizmat/core/network/api_urls.dart';
-import 'package:tez_xizmat/core/network/dio_client.dart';
+import 'package:tez_xizmat/core/network/customer_api_urls.dart';
+import 'package:tez_xizmat/core/network/customer_dio_client.dart';
+import 'package:tez_xizmat/core/network/staff_dio_client.dart';
 import 'package:tez_xizmat/core/untils/logger.dart';
 import 'package:tez_xizmat/features/customer_home/data/datasource/customer_home_data_source.dart';
 import 'package:tez_xizmat/features/customer_home/data/model/customer_get_all_staff_model.dart';
@@ -7,14 +8,15 @@ import 'package:tez_xizmat/features/customer_home/data/model/get_worker_info_mod
 import 'package:tez_xizmat/features/customer_home/data/model/get_worker_reviews_model.dart';
 
 class CustomerHomeDataSourceImpl implements CustomerHomeDataSource {
-  final DioClient dioClient;
+  final StaffDioClient staffDioClient;
+  final CustomerDioClient customerDioClient;
 
-  CustomerHomeDataSourceImpl(this.dioClient);
+  CustomerHomeDataSourceImpl(this.staffDioClient, this.customerDioClient);
 
   @override
   Future<List<CustomerGetAllStaffModel>> getAllStaff() async {
     try {
-      final response = await dioClient.get(ApiUrls.getAllStaff);
+      final response = await customerDioClient.get(CustomerApiUrls.getAllStaff);
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         LoggerService.info('customer get all staff successful: ${response.data}');
@@ -40,7 +42,7 @@ class CustomerHomeDataSourceImpl implements CustomerHomeDataSource {
   @override
   Future<GetWorkerInfoModel> getWorkerInfo({required int id}) async{
     try {
-      final response = await dioClient.get("${ApiUrls.getWorkerInfo}/$id/");
+      final response = await customerDioClient.get("${CustomerApiUrls.getWorkerInfo}/$id/");
       if (response.statusCode == 200 || response.statusCode == 201) {
         LoggerService.info('get worker info successful: ${response.data}');
         return GetWorkerInfoModel.fromJson(response.data);
@@ -61,7 +63,7 @@ class CustomerHomeDataSourceImpl implements CustomerHomeDataSource {
   @override
   Future<List<GetWorkerReviewsModel>> getWorkerReviews({required int id}) async {
     try {
-      final response = await dioClient.get("${ApiUrls.getWorkerReviews}$id/");
+      final response = await customerDioClient.get("${CustomerApiUrls.getWorkerReviews}$id/");
       if (response.statusCode == 200 || response.statusCode == 201) {
         LoggerService.info('get worker info successful: ${response.data}');
         final data = response.data;

@@ -1,9 +1,10 @@
 import 'dart:async';
 import 'package:dio/dio.dart';
-import 'api_urls.dart';
+import 'package:tez_xizmat/core/network/staff_api_urls.dart';
+import 'customer_api_urls.dart';
 import 'package:tez_xizmat/features/auth/data/datasource/local/auth_local_data_source.dart';
 
-class DioClient {
+class StaffDioClient {
   final Dio _dio;
   final AuthLocalDataSource local;
 
@@ -11,10 +12,10 @@ class DioClient {
   final List<void Function(String token)> _refreshQueue = [];
 
 
-  DioClient({required this.local})
+  StaffDioClient({required this.local})
       : _dio = Dio(
     BaseOptions(
-      baseUrl: ApiUrls.baseUrl,
+      baseUrl: StaffApiUrls.baseUrl,
       connectTimeout: const Duration(seconds: 30),
       receiveTimeout: const Duration(seconds: 30),
       headers: {'Content-Type': 'application/json'},
@@ -95,7 +96,7 @@ class DioClient {
       }
 
       final isStaff = (local.getRole() ?? 'customer') == 'staff';
-      final refreshUrl = isStaff ? ApiUrls.refreshStaff : ApiUrls.refreshCustomer;
+      final refreshUrl = isStaff ? StaffApiUrls.refreshStaff : StaffApiUrls.refreshCustomer;
 
       // Refresh so‘roviga Authorization qo‘shilmasin
       final resp = await _dio.post(

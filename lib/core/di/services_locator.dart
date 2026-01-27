@@ -2,7 +2,8 @@ import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:hive_flutter/adapters.dart';
-import 'package:tez_xizmat/core/network/dio_client.dart';
+import 'package:tez_xizmat/core/network/customer_dio_client.dart';
+import 'package:tez_xizmat/core/network/staff_dio_client.dart';
 import 'package:tez_xizmat/features/auth/data/datasource/local/auth_local_data_source.dart';
 import 'package:tez_xizmat/features/auth/data/datasource/local/auth_local_remote_data_source.dart';
 import 'package:tez_xizmat/features/auth/data/datasource/remote/customer_remote_data_source.dart';
@@ -57,7 +58,6 @@ import 'package:tez_xizmat/features/worker_profile/data/datasources/worker_remot
 import 'package:tez_xizmat/features/worker_profile/data/repositories/worker_profile_repository_impl.dart';
 import 'package:tez_xizmat/features/worker_profile/domain/repositories/worker_repository.dart';
 import 'package:tez_xizmat/features/worker_profile/domain/usecases/worker_edit_profile_use_case.dart';
-
 import '../../features/worker_home/domain/usecase/get_staff_orders_use_case.dart';
 import '../../features/worker_home/domain/usecase/put_orders_state_use_case.dart';
 import '../../features/worker_home/presentation/bloc/put_orders_state/put_orders_state_bloc.dart';
@@ -78,35 +78,36 @@ Future<void> setup() async {
         () => AuthLocalDataSourceImpl(authBox),
   );
   /// DioClient
-  sl.registerLazySingleton<DioClient>(() => DioClient(local: sl()));
+  sl.registerLazySingleton<StaffDioClient>(() => StaffDioClient(local: sl()));
+  sl.registerLazySingleton<CustomerDioClient>(() => CustomerDioClient(local: sl()));
 
   ///! DataSource
   ///* Auth
   sl.registerLazySingleton<CustomerRemoteDataSource>(
-        () => CustomerRemoteDataSourceImpl(dioClient: sl(), local: sl()),
+        () => CustomerRemoteDataSourceImpl(customerDioClient: sl(), local: sl(), staffDioClient: sl()),
   );
   ///* Profile Customer
   sl.registerLazySingleton<CustomerProfileDataSource>(
-        () => CustomerProfileDataSourceImpl(sl(), sl()),
+        () => CustomerProfileDataSourceImpl(sl(), sl(), sl()),
   );
   ///* Profile Staff
   sl.registerLazySingleton<WorkerRemoteDataSource>(
-          () => WorkerRemoteDataSourceImpl(sl(), sl()),
+          () => WorkerRemoteDataSourceImpl(sl(), sl(), sl()),
   );
 
   ///* Customer Order
   sl.registerLazySingleton<CustomerOrderDataSource>(
-        () => CustomerOrderDataSourceImpl(sl(), sl()),
+        () => CustomerOrderDataSourceImpl(sl(), sl(), sl()),
   );
 
   ///* Customer Home
   sl.registerLazySingleton<CustomerHomeDataSource>(
-        () => CustomerHomeDataSourceImpl(sl(),),
+        () => CustomerHomeDataSourceImpl(sl(), sl()),
   );
 
   ///* Worker Home
   sl.registerLazySingleton<WorkerHomeDataSource>(
-        () => WorkerHomeDataSourceImpl(sl(),),
+        () => WorkerHomeDataSourceImpl(sl(), sl()),
   );
 
   ///! Repository

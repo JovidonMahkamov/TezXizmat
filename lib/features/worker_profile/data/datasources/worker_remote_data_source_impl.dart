@@ -1,5 +1,5 @@
-import 'package:tez_xizmat/core/network/api_urls.dart';
-import 'package:tez_xizmat/core/network/dio_client.dart';
+import 'package:tez_xizmat/core/network/customer_dio_client.dart';
+import 'package:tez_xizmat/core/network/staff_dio_client.dart';
 import 'package:tez_xizmat/core/untils/logger.dart';
 import 'package:tez_xizmat/features/auth/data/datasource/local/auth_local_data_source.dart';
 import 'package:tez_xizmat/features/worker_profile/data/datasources/worker_remote_data_source.dart';
@@ -8,19 +8,21 @@ import 'package:tez_xizmat/features/worker_profile/data/models/worker_profile_mo
 import 'package:dio/dio.dart';
 import 'package:path/path.dart' as p;
 import 'package:tez_xizmat/features/worker_profile/data/models/worker_profile_image_model.dart';
+import '../../../../core/network/staff_api_urls.dart';
 
 
 class WorkerRemoteDataSourceImpl implements WorkerRemoteDataSource {
-  final DioClient dioClient;
+  final StaffDioClient staffDioClient;
+  final CustomerDioClient customerDioClient;
   final AuthLocalDataSource local;
 
-  WorkerRemoteDataSourceImpl( this.dioClient,  this.local);
+  WorkerRemoteDataSourceImpl(this.customerDioClient, this.staffDioClient, this.local);
 
   @override
   Future<WorkerProfileModel> getProfile() async{
     try {
 
-      final response = await dioClient.get(ApiUrls.getStaffProfile);
+      final response = await customerDioClient.get(StaffApiUrls.getStaffProfile);
       if (response.statusCode == 200 || response.statusCode == 201) {
         LoggerService.info('get worker profile successful: ${response.data}');
         return WorkerProfileModel.fromJson(response.data);
@@ -40,8 +42,8 @@ class WorkerRemoteDataSourceImpl implements WorkerRemoteDataSource {
   Future<WorkerEditProfileModel> editProfile({required String first_name, required String last_name, required String profession, required String description, required String skills, required String price, required String free_time}) async{
     try {
 
-      final response = await dioClient.patch(
-        ApiUrls.updateStaffProfile,
+      final response = await customerDioClient.patch(
+        StaffApiUrls.updateStaffProfile,
         data: {
           "first_name": first_name,
           "last_name": last_name,
@@ -78,8 +80,8 @@ class WorkerRemoteDataSourceImpl implements WorkerRemoteDataSource {
         ),
       });
 
-      final response = await dioClient.put(
-        ApiUrls.staffProfileImage,
+      final response = await customerDioClient.put(
+        StaffApiUrls.staffProfileImage,
         data: formData,
         options: Options(
           contentType: "multipart/form-data",

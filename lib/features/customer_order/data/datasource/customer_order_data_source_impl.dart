@@ -1,5 +1,6 @@
-import 'package:tez_xizmat/core/network/api_urls.dart';
-import 'package:tez_xizmat/core/network/dio_client.dart';
+import 'package:tez_xizmat/core/network/customer_api_urls.dart';
+import 'package:tez_xizmat/core/network/customer_dio_client.dart';
+import 'package:tez_xizmat/core/network/staff_dio_client.dart';
 import 'package:tez_xizmat/core/untils/logger.dart';
 import 'package:tez_xizmat/features/auth/data/datasource/local/auth_local_data_source.dart';
 import 'package:tez_xizmat/features/customer_order/data/datasource/customer_order_data_source.dart';
@@ -7,11 +8,13 @@ import 'package:tez_xizmat/features/customer_order/data/model/customer_create_or
 import 'package:tez_xizmat/features/customer_order/data/model/get_customer_all_orders_model.dart';
 
 class CustomerOrderDataSourceImpl implements CustomerOrderDataSource {
-  final DioClient dioClient;
+  final StaffDioClient staffDioClient;
+  final CustomerDioClient customerDioClient;
   final AuthLocalDataSource local;
 
   CustomerOrderDataSourceImpl(
-     this.dioClient,
+     this.staffDioClient,
+     this.customerDioClient,
      this.local,
   );
 
@@ -24,7 +27,7 @@ class CustomerOrderDataSourceImpl implements CustomerOrderDataSource {
     required String address,
   })async {
     try {
-      final response = await dioClient.post(ApiUrls.createOrder,
+      final response = await customerDioClient.post(CustomerApiUrls.createOrder,
         data: {
           'staff_id': staff_id,
           'name': name,
@@ -53,7 +56,7 @@ class CustomerOrderDataSourceImpl implements CustomerOrderDataSource {
   @override
   Future<List<GetCustomerAllOrdersModel>> getCusAllOrders() async{
     try {
-      final response = await dioClient.get(ApiUrls.getCusAllOrders);
+      final response = await customerDioClient.get(CustomerApiUrls.getCusAllOrders);
       if (response.statusCode == 200 || response.statusCode == 201) {
         LoggerService.info('customer create order successful: ${response.data}');
         final data = response.data;

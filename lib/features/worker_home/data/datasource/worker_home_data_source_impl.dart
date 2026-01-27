@@ -1,19 +1,21 @@
+import 'package:tez_xizmat/core/network/staff_api_urls.dart';
+import 'package:tez_xizmat/core/network/staff_dio_client.dart';
 import 'package:tez_xizmat/features/worker_home/data/datasource/worker_home_data_source.dart';
 import 'package:tez_xizmat/features/worker_home/data/model/get_staff_orders_model.dart';
 import 'package:tez_xizmat/features/worker_home/data/model/put_orders_state_model.dart';
-import '../../../../core/network/api_urls.dart';
-import '../../../../core/network/dio_client.dart';
+import '../../../../core/network/customer_dio_client.dart';
 import '../../../../core/untils/logger.dart';
 
 class WorkerHomeDataSourceImpl implements WorkerHomeDataSource {
-  final DioClient dioClient;
+  final StaffDioClient staffDioClient;
+  final CustomerDioClient customerDioClient;
 
-  WorkerHomeDataSourceImpl(this.dioClient);
+  WorkerHomeDataSourceImpl(this.staffDioClient, this.customerDioClient);
 
   @override
   Future<List<GetStaffOrdersModel>> getStaffOrders() async {
     try {
-      final response = await dioClient.get(ApiUrls.getStaffOrders);
+      final response = await customerDioClient.get(StaffApiUrls.getStaffOrders);
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         LoggerService.info('get staff orders successful: ${response.data}');
@@ -40,7 +42,7 @@ class WorkerHomeDataSourceImpl implements WorkerHomeDataSource {
   @override
   Future<PutOrdersStateModel> accept(int id) async{
     try {
-      final response = await dioClient.put(ApiUrls.acceptOrder(id));
+      final response = await customerDioClient.put(StaffApiUrls.acceptOrder(id));
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         LoggerService.info('put orders accept successful: ${response.data}');
@@ -62,7 +64,7 @@ class WorkerHomeDataSourceImpl implements WorkerHomeDataSource {
   @override
   Future<PutOrdersStateModel> cancel(int id) async{
     try {
-      final response = await dioClient.put(ApiUrls.cancelOrder(id));
+      final response = await customerDioClient.put(StaffApiUrls.cancelOrder(id));
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         LoggerService.info('put orders cancel successful: ${response.data}');
@@ -84,7 +86,7 @@ class WorkerHomeDataSourceImpl implements WorkerHomeDataSource {
   @override
   Future<PutOrdersStateModel> complete(int id) async {
     try {
-      final response = await dioClient.put(ApiUrls.completeOrder(id));
+      final response = await customerDioClient.put(StaffApiUrls.completeOrder(id));
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         LoggerService.info('put orders complete successful: ${response.data}');

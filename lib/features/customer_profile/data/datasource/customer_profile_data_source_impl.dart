@@ -1,4 +1,5 @@
-import 'package:tez_xizmat/core/network/dio_client.dart';
+import 'package:tez_xizmat/core/network/customer_dio_client.dart';
+import 'package:tez_xizmat/core/network/staff_dio_client.dart';
 import 'package:tez_xizmat/core/untils/logger.dart';
 import 'package:tez_xizmat/features/auth/data/datasource/local/auth_local_data_source.dart';
 import 'package:tez_xizmat/features/customer_profile/data/datasource/customer_profile_data_source.dart';
@@ -6,15 +7,16 @@ import 'package:tez_xizmat/features/customer_profile/data/model/customer_profile
 import 'package:tez_xizmat/features/customer_profile/data/model/customer_update_profile_model.dart';
 
 class CustomerProfileDataSourceImpl extends CustomerProfileDataSource {
-  final DioClient dioClient;
+  final StaffDioClient staffDioClient;
+  final CustomerDioClient customerDioClient;
   final AuthLocalDataSource authLocalDataSource;
 
-  CustomerProfileDataSourceImpl(this.dioClient, this.authLocalDataSource, );
+  CustomerProfileDataSourceImpl(this.customerDioClient, this.staffDioClient, this.authLocalDataSource, );
 
   @override
   Future<CustomerProfileModel> getProfile() async {
     try {
-      final response = await dioClient.get(
+      final response = await customerDioClient.get(
         'https://tezxizmatlar.uz/api/auth/customer/profile/',
       );
       if (response.statusCode == 200 || response.statusCode == 201) {
@@ -40,7 +42,7 @@ class CustomerProfileDataSourceImpl extends CustomerProfileDataSource {
     required String surname,
   }) async {
     try {
-      final response = await dioClient.patch(
+      final response = await customerDioClient.patch(
         'https://tezxizmatlar.uz/api/auth/customer/profile/update/',
         data: {"first_name": name, "last_name": surname},
       );
