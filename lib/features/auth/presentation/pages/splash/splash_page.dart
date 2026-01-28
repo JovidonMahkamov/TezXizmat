@@ -16,50 +16,35 @@ class SplashPage extends StatefulWidget {
 }
 
 class _SplashPageState extends State<SplashPage> {
-  StreamSubscription<List<ConnectivityResult>>? _subscription;
+  StreamSubscription<List<ConnectivityResult>>? _connectivitySub;
+  StreamSubscription<InternetConnectionStatus>? _internetSub;
 
   bool _hasNavigated = false;
+  bool _snackShown = false;
+
+  final InternetConnectionChecker _checker = InternetConnectionChecker();
 
   @override
   void initState() {
     super.initState();
 
-    _listenInternetChanges();
-
-    // SnackBar/Context muammosi bo'lmasligi uchun post frame
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _checkRealInternet();
+    // SnackBar uchun context tayyor bo‘lishi kerak
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await _initialCheck();
+      _listenNetworkChanges();
     });
   }
 
   @override
   void dispose() {
-    _subscription?.cancel();
+    _connectivitySub?.cancel();
+    _internetSub?.cancel();
     super.dispose();
   }
 
-  void _listenInternetChanges() {
-    _subscription =
-        Connectivity().onConnectivityChanged.listen((results) async {
-
-          final hasInternet =
-              results.contains(ConnectivityResult.mobile) ||
-                  results.contains(ConnectivityResult.wifi);
-
-          if (!mounted) return;
-
-          if (hasInternet && !_hasNavigated) {
-            await _navigateToNextPage();
-          } else if (!hasInternet && !_hasNavigated) {
-            _showNoInternetSnackBar();
-          }
-        });
-  }
-
-
-  Future<void> _checkRealInternet() async {
-    final hasInternet = await InternetConnectionChecker().hasConnection;
-
+  /// App ochilganda 1-marta real internet tekshirish
+  Future<void> _initialCheck() async {
+    final hasInternet = await _checker.hasConnection;
     if (!mounted) return;
 
     if (hasInternet) {
@@ -69,43 +54,91 @@ class _SplashPageState extends State<SplashPage> {
     }
   }
 
+  /// Internet yoqilganda avtomatik o‘tishi uchun listenerlar
+  void _listenNetworkChanges() {
+    // 1) Tarmoq turi o‘zgarsa (wifi/mobile/none)
+    _connectivitySub =
+        Connectivity().onConnectivityChanged.listen((results) async {
+          if (!mounted || _hasNavigated) return;
+
+          final hasAnyNetwork =
+              results.isNotEmpty && !results.contains(ConnectivityResult.none);
+
+          if (!hasAnyNetwork) {
+            _showNoInternetSnackBar();
+            return;
+          }
+
+          // wifi/mobile ulandi -> real internet bormi tekshiramiz
+          final hasInternet = await _checker.hasConnection;
+          if (!mounted || _hasNavigated) return;
+
+          if (hasInternet) {
+            await _navigateToNextPage();
+          } else {
+            _showNoInternetSnackBar();
+          }
+        });
+
+    // 2) Real internet status (wifi ulangan bo‘lsa ham internet yo‘q bo‘lishi mumkin)
+    _internetSub = _checker.onStatusChange.listen((status) async {
+      if (!mounted || _hasNavigated) return;
+
+      if (status == InternetConnectionStatus.connected) {
+        await _navigateToNextPage();
+      } else {
+        _showNoInternetSnackBar();
+      }
+    });
+  }
+
   void _showNoInternetSnackBar() {
+    if (!mounted) return;
+
+    // SnackBar qayta-qayta spam bo‘lmasin
+    if (_snackShown) return;
+    _snackShown = true;
+
     ScaffoldMessenger.of(context).clearSnackBars();
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
-        content: Text("Internet mavjud emas. Iltimos, tarmoqni tekshiring!"),
+        content: Text("Internet mavjud emas. Iltimos, tarmoqni yoqing!"),
         duration: Duration(seconds: 3),
+        backgroundColor: Colors.red,
       ),
     );
+
+    Future.delayed(const Duration(seconds: 3), () {
+      _snackShown = false;
+    });
   }
 
   Future<void> _navigateToNextPage() async {
     if (_hasNavigated) return;
     _hasNavigated = true;
 
-    await _subscription?.cancel();
+    // Listenerlarni to‘xtatamiz
+    await _connectivitySub?.cancel();
+    await _internetSub?.cancel();
 
-    // Splash ekranda 2 sekund turadi
+    // Splash 2 sekund turadi
     await Future.delayed(const Duration(seconds: 2));
+    if (!mounted) return;
 
-    // Hive authBox
     final box = await Hive.openBox('authBox');
     final accessToken = box.get('accessToken');
     final refreshToken = box.get('refreshToken');
+    final role = box.get('role', defaultValue: 'customer');
+
+    final hasAccess =
+        accessToken != null && accessToken.toString().trim().isNotEmpty;
+    final hasRefresh =
+        refreshToken != null && refreshToken.toString().trim().isNotEmpty;
 
     if (!mounted) return;
 
-    final hasAccessToken =
-        accessToken != null && accessToken.toString().trim().isNotEmpty;
 
-    final hasRefreshToken =
-        refreshToken != null && refreshToken.toString().trim().isNotEmpty;
-
-
-    // Loginda bo'lgan deb hisoblash (accessToken bo'lsa yetadi)
-    final role = box.get('role', defaultValue: 'customer');
-
-    if (hasAccessToken && hasRefreshToken) {
+    if (hasAccess && hasRefresh) {
       Navigator.pushReplacementNamed(
         context,
         role == 'staff'
@@ -117,17 +150,16 @@ class _SplashPageState extends State<SplashPage> {
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async {
-        SystemNavigator.pop(); // orqaga bosganda app chiqib ketadi
+        SystemNavigator.pop();
         return false;
       },
-      child: Scaffold(
+      child: const Scaffold(
         backgroundColor: Colors.white,
-        body: const Center(child: LogoWidget()),
+        body: Center(child: LogoWidget()),
       ),
     );
   }
@@ -162,3 +194,4 @@ class LogoWidget extends StatelessWidget {
     );
   }
 }
+

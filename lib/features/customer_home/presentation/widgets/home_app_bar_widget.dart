@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:tez_xizmat/core/routes/route_names.dart';
+import 'package:tez_xizmat/features/customer_profile/presentation/bloc/profile_bloc/customer_profile_bloc.dart';
+import 'package:tez_xizmat/features/customer_profile/presentation/bloc/profile_bloc/customer_profile_state.dart';
+
+import '../../../worker_home/presentation/pages/worker_profile_image_view.dart';
 
 class HomeAppBarWidget extends StatefulWidget implements PreferredSizeWidget {
   const
@@ -18,22 +23,72 @@ class _HomeAppBarWidgetState extends State<HomeAppBarWidget> {
   Widget build(BuildContext context) {
     return AppBar(
       automaticallyImplyLeading: false,
-      title: Row(
-        children: [
-          CircleAvatar(
-            radius: 20,
-            backgroundImage: AssetImage("assets/home/profile_image.png"),
-          ),
-          SizedBox(width: 15.w),
-          Expanded(
-            child: Text(
-              "Hello👋 Franklin",
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.w600),
-            ),
-          ),
-        ],
+      title: BlocBuilder<CustomerProfileBloc, CustomerProfileState>(
+        builder: (context, state) {
+          if (state is CustomerProfileLoading) {
+          }
+
+          if (state is CustomerProfileError) {
+            return const Text(
+              "Xatolik",
+              style: TextStyle(color: Colors.black),
+            );
+          }
+
+          if (state is CustomerProfileSuccess) {
+            final profile = state.customerProfileEntity;
+
+            final imageUrl = profile.image.isNotEmpty
+                ? (profile.image.startsWith('http')
+                ? profile.image
+                : 'https://tezxizmatlar.uz${profile.image}')
+                : null;
+
+            return Row(
+              children: [
+                GestureDetector(
+                  onTap: imageUrl == null
+                      ? null
+                      : () {
+                    Navigator.push(
+                      context,
+                      PageRouteBuilder(
+                        opaque: false,
+                        pageBuilder: (_, __, ___) => WorkerProfileImageView(
+                          imageUrl: imageUrl,
+                        ),
+                      ),
+                    );
+                  },
+                  child: Hero(
+                    tag: profileHeroTag,
+                    child: CircleAvatar(
+                      radius: 20,
+                      backgroundImage: imageUrl != null
+                          ? NetworkImage(imageUrl)
+                          : const AssetImage('assets/profile/per.png') as ImageProvider,
+                    ),
+                  ),
+                ),
+
+                SizedBox(width: 12.w),
+                Expanded(
+                  child: Text(
+                    "${profile.firstName} ${profile.lastName}",
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: 18.sp,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black,
+                    ),
+                  ),
+                ),
+              ],
+            );
+          }
+          return const Text("");
+        },
       ),
       actions: [
         IconButton(onPressed:(){

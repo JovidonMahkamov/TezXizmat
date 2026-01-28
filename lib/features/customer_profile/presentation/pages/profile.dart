@@ -9,6 +9,8 @@ import 'package:tez_xizmat/features/customer_profile/presentation/widgets/edit_p
 import 'package:tez_xizmat/features/customer_profile/presentation/widgets/image_picker_widget.dart';
 import 'package:tez_xizmat/features/customer_profile/presentation/widgets/profile_log_out_widget.dart';
 
+import '../../../worker_home/presentation/pages/worker_profile_image_view.dart';
+
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
 
@@ -71,11 +73,45 @@ class _ProfilePageState extends State<ProfilePage> {
           // 3) LOADED
           if (state is CustomerProfileSuccess) {
             final profile = state.customerProfileEntity;
+
+            final imageUrl = profile.image.isNotEmpty
+                ? (profile.image.startsWith('http')
+                ? profile.image
+                : 'https://tezxizmatlar.uz${profile.image}')
+                : null;
             // profile: UserProfileEntity bo‘lishi kerak (firstName,lastName,email)
 
             return Column(
               children: [
-                const Center(child: ImagePickerWidget()),
+                SizedBox(height: 10.h),
+                GestureDetector(
+                  onTap: imageUrl == null
+                      ? null
+                      : () {
+                    Navigator.push(
+                      context,
+                      PageRouteBuilder(
+                        opaque: false,
+                        pageBuilder: (_, __, ___) =>
+                            WorkerProfileImageView(
+                              imageUrl: imageUrl,
+                            ),
+                      ),
+                    );
+                  },
+                  child: Hero(
+                    tag: profileHeroTag,
+                    child: CircleAvatar(
+                      radius: 60,
+                      backgroundColor: Colors.grey.shade300,
+                      backgroundImage: imageUrl != null
+                          ? NetworkImage(imageUrl)
+                          : const AssetImage(
+                        'assets/profile/per.png',
+                      ) as ImageProvider,
+                    ),
+                  ),
+                ),
                 SizedBox(height: 10.h),
 
                 Text(

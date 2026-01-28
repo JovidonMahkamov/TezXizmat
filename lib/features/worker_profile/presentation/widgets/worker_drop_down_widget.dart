@@ -8,6 +8,7 @@ class CustomDropdown extends StatelessWidget {
   final String? value;
   final ValueChanged<String?> onChanged;
 
+
   const CustomDropdown({
     super.key,
     required this.value,
@@ -22,6 +23,7 @@ class CustomDropdown extends StatelessWidget {
       'Konditsioner ustasi',
       'Uy tozalovchi',
     ];
+    final String? safeValue = items.contains(value) ? value : null;
 
     return DropdownButtonHideUnderline(
       child: Container(
@@ -57,7 +59,7 @@ class CustomDropdown extends StatelessWidget {
               ),
             );
           }).toList(),
-          value: value,
+          value: safeValue,
           onChanged: onChanged, // ✅ eng muhim joy
           buttonStyleData: ButtonStyleData(
             padding: const EdgeInsets.symmetric(horizontal: 16),

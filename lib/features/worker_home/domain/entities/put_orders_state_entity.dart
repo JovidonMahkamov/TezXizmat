@@ -1,8 +1,11 @@
 import 'package:equatable/equatable.dart';
+import 'package:tez_xizmat/features/worker_home/domain/entities/get_staff_orders_entity.dart';
+import 'customer_entity.dart';
 
 class PutOrdersStateEntity extends Equatable {
   final int id;
-  final String title;
+  final CustomerEntity customer;
+  final GetStaffOrdersEntity staff;
   final String description;
   final String address;
   final String status;
@@ -14,12 +17,10 @@ class PutOrdersStateEntity extends Equatable {
   final String createdAt;
   final String updatedAt;
 
-  final int customer;
-  final int staff;
-
   const PutOrdersStateEntity({
     required this.id,
-    required this.title,
+    required this.customer,
+    required this.staff,
     required this.description,
     required this.address,
     required this.status,
@@ -28,14 +29,13 @@ class PutOrdersStateEntity extends Equatable {
     required this.canceledAt,
     required this.createdAt,
     required this.updatedAt,
-    required this.customer,
-    required this.staff,
   });
 
   @override
   List<Object?> get props => [
     id,
-    title,
+    customer,
+    staff,
     description,
     address,
     status,
@@ -44,7 +44,5 @@ class PutOrdersStateEntity extends Equatable {
     canceledAt,
     createdAt,
     updatedAt,
-    customer,
-    staff,
   ];
 }

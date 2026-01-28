@@ -5,7 +5,7 @@ import 'package:tez_xizmat/core/untils/logger.dart';
 import 'package:tez_xizmat/features/auth/data/datasource/local/auth_local_data_source.dart';
 import 'package:tez_xizmat/features/customer_order/data/datasource/customer_order_data_source.dart';
 import 'package:tez_xizmat/features/customer_order/data/model/customer_create_order_model.dart';
-import 'package:tez_xizmat/features/customer_order/data/model/get_customer_all_orders_model.dart';
+import 'package:tez_xizmat/features/customer_order/data/model/get_all_orders_model.dart';
 
 class CustomerOrderDataSourceImpl implements CustomerOrderDataSource {
   final StaffDioClient staffDioClient;
@@ -21,8 +21,6 @@ class CustomerOrderDataSourceImpl implements CustomerOrderDataSource {
   @override
   Future<CustomerCreateOrderModel> createOrder({
     required int staff_id,
-    required String name,
-    required String surname,
     required String description,
     required String address,
   })async {
@@ -30,8 +28,6 @@ class CustomerOrderDataSourceImpl implements CustomerOrderDataSource {
       final response = await customerDioClient.post(CustomerApiUrls.createOrder,
         data: {
           'staff_id': staff_id,
-          'name': name,
-          'surname': surname,
           'description': description,
           'address': address,
         },
@@ -54,7 +50,7 @@ class CustomerOrderDataSourceImpl implements CustomerOrderDataSource {
   }
 
   @override
-  Future<List<GetCustomerAllOrdersModel>> getCusAllOrders() async{
+  Future<List<GetAllOrdersModel>> getCusAllOrders() async{
     try {
       final response = await customerDioClient.get(CustomerApiUrls.getCusAllOrders);
       if (response.statusCode == 200 || response.statusCode == 201) {
@@ -63,7 +59,7 @@ class CustomerOrderDataSourceImpl implements CustomerOrderDataSource {
         final List list = data is List ? data : (data['results'] as List);
 
         return list
-            .map((e) => GetCustomerAllOrdersModel.fromJson(e as Map<String, dynamic>))
+            .map((e) => GetAllOrdersModel.fromJson(e as Map<String, dynamic>))
             .toList();
       } else {
         LoggerService.warning(

@@ -13,7 +13,7 @@ class WorkerHomeDataSourceImpl implements WorkerHomeDataSource {
   WorkerHomeDataSourceImpl(this.staffDioClient, this.customerDioClient);
 
   @override
-  Future<List<GetStaffOrdersModel>> getStaffOrders() async {
+  Future<List<PutOrdersStateModel>> getStaffOrders() async {
     try {
       final response = await customerDioClient.get(StaffApiUrls.getStaffOrders);
 
@@ -24,7 +24,7 @@ class WorkerHomeDataSourceImpl implements WorkerHomeDataSource {
         final List list = data is List ? data : (data['results'] as List);
 
         return list
-            .map((e) => GetStaffOrdersModel.fromJson(e as Map<String, dynamic>))
+            .map((e) => PutOrdersStateModel.fromJson(e as Map<String, dynamic>))
             .toList();
       } else {
         LoggerService.warning(

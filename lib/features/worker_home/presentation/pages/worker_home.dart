@@ -3,14 +3,16 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:tez_xizmat/core/routes/route_names.dart';
 import 'package:tez_xizmat/features/customer_home/presentation/widgets/home_carousel_widget.dart';
-import 'package:tez_xizmat/features/worker_home/domain/entities/get_staff_orders_entity.dart';
 import 'package:tez_xizmat/features/worker_home/presentation/bloc/get_staff_orders/get_staff_orders_bloc.dart';
 import 'package:tez_xizmat/features/worker_home/presentation/bloc/get_staff_orders/get_staff_orders_state.dart';
 import 'package:tez_xizmat/features/worker_home/presentation/widgets/customer_info_widget.dart';
 import 'package:tez_xizmat/features/worker_home/presentation/widgets/home_worker_app_bar_widget.dart';
 import 'package:tez_xizmat/features/worker_home/presentation/widgets/order_widget.dart';
 import 'package:tez_xizmat/features/worker_home/presentation/widgets/order_widget_two.dart';
+import 'package:tez_xizmat/features/worker_profile/presentation/bloc/worker_profile/worker_profile_bloc.dart';
+import 'package:tez_xizmat/features/worker_profile/presentation/bloc/worker_profile_event.dart';
 
+import '../../domain/entities/put_orders_state_entity.dart';
 import '../bloc/worker_home_event.dart';
 
 class WorkerHomePage extends StatefulWidget {
@@ -28,6 +30,7 @@ class _WorkerHomePageState extends State<WorkerHomePage> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<GetStaffOrdersBloc>().add(const GetStaffOrdersE());
     });
+    context.read<WorkerProfileBloc>().add(WorkerProfileE());
   }
 
   Future<void> _reload() async {
@@ -44,15 +47,15 @@ class _WorkerHomePageState extends State<WorkerHomePage> {
     return up == 'CANCELED' || up == 'CANCELLED';
   }
 
-  List<GetStaffOrdersEntity> _active(List<GetStaffOrdersEntity> all) {
+  List<PutOrdersStateEntity> _active(List<PutOrdersStateEntity> all) {
     return all.where((o) => !_isCompleted(o.status) && !_isCanceled(o.status)).toList();
   }
 
-  List<GetStaffOrdersEntity> _completed(List<GetStaffOrdersEntity> all) {
+  List<PutOrdersStateEntity> _completed(List<PutOrdersStateEntity> all) {
     return all.where((o) => _isCompleted(o.status)).toList();
   }
 
-  List<GetStaffOrdersEntity> _canceled(List<GetStaffOrdersEntity> all) {
+  List<PutOrdersStateEntity> _canceled(List<PutOrdersStateEntity> all) {
     return all.where((o) => _isCanceled(o.status)).toList();
   }
 
@@ -116,7 +119,7 @@ class _WorkerHomePageState extends State<WorkerHomePage> {
     );
   }
 
-  Widget _buildActive(List<GetStaffOrdersEntity> list) {
+  Widget _buildActive(List<PutOrdersStateEntity> list) {
     if (list.isEmpty) return _empty("Faol buyurtmalar yo‘q.");
 
     return RefreshIndicator(
@@ -133,9 +136,9 @@ class _WorkerHomePageState extends State<WorkerHomePage> {
             // Worker tarafda bu “customer_name” bo‘lishi kerak,
             // lekin entityda yo‘q bo‘lsa title chiqib qoladi.
             // Agar API customer_name qaytarsa entityga ham qo‘shib olamiz.
-            name: o.title, // vaqtinchalik
+            name: o.customer.firstName, // vaqtinchalik
             description: o.description,
-            time: _formatTime(o.created_at),
+            time: _formatTime(o.createdAt),
             statusText: _statusText(o.status),
             statusColor: _statusColor(o.status),
             imageUrl: "assets/circular_avatar/profile.png",
@@ -160,7 +163,7 @@ class _WorkerHomePageState extends State<WorkerHomePage> {
     );
   }
 
-  Widget _buildCompleted(List<GetStaffOrdersEntity> list) {
+  Widget _buildCompleted(List<PutOrdersStateEntity> list) {
     if (list.isEmpty) return _empty("Yakunlangan buyurtmalar yo‘q.");
 
     return RefreshIndicator(
@@ -173,9 +176,9 @@ class _WorkerHomePageState extends State<WorkerHomePage> {
         itemBuilder: (context, index) {
           final o = list[index];
           return OrderWidgetTwo(
-            name: o.title,
+            name: o.customer.firstName,
             description: o.description,
-            time: _formatTime(o.completed_at),
+            time: _formatTime(o.completedAt),
             statusText: _statusText(o.status),
             statusColor: _statusColor(o.status),
             imageUrl: "assets/circular_avatar/profile.png",
@@ -185,7 +188,7 @@ class _WorkerHomePageState extends State<WorkerHomePage> {
     );
   }
 
-  Widget _buildCanceled(List<GetStaffOrdersEntity> list) {
+  Widget _buildCanceled(List<PutOrdersStateEntity> list) {
     if (list.isEmpty) return _empty("Bekor qilingan buyurtmalar yo‘q.");
 
     return RefreshIndicator(
@@ -198,9 +201,9 @@ class _WorkerHomePageState extends State<WorkerHomePage> {
         itemBuilder: (context, index) {
           final o = list[index];
           return OrderWidgetTwo(
-            name: o.title,
+            name: o.customer.firstName,
             description: o.description,
-            time: _formatTime(o.canceled_at),
+            time: _formatTime(o.canceledAt),
             statusText: _statusText(o.status),
             statusColor: _statusColor(o.status),
             imageUrl: "assets/circular_avatar/profile.png",
@@ -275,7 +278,7 @@ class _WorkerHomePageState extends State<WorkerHomePage> {
                             }
 
                             if (state is GetStaffOrdersSuccess) {
-                              final all = state.getStaffOrdersEntity; // <- sendeda list nomi shunaqa bo‘lishi kerak
+                              final all = state.putOrdersStateEntity; // <- sendeda list nomi shunaqa bo‘lishi kerak
                               final active = _active(all);
                               final completed = _completed(all);
                               final canceled = _canceled(all);

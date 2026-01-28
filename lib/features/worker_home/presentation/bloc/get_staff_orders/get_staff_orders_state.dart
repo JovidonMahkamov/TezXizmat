@@ -1,4 +1,5 @@
-import 'package:tez_xizmat/features/worker_home/domain/entities/get_staff_orders_entity.dart';
+
+import '../../../domain/entities/put_orders_state_entity.dart';
 
 abstract class GetStaffOrdersState {
   const GetStaffOrdersState();
@@ -9,9 +10,9 @@ class GetStaffOrdersInitial extends GetStaffOrdersState {}
 class GetStaffOrdersLoading extends GetStaffOrdersState {}
 
 class GetStaffOrdersSuccess extends GetStaffOrdersState {
-  final List <GetStaffOrdersEntity> getStaffOrdersEntity;
+  final List <PutOrdersStateEntity> putOrdersStateEntity;
 
-  const GetStaffOrdersSuccess({required this.getStaffOrdersEntity});
+  const GetStaffOrdersSuccess({required this.putOrdersStateEntity});
 }
 
 class GetStaffOrdersError extends GetStaffOrdersState {

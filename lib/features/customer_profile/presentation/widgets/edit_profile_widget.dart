@@ -1,8 +1,7 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-class EditProfileWidget extends StatefulWidget {
+class EditProfileWidget extends StatelessWidget {
   final String text;
   final IconData icon;
   final IconData? icon1;
@@ -10,48 +9,48 @@ class EditProfileWidget extends StatefulWidget {
   final TextStyle textStyle;
   final Color? iconColor;
 
+  const EditProfileWidget({
+    super.key,
+    required this.text,
+    required this.icon,
+    this.icon1,
+    required this.onTab,
+    required this.textStyle,
+    this.iconColor,
+  });
 
-  const EditProfileWidget(
-      {super.key, required this.text, required this.icon, this.icon1, required this.onTab, required this.textStyle, this.iconColor,});
-
-  @override
-  State<EditProfileWidget> createState() => _EditProfileWidgetState();
-}
-
-class _EditProfileWidgetState extends State<EditProfileWidget> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(left: 15,right: 15),
+      padding: const EdgeInsets.symmetric(horizontal: 15),
       child: Column(
         children: [
-          GestureDetector(
-            onTap: widget.onTab,
-            child: Container(
-              height: 40.h,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
-                    children: [
-                      Icon(widget.icon,color: widget.iconColor,),
-                      SizedBox(
-                        width: 20.w,
-                      ),
-                      Text(
-                        widget.text,
-                        style: widget.textStyle,
-                      ),
-                    ],
-                  ),
-                  // Text(widget.language,style: TextStyle(fontSize: 18.sp),),
-                  SizedBox(width: 25.w,),
-                  Icon(widget.icon1),
-                ],
+          Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: onTab,
+              borderRadius: BorderRadius.circular(8),
+              child: Container(
+                width: double.infinity, // 🔑 MUHIM
+                height: 48.h,
+                padding: EdgeInsets.symmetric(horizontal: 4.w),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(icon, color: iconColor),
+                        SizedBox(width: 20.w),
+                        Text(text, style: textStyle),
+                      ],
+                    ),
+                    if (icon1 != null) Icon(icon1),
+                  ],
+                ),
               ),
             ),
           ),
-          SizedBox(child: Divider(),)
+          const Divider(),
         ],
       ),
     );

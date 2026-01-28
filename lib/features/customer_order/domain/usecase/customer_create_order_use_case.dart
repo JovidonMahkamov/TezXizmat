@@ -6,7 +6,7 @@ class CustomerCreateOrderUseCase {
 
   CustomerCreateOrderUseCase(this.customerOrderRepository);
 
-  Future<CustomerCreateOrderEntity> call({required String name, required String surname, required int staff_id,required String description, required String address}) async {
-    return await customerOrderRepository.createOrder(staff_id: staff_id, name: name, surname: surname, description: description, address: address);
+  Future<CustomerCreateOrderEntity> call({required int staff_id,required String description, required String address}) async {
+    return await customerOrderRepository.createOrder(staff_id: staff_id, description: description, address: address);
   }
 }

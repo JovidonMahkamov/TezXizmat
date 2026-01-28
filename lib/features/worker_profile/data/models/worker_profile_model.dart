@@ -4,6 +4,7 @@ class WorkerProfileModel extends WorkerProfileEntity {
   const WorkerProfileModel({
     required super.id,
     required super.email,
+    required super.image,
     required super.firstName,
     required super.lastName,
     required super.profession,
@@ -19,6 +20,7 @@ class WorkerProfileModel extends WorkerProfileEntity {
     return WorkerProfileModel(
       id: json['id'] is int ? json['id'] : int.tryParse('${json['id']}'),
       email: json['email']?? "",
+      image: json['image']?? "",
       firstName: json['first_name']?? "",
       lastName: json['last_name']?? "",
       profession: json['profession']?? "Sozlamalar bo'limidan ish turingizni kiriting",

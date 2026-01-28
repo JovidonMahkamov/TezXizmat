@@ -1,6 +1,4 @@
-import 'package:equatable/equatable.dart';
-
-class GetStaffOrdersEntity extends Equatable {
+class GetStaffOrderEntity {
   final int id;
   final String firstName;
   final String lastName;
@@ -14,7 +12,7 @@ class GetStaffOrdersEntity extends Equatable {
   final bool isActive;
   final String fullName;
 
-  const GetStaffOrdersEntity({
+  GetStaffOrderEntity({
     required this.id,
     required this.firstName,
     required this.lastName,
@@ -28,20 +26,4 @@ class GetStaffOrdersEntity extends Equatable {
     required this.isActive,
     required this.fullName,
   });
-
-  @override
-  List<Object?> get props => [
-    id,
-    firstName,
-    lastName,
-    email,
-    profession,
-    description,
-    skills,
-    price,
-    freeTime,
-    image,
-    isActive,
-    fullName,
-  ];
 }

@@ -73,7 +73,7 @@ class _ImagePickerWidgetState extends State<WorkerImagePickerWidget> {
     } else if (serverUrl != null) {
       avatarProvider = NetworkImage(serverUrl); // serverdagi rasm
     } else {
-      avatarProvider = const AssetImage('assets/circular_avatar/profile.png');
+      avatarProvider = const AssetImage('assets/profile/per.png');
     }
 
     return Stack(

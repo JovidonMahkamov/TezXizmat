@@ -8,7 +8,7 @@ class OrderContainerWidgetTwo extends StatelessWidget {
   final String time;
   final String statusText;
   final Color statusColor;
-  final String imageUrl;
+  final String? imageUrl;
 
   const OrderContainerWidgetTwo({
     super.key,
@@ -35,7 +35,7 @@ class OrderContainerWidgetTwo extends StatelessWidget {
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                CircleAvatar(radius: 30, backgroundImage: AssetImage(imageUrl)),
+                CircleAvatar(radius: 30, backgroundImage: NetworkImage(imageUrl!)),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Column(

@@ -1,6 +1,7 @@
 class WorkerProfileEntity {
   final int id;
   final String email;
+  final String image;
   final String firstName;
   final String lastName;
   final String profession;
@@ -12,6 +13,7 @@ class WorkerProfileEntity {
   final bool isActive;
 
   const WorkerProfileEntity({
+    required this.image,
     required this.id,
     required this.email,
     required this.firstName,

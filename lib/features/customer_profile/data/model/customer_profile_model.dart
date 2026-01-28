@@ -5,17 +5,21 @@ class CustomerProfileModel extends CustomerProfileEntity {
     required super.email,
     required super.firstName,
     required super.lastName,
+    required super.id,
+    required super.image,
   });
 
   factory CustomerProfileModel.fromJson(Map<String, dynamic> json) {
     return CustomerProfileModel(
       email: (json['email'] ?? '').toString(),
+      image: (json['image'] ?? '').toString(),
+      id: (json['id'] ?? 0),
       firstName: (json['first_name'] ?? '').toString(),
       lastName: (json['last_name'] ?? '').toString(),
     );
   }
 
   Map<String, dynamic> toJson() {
-    return {'email': email, 'first_name': firstName, 'last_name': lastName};
+    return {'email': email, 'first_name': firstName, 'last_name': lastName, 'id': id, 'image': image};
   }
 }

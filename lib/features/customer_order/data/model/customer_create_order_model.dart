@@ -2,11 +2,11 @@ import 'package:tez_xizmat/features/customer_order/domain/entities/customer_crea
 
 class CustomerCreateOrderModel extends CustomerCreateOrderEntity {
   const CustomerCreateOrderModel({
-    required super.id, required super.name, required super.surname, required super.description, required super.address,
+    required super.id, required super.description, required super.address,
   });
   factory CustomerCreateOrderModel.fromJson(Map<String, dynamic> json) {
     return CustomerCreateOrderModel(
-      id: json['id'], name: json['name'], surname: json['surname'], description: json['description'] ?? "", address: json['address'] ?? "",
+      id: json['id'], description: json['description'] ?? "", address: json['address'] ?? "",
     );
   }
 }

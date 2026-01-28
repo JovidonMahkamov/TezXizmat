@@ -2,9 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:tez_xizmat/features/auth/presentation/widgets/success_widget.dart';
+import 'package:tez_xizmat/features/auth/presentation/widgets/text_field_widget_2.dart';
 import 'package:tez_xizmat/features/customer_order/presentation/bloc/customer_create_order/customer_create_order_bloc.dart';
 import 'package:tez_xizmat/features/customer_order/presentation/bloc/customer_create_order/customer_create_order_state.dart';
 import 'package:tez_xizmat/features/customer_order/presentation/bloc/customer_order_event.dart';
+
+import '../../../auth/presentation/widgets/text_field_widget.dart';
 
 class CreateOrderDialog extends StatefulWidget {
   final int staffId;
@@ -12,6 +15,7 @@ class CreateOrderDialog extends StatefulWidget {
   const CreateOrderDialog({
     super.key,
     required this.staffId,
+
   });
 
   @override
@@ -19,24 +23,18 @@ class CreateOrderDialog extends StatefulWidget {
 }
 
 class _CreateOrderDialogState extends State<CreateOrderDialog> {
-  late final TextEditingController nameController;
-  late final TextEditingController surnameController;
   late final TextEditingController addressController;
   late final TextEditingController descriptionController;
 
   @override
   void initState() {
     super.initState();
-    nameController = TextEditingController();
-    surnameController = TextEditingController();
     addressController = TextEditingController();
     descriptionController = TextEditingController();
   }
 
   @override
   void dispose() {
-    nameController.dispose();
-    surnameController.dispose();
     addressController.dispose();
     descriptionController.dispose();
     super.dispose();
@@ -93,50 +91,22 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
                     ],
                   ),
 
-                  const SizedBox(height: 10),
-
-                  Text("Ism", style: TextStyle(fontSize: 16.sp)),
-                  SizedBox(height: 8.h),
-                  TextField(
-                    controller: nameController,
-                    decoration: const InputDecoration(
-                      hintText: "Ismingizni kiriting",
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-
-                  SizedBox(height: 10.h),
-                  Text("Familiya", style: TextStyle(fontSize: 16.sp)),
-                  SizedBox(height: 8.h),
-                  TextField(
-                    controller: surnameController,
-                    decoration: const InputDecoration(
-                      hintText: "Familiyangizni kiriting",
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-
                   SizedBox(height: 10.h),
                   Text("Manzil", style: TextStyle(fontSize: 16.sp)),
                   SizedBox(height: 8.h),
-                  TextField(
+                  TextFieldWidget(
                     controller: addressController,
-                    decoration: const InputDecoration(
-                      hintText: "Manzilingizni kiriting",
-                      border: OutlineInputBorder(),
-                    ),
+                    text: "Manzilingizni kiriting",
+                    obscureText: false, readOnly: false,
                   ),
 
                   SizedBox(height: 10.h),
                   Text("Batafsil", style: TextStyle(fontSize: 16.sp)),
                   SizedBox(height: 8.h),
-                  TextField(
+                  TextFieldWidgetTwo(
+                    maxLine: 3,
                     controller: descriptionController,
-                    maxLines: 3,
-                    decoration: const InputDecoration(
-                      hintText: "Muammoingiz haqida batafsil...",
-                      border: OutlineInputBorder(),
-                    ),
+                    text: "Muammoingiz haqida batafsil...", obscureText: false,
                   ),
 
                   SizedBox(height: 20.h),
@@ -144,39 +114,44 @@ class _CreateOrderDialogState extends State<CreateOrderDialog> {
                   SizedBox(
                     width: double.infinity,
                     height: 50,
-                    child: ElevatedButton(
-                      onPressed: isLoading
-                          ? null
-                          : () {
-                        final name = nameController.text.trim();
-                        final surname = surnameController.text.trim();
-                        final address = addressController.text.trim();
-                        final desc = descriptionController.text.trim();
-
-                        if (name.isEmpty || surname.isEmpty || address.isEmpty || desc.isEmpty) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text("Hamma maydonlarni to‘ldiring")),
-                          );
-                          return;
-                        }
-
-                        context.read<CustomerCreateOrderBloc>().add(
-                          CustomerCreateOrder(
-                            staff_id: widget.staffId,
-                            name: name,
-                            surname: surname,
-                            address: address,
-                            description: desc,
+                    child: SizedBox(
+                      height: 46.h,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
                           ),
-                        );
-                      },
-                      child: isLoading
-                          ? const SizedBox(
-                        width: 22,
-                        height: 22,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                          : const Text("Jo'natish"),
+                          backgroundColor: Colors.blue,
+                        ),
+                        onPressed:isLoading
+                            ? null
+                            : () {
+                          final address = addressController.text.trim();
+                          final desc = descriptionController.text.trim();
+
+                          if (address.isEmpty || desc.isEmpty) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text("Hamma maydonlarni to‘ldiring")),
+                            );
+                            return;
+                          }
+
+                          context.read<CustomerCreateOrderBloc>().add(
+                            CustomerCreateOrder(
+                              staff_id: widget.staffId,
+                              address: address,
+                              description: desc,
+                            ),
+                          );
+                        },
+                        child:  isLoading
+                            ? const SizedBox(
+                          width: 22,
+                          height: 22,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                            :  Text("Jo'natish", style: TextStyle(color: Colors.white, fontSize: 16.sp),),
+                      ),
                     ),
                   ),
                 ],

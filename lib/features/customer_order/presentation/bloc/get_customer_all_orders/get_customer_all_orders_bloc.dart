@@ -18,7 +18,7 @@ class GetCustomerAllOrdersBloc extends Bloc<CustomerOrderEvent, GetCustomerAllOr
     emit(GetCustomerAllOrdersLoading());
     try {
       final result = await getAllOrdersUseCase();
-      emit(GetCustomerAllOrdersSuccess(getCustomerAllOrdersEntity: result));
+      emit(GetCustomerAllOrdersSuccess(getAllOrdersEntity: result));
     } on DioException catch (e) {
       String errorMessage = _mapDioErrorToMessage(e);
       emit(GetCustomerAllOrdersError( message: errorMessage));

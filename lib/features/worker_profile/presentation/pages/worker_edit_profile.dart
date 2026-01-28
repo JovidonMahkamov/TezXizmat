@@ -186,10 +186,13 @@ class _WorkerEditProfilePageState extends State<WorkerEditProfilePage> {
                           },
                           builder: (context, imgState) {
                             // image pathni bloc state’dan olamiz
+                            final profileState = context.watch<WorkerProfileBloc>().state;
                             String? imagePath;
-                            if (imgState is WorkerProfileImageSuccess) {
-                              imagePath = imgState.workerProfileImageEntity.image; // "/media/..."
+
+                            if (profileState is WorkerProfileSuccess) {
+                              imagePath = profileState.workerProfileEntity.image;
                             }
+
 
                             return WorkerImagePickerWidget(
                               baseUrl: "https://tezxizmatlar.uz",
@@ -203,6 +206,8 @@ class _WorkerEditProfilePageState extends State<WorkerEditProfilePage> {
 
                                 sub = bloc.stream.listen((s) {
                                   if (s is WorkerProfileImageSuccess) {
+                                    context.read<WorkerProfileBloc>().add(WorkerProfileE());
+
                                     completer.complete(s.workerProfileImageEntity.image);
                                     sub.cancel();
                                   } else if (s is WorkerProfileImageError) {

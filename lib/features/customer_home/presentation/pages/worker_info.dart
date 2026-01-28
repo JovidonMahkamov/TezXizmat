@@ -285,7 +285,7 @@ class _WorkerInfoPageState extends State<WorkerInfoPage> {
                           context: context,
                           barrierDismissible: false,
                           builder: (_) =>
-                              CreateOrderDialog(staffId: getWorkerInfo.id),
+                              CreateOrderDialog(staffId: getWorkerInfo.id,),
                         );
                       },
                       text: "Bog'lanish",

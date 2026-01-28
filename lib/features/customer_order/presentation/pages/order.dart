@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:tez_xizmat/core/routes/route_names.dart';
-import 'package:tez_xizmat/features/customer_order/domain/entities/get_customer_all_orders_entity.dart';
+import 'package:tez_xizmat/features/customer_order/domain/entities/get_all_orders_entity.dart';
 import 'package:tez_xizmat/features/customer_order/presentation/bloc/customer_order_event.dart';
 import 'package:tez_xizmat/features/customer_order/presentation/bloc/get_customer_all_orders/get_customer_all_orders_bloc.dart';
 import 'package:tez_xizmat/features/customer_order/presentation/bloc/get_customer_all_orders/get_customer_all_orders_state.dart';
@@ -37,15 +37,15 @@ class _OrderPageState extends State<OrderPage> {
     return up == 'CANCELED' || up == 'CANCELLED';
   }
 
-  List<GetCustomerAllOrdersEntity> _active(List<GetCustomerAllOrdersEntity> all) {
+  List<GetAllOrdersEntity> _active(List<GetAllOrdersEntity> all) {
     return all.where((o) => !_isCompleted(o.status) && !_isCanceled(o.status)).toList();
   }
 
-  List<GetCustomerAllOrdersEntity> _completed(List<GetCustomerAllOrdersEntity> all) {
+  List<GetAllOrdersEntity> _completed(List<GetAllOrdersEntity> all) {
     return all.where((o) => _isCompleted(o.status)).toList();
   }
 
-  List<GetCustomerAllOrdersEntity> _canceled(List<GetCustomerAllOrdersEntity> all) {
+  List<GetAllOrdersEntity> _canceled(List<GetAllOrdersEntity> all) {
     return all.where((o) => _isCanceled(o.status)).toList();
   }
 
@@ -113,7 +113,7 @@ class _OrderPageState extends State<OrderPage> {
     );
   }
 
-  Widget _buildActiveList(List<GetCustomerAllOrdersEntity> list) {
+  Widget _buildActiveList(List<GetAllOrdersEntity> list) {
     if (list.isEmpty) return _empty("Faol buyurtmalar yo‘q.");
     return RefreshIndicator(
       onRefresh: _reload,
@@ -125,9 +125,15 @@ class _OrderPageState extends State<OrderPage> {
         itemBuilder: (context, index) {
           final o = list[index];
 
-          final name = (o.staffName.isNotEmpty)
-              ? "${o.staffName} (${o.title})"
-              : o.title;
+          final imageUrl = o.staff.image.isNotEmpty
+              ? (o.staff.image.startsWith('http')
+              ? o.staff.image
+              : 'https://tezxizmatlar.uz${o.staff.image}')
+              : null;
+
+          final name = (o.staff.firstName.isNotEmpty)
+              ? "${o.staff.firstName} (${o.staff.profession})"
+              : o.staff.lastName;
 
           final time = _formatTime(o.createdAt);
 
@@ -137,7 +143,7 @@ class _OrderPageState extends State<OrderPage> {
             time: time,
             statusText: _statusText(o.status),
             statusColor: _statusColor(o.status),
-            imageUrl: "assets/circular_avatar/profile.png",
+            imageUrl: imageUrl,
             onViewTap: () {
               // Hozircha orderView args olmayapti (xohlasang 2-qismni ham qilamiz)
               Navigator.pushNamed(context, RouteNames.orderView);
@@ -147,8 +153,8 @@ class _OrderPageState extends State<OrderPage> {
                 context,
                 RouteNames.chatWithWorker,
                 arguments: {
-                  "name": o.staffName.isNotEmpty ? o.staffName : "Usta",
-                  "urlAsset": "assets/circular_avatar/profile.png",
+                  "name": o.staff.firstName.isNotEmpty ? o.staff.profession : "Usta",
+                  "urlAsset": o.staff.image,
                 },
               );
             },
@@ -158,7 +164,7 @@ class _OrderPageState extends State<OrderPage> {
     );
   }
 
-  Widget _buildCompletedList(List<GetCustomerAllOrdersEntity> list) {
+  Widget _buildCompletedList(List<GetAllOrdersEntity> list) {
     if (list.isEmpty) return _empty("Yakunlangan buyurtmalar yo‘q.");
     return RefreshIndicator(
       onRefresh: _reload,
@@ -169,10 +175,14 @@ class _OrderPageState extends State<OrderPage> {
         separatorBuilder: (_, __) => SizedBox(height: 10.h),
         itemBuilder: (context, index) {
           final o = list[index];
-
-          final name = (o.staffName.isNotEmpty)
-              ? "${o.staffName} (${o.title})"
-              : o.title;
+          final imageUrl = o.staff.image.isNotEmpty
+              ? (o.staff.image.startsWith('http')
+              ? o.staff.image
+              : 'https://tezxizmatlar.uz${o.staff.image}')
+              : null;
+          final name = (o.staff.lastName.isNotEmpty)
+              ? "${o.staff.firstName} (${o.staff.profession})"
+              : o.staff.lastName;
 
           final time = _formatTime(o.completedAt ?? o.updatedAt);
 
@@ -182,7 +192,7 @@ class _OrderPageState extends State<OrderPage> {
             time: time,
             statusText: _statusText(o.status),
             statusColor: _statusColor(o.status),
-            imageUrl: "assets/circular_avatar/profile.png",
+            imageUrl: imageUrl,
             onViewTap: () {
               Navigator.pushNamed(context, RouteNames.orderView);
             },
@@ -191,8 +201,8 @@ class _OrderPageState extends State<OrderPage> {
                 context,
                 RouteNames.chatWithWorker,
                 arguments: {
-                  "name": o.staffName.isNotEmpty ? o.staffName : "Usta",
-                  "urlAsset": "assets/circular_avatar/profile.png",
+                  "name": o.staff.firstName.isNotEmpty ? o.staff.profession : "Usta",
+                  "urlAsset": o.staff.image,
                 },
               );
             },
@@ -202,7 +212,7 @@ class _OrderPageState extends State<OrderPage> {
     );
   }
 
-  Widget _buildCanceledList(List<GetCustomerAllOrdersEntity> list) {
+  Widget _buildCanceledList(List<GetAllOrdersEntity> list) {
     if (list.isEmpty) return _empty("Bekor qilingan buyurtmalar yo‘q.");
     return RefreshIndicator(
       onRefresh: _reload,
@@ -213,10 +223,14 @@ class _OrderPageState extends State<OrderPage> {
         separatorBuilder: (_, __) => SizedBox(height: 10.h),
         itemBuilder: (context, index) {
           final o = list[index];
-
-          final name = (o.staffName.isNotEmpty)
-              ? "${o.staffName} (${o.title})"
-              : o.title;
+          final imageUrl = o.staff.image.isNotEmpty
+              ? (o.staff.image.startsWith('http')
+              ? o.staff.image
+              : 'https://tezxizmatlar.uz${o.staff.image}')
+              : null;
+          final name = (o.staff.firstName.isNotEmpty)
+              ? "${o.staff.firstName} (${o.staff.profession})"
+              : o.staff.lastName;
 
           final time = _formatTime(o.canceledAt ?? o.updatedAt);
 
@@ -226,7 +240,7 @@ class _OrderPageState extends State<OrderPage> {
             time: time,
             statusText: _statusText(o.status),
             statusColor: _statusColor(o.status),
-            imageUrl: "assets/circular_avatar/profile.png",
+            imageUrl: imageUrl,
           );
         },
       ),
@@ -303,7 +317,7 @@ class _OrderPageState extends State<OrderPage> {
                       }
 
                       if (state is GetCustomerAllOrdersSuccess) {
-                        final all = state.getCustomerAllOrdersEntity;
+                        final all = state.getAllOrdersEntity;
                         final active = _active(all);
                         final completed = _completed(all);
                         final canceled = _canceled(all);

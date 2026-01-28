@@ -11,7 +11,7 @@ abstract class WorkerHomeDataSource {
 
   WorkerHomeDataSource(this.customerDioClient, this.staffDioClient);
 
-  Future<List<GetStaffOrdersModel>> getStaffOrders();
+  Future<List<PutOrdersStateModel>> getStaffOrders();
 
   Future<PutOrdersStateModel> accept(int id) async {
     final res = await customerDioClient.put(StaffApiUrls.acceptOrder(id));

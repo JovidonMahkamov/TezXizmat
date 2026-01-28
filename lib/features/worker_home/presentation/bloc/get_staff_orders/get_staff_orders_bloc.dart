@@ -20,7 +20,7 @@ class GetStaffOrdersBloc extends Bloc<WorkerHomeEvent, GetStaffOrdersState> {
     emit(GetStaffOrdersLoading());
     try {
       final result = await getStaffOrdersUseCase();
-      emit(GetStaffOrdersSuccess(getStaffOrdersEntity: result));
+      emit(GetStaffOrdersSuccess(putOrdersStateEntity: result));
     } on DioException catch (e) {
       String errorMessage = _mapDioErrorToMessage(e);
       emit(GetStaffOrdersError( message: errorMessage));

@@ -1,5 +1,4 @@
 import 'package:tez_xizmat/features/worker_home/data/datasource/worker_home_data_source.dart';
-import 'package:tez_xizmat/features/worker_home/domain/entities/get_staff_orders_entity.dart';
 import 'package:tez_xizmat/features/worker_home/domain/entities/put_orders_state_entity.dart';
 import 'package:tez_xizmat/features/worker_home/domain/repository/worker_home_repository.dart';
 import 'package:tez_xizmat/features/worker_home/domain/usecase/staff_order_action.dart';
@@ -10,7 +9,7 @@ class WorkerHomeRepositoryImpl implements WorkerHomeRepository {
   WorkerHomeRepositoryImpl({required this.workerHomeDataSource});
 
   @override
-  Future<List<GetStaffOrdersEntity>> getStaffOrders() {
+  Future<List<PutOrdersStateEntity>> getStaffOrders() {
     return workerHomeDataSource.getStaffOrders();
   }
 

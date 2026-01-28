@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:tez_xizmat/features/auth/presentation/widgets/elevated_button_widget.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:tez_xizmat/features/worker_home/domain/entities/get_staff_orders_entity.dart';
 import 'package:tez_xizmat/features/worker_home/presentation/bloc/put_orders_state/put_orders_state_bloc.dart';
 import 'package:tez_xizmat/features/worker_home/presentation/bloc/put_orders_state/put_orders_state.dart';
 import 'package:tez_xizmat/features/worker_home/presentation/bloc/worker_home_event.dart';
+import '../../domain/entities/put_orders_state_entity.dart';
 import '../bloc/get_staff_orders/get_staff_orders_bloc.dart';
 
-void customerShowInfoWidget(BuildContext context, {required GetStaffOrdersEntity order}) {
+void customerShowInfoWidget(BuildContext context, {required PutOrdersStateEntity order}) {
   showDialog(
     context: context,
     barrierDismissible: false,
@@ -64,7 +64,7 @@ void customerShowInfoWidget(BuildContext context, {required GetStaffOrdersEntity
                             ),
                           ),
                           TextSpan(
-                            text: "Jovidon",
+                            text: order.customer.firstName,
                             style: TextStyle(
                               fontSize: 18.sp,
                               color: Colors.black,
@@ -89,7 +89,7 @@ void customerShowInfoWidget(BuildContext context, {required GetStaffOrdersEntity
                             ),
                           ),
                           TextSpan(
-                            text: "Mahkamov",
+                            text: order.customer.lastName,
                             style: TextStyle(
                               fontSize: 18.sp,
                               color: Colors.black,
@@ -114,7 +114,7 @@ void customerShowInfoWidget(BuildContext context, {required GetStaffOrdersEntity
                             ),
                           ),
                           TextSpan(
-                            text: "Tashkent, sergeli, Uzumzor 4-berk ko’cha",
+                            text: order.address,
                             style: TextStyle(
                               fontSize: 18.sp,
                               color: Colors.black,
@@ -140,7 +140,7 @@ void customerShowInfoWidget(BuildContext context, {required GetStaffOrdersEntity
                           ),
                           TextSpan(
                             text:
-                                "Uyda quvur buzildi, zudlik bilan to'g'irlash kerak, yana bir ikki elektr muammolari bor. Uyda quvur buzildi, zudlik bilan to'g'irlash kerak, yana bir ikki elektr muammolari bor.",
+                                order.description,
                             style: TextStyle(
                               fontSize: 18.sp,
                               color: Colors.black,
@@ -207,13 +207,13 @@ void customerShowInfoWidget(BuildContext context, {required GetStaffOrdersEntity
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(12),
                                   ),
-                                  backgroundColor: Colors.blue,
+                                  backgroundColor: Colors.red,
                                 ),
                                 onPressed:isLoading ? null : doCancel,
                                 child:  Center(
                                   child: Text(
                                     isLoading ? "..." : "Bekor qilish",
-                                    style: TextStyle (color: Colors.black),
+                                    style: TextStyle (color: Colors.white),
                                   ),
                                 ),
                               ),
@@ -234,7 +234,7 @@ void customerShowInfoWidget(BuildContext context, {required GetStaffOrdersEntity
                                 child:  Center(
                                   child: Text(
                                     isLoading ? "..." : "Qabul qilish",
-                                    style: TextStyle (color: Colors.black),
+                                    style: TextStyle (color: Colors.white),
                                   ),
                                 ),
                               ),
@@ -255,13 +255,13 @@ void customerShowInfoWidget(BuildContext context, {required GetStaffOrdersEntity
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(12),
                                   ),
-                                  backgroundColor: Colors.blue,
+                                  backgroundColor: Colors.red,
                                 ),
                                 onPressed:isLoading ? null : doCancel,
                                 child:  Center(
                                   child: Text(
                                       isLoading ? "..." : "Bekor qilish",
-                                    style: TextStyle (color: Colors.black),
+                                    style: TextStyle (color: Colors.white),
                                   ),
                                 ),
                               ),
@@ -282,7 +282,7 @@ void customerShowInfoWidget(BuildContext context, {required GetStaffOrdersEntity
                                 child:  Center(
                                   child: Text(
                                     isLoading ? "..." : "Yakunlash",
-                                    style: TextStyle (color: Colors.black),
+                                    style: TextStyle (color: Colors.white),
                                   ),
                                 ),
                               ),

@@ -3,7 +3,7 @@ import 'package:tez_xizmat/features/worker_home/domain/entities/put_orders_state
 import '../usecase/staff_order_action.dart';
 
 abstract class WorkerHomeRepository {
-  Future<List<GetStaffOrdersEntity>> getStaffOrders();
+  Future<List<PutOrdersStateEntity>> getStaffOrders();
 
   Future<PutOrdersStateEntity> putOrderAction({
     required int orderId,

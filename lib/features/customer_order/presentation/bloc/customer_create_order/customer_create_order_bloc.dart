@@ -17,8 +17,6 @@ class CustomerCreateOrderBloc extends Bloc<CustomerOrderEvent, CustomerCreateOrd
     try {
       final result = await customerCreateOrderUseCase(
         staff_id: event.staff_id,
-        name: event.name,
-        surname: event.surname,
         description: event.description,
         address: event.address,
       );
