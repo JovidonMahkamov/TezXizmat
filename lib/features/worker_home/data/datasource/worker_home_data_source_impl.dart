@@ -1,7 +1,6 @@
 import 'package:tez_xizmat/core/network/staff_api_urls.dart';
 import 'package:tez_xizmat/core/network/staff_dio_client.dart';
 import 'package:tez_xizmat/features/worker_home/data/datasource/worker_home_data_source.dart';
-import 'package:tez_xizmat/features/worker_home/data/model/get_staff_orders_model.dart';
 import 'package:tez_xizmat/features/worker_home/data/model/put_orders_state_model.dart';
 import '../../../../core/network/customer_dio_client.dart';
 import '../../../../core/untils/logger.dart';
@@ -99,6 +98,28 @@ class WorkerHomeDataSourceImpl implements WorkerHomeDataSource {
       }
     } catch (e, s) {
       LoggerService.error('Error during put orders complete : $e');
+      print(e);
+      print(s);
+      rethrow;
+    }
+  }
+
+  @override
+  Future<PutOrdersStateModel> start(int id) async{
+    try {
+      final response = await customerDioClient.put(StaffApiUrls.startOrder(id));
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        LoggerService.info('put orders start successful: ${response.data}');
+         return PutOrdersStateModel.fromJson(response.data);
+
+      } else {
+        LoggerService.warning(
+            "put orders start failed: ${response.statusCode}");
+        throw Exception('put orders start failed: ${response.statusCode}');
+      }
+    } catch (e, s) {
+      LoggerService.error('Error during put orders start : $e');
       print(e);
       print(s);
       rethrow;

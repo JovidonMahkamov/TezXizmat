@@ -28,4 +28,9 @@ abstract class WorkerHomeDataSource {
     return PutOrdersStateModel.fromJson(res.data);
   }
 
+  Future<PutOrdersStateModel> start(int id) async {
+    final res = await customerDioClient.put(StaffApiUrls.startOrder(id));
+    return PutOrdersStateModel.fromJson(res.data);
+  }
+
 }

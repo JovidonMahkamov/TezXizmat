@@ -31,7 +31,7 @@ class EditProfileWidget extends StatelessWidget {
               onTap: onTab,
               borderRadius: BorderRadius.circular(8),
               child: Container(
-                width: double.infinity, // 🔑 MUHIM
+                width: double.infinity,
                 height: 48.h,
                 padding: EdgeInsets.symmetric(horizontal: 4.w),
                 child: Row(
@@ -50,7 +50,7 @@ class EditProfileWidget extends StatelessWidget {
               ),
             ),
           ),
-          const Divider(),
+          SizedBox(child: Divider(),)
         ],
       ),
     );

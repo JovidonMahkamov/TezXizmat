@@ -14,6 +14,7 @@ class PutStaffOrderBloc extends Bloc<WorkerHomeEvent, PutOrdersState> {
     on<AcceptStaffOrderE>(_onAccept);
     on<CancelStaffOrderE>(_onCancel);
     on<CompleteStaffOrderE>(_onComplete);
+    on<StartStaffOrderE>(_onStart);
   }
 
   Future<void> _onAccept(AcceptStaffOrderE event, Emitter<PutOrdersState> emit) async {
@@ -52,6 +53,21 @@ class PutStaffOrderBloc extends Bloc<WorkerHomeEvent, PutOrdersState> {
       final updated = await putOrdersStateUseCase(
         orderId: event.id,
         action: StaffOrderAction.complete,
+      );
+      emit(PutOrdersStateSuccess(putOrdersStateEntity: updated));
+    } on DioException catch (e) {
+      emit(PutOrdersStateError(message: _mapDioErrorToMessage(e)));
+    } catch (_) {
+      emit(const PutOrdersStateError(message: "Noma’lum xato yuz berdi"));
+    }
+  }
+
+  Future<void> _onStart(StartStaffOrderE event, Emitter<PutOrdersState> emit) async {
+    emit(PutOrdersStateLoading());
+    try {
+      final updated = await putOrdersStateUseCase(
+        orderId: event.id,
+        action: StaffOrderAction.pending,
       );
       emit(PutOrdersStateSuccess(putOrdersStateEntity: updated));
     } on DioException catch (e) {

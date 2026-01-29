@@ -174,7 +174,7 @@ class CustomerRemoteDataSourceImpl implements CustomerRemoteDataSource {
         data: {
           'email': email,
           'password': password,
-          'confirm_password': confirm_password,
+          'password2': confirm_password,
         },
       );
       if (response.statusCode == 200 || response.statusCode == 201) {

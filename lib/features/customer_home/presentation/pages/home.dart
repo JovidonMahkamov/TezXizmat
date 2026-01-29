@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:tez_xizmat/core/routes/route_names.dart';
 import 'package:tez_xizmat/features/customer_home/presentation/bloc/customer_get_all_staff/customer_get_all_staff_bloc.dart';
 import 'package:tez_xizmat/features/customer_home/presentation/bloc/customer_get_all_staff/customer_get_all_staff_state.dart';
@@ -128,7 +129,63 @@ class _HomePageState extends State<HomePage> {
                     BlocBuilder<CustomerGetAllStaffBloc, CustomerGetAllStaffState>(
                       builder: (context, state) {
                         if (state is CustomerGetAllStaffLoading) {
-                          return const Center(child: CircularProgressIndicator());
+                          return ListView.builder(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            itemCount: 6,
+                            itemBuilder: (context, index) {
+                              return Padding(
+                                padding: const EdgeInsets.only(bottom: 12),
+                                child: Shimmer.fromColors(
+                                  baseColor: Color(0xffF2F2F2),
+                                  highlightColor: Color(0xffFBFBFB),
+                                  child: Container(
+                                    height: 90,
+                                    padding: const EdgeInsets.all(12),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        // Avatar shimmer
+                                        Container(
+                                          width: 56,
+                                          height: 56,
+                                          decoration: const BoxDecoration(
+                                            color: Colors.white,
+                                            shape: BoxShape.circle,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 12),
+
+                                        // Text shimmer
+                                        Expanded(
+                                          child: Column(
+                                            mainAxisAlignment: MainAxisAlignment.center,
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              Container(
+                                                height: 14,
+                                                width: double.infinity,
+                                                color: Colors.white,
+                                              ),
+                                              const SizedBox(height: 8),
+                                              Container(
+                                                height: 12,
+                                                width: 120,
+                                                color: Colors.white,
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              );
+                            },
+                          );
                         }
 
                         if (state is CustomerGetAllStaffError) {

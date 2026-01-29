@@ -26,6 +26,7 @@ abstract class StaffApiUrls {
   static String acceptOrder(int id) => "/api/orders/$id/accept/";
   static String cancelOrder(int id) => "/api/orders/$id/cancel/";
   static String completeOrder(int id) => "/api/orders/$id/complete/";
+  static String startOrder(int id) => "/api/orders/$id/start/";
 
   // TOKEN
   static const String refreshCustomer = '${customer}token/refresh/';

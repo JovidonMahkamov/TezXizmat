@@ -8,7 +8,7 @@ import 'package:tez_xizmat/core/routes/route_names.dart';
 import 'package:tez_xizmat/features/auth/presentation/bloc/customer_auth_event.dart';
 import 'package:tez_xizmat/features/auth/presentation/bloc/customer_reset_password/customer_reset_password_bloc.dart';
 import 'package:tez_xizmat/features/auth/presentation/bloc/customer_reset_password/customer_reset_password_state.dart';
-import 'package:tez_xizmat/features/auth/presentation/widgets/text_field_widget.dart';
+import '../../widgets/text_field_wodget_3.dart';
 
 class CustomerNewPasswordPage extends StatefulWidget {
   final String email;
@@ -105,11 +105,13 @@ class _CustomerNewPasswordPageState extends State<CustomerNewPasswordPage> {
 
                   SizedBox(height: 40.h),
                   _label("Parol yarating"),
-                  TextFieldWidget(
+                  TextFieldWidgetBoard(
                     controller: _passwordController,
                     text: "********",
                     obscureText: eye,
                     errorText: _passwordError,
+                    keyboardType: TextInputType.emailAddress,
+                    textCapitalization: TextCapitalization.none,
                     suffixIcon: IconButton(
                       icon: Icon(eye ? IconlyLight.hide : IconlyLight.show),
                       onPressed: () {
@@ -122,10 +124,12 @@ class _CustomerNewPasswordPageState extends State<CustomerNewPasswordPage> {
                   SizedBox(height: 25.h),
 
                   _label("Parolni takrorlang"),
-                  TextFieldWidget(
+                  TextFieldWidgetBoard(
                     controller: _confirmPasswordController,
                     text: "********",
                     obscureText: eye1,
+                    keyboardType: TextInputType.emailAddress,
+                    textCapitalization: TextCapitalization.none,
                     suffixIcon: IconButton(
                       icon: Icon(eye1 ? IconlyLight.hide : IconlyLight.show),
                       onPressed: () {

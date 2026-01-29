@@ -1,14 +1,20 @@
-// lib/features/customer_home/presentation/widgets/reviewscontent.dart
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 
 import '../bloc/get_worker_reviews/get_worker_reviews_bloc.dart';
 import '../bloc/get_worker_reviews/get_worker_reviews_state.dart';
 
 class ReviewsContent extends StatelessWidget {
   const ReviewsContent({super.key});
-
+  String formatDateTime(String isoDate) {
+    try {
+      final dateTime = DateTime.parse(isoDate).toLocal();
+      return DateFormat('dd.MM.yyyy HH:mm').format(dateTime);
+    } catch (e) {
+      return isoDate; // xato bo‘lsa eski holicha
+    }
+  }
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<GetWorkerReviewsBloc, GetWorkerReviewsState>(
@@ -33,7 +39,7 @@ class ReviewsContent extends StatelessWidget {
         }
 
         if (state is GetWorkerReviewsSuccess) {
-          final list = state.getWorkerReviewsEntity; // ✅ bu List<GetWorkerReviewsEntity>
+          final list = state.getWorkerReviewsEntity;
 
           if (list.isEmpty) {
             return const Padding(
@@ -80,7 +86,7 @@ class ReviewsContent extends StatelessWidget {
                         ),
                         const Spacer(),
                         Text(
-                          r.created_at, // ✅ entitydagi nom
+                          formatDateTime(r.created_at),
                           style: const TextStyle(
                             fontSize: 12,
                             color: Colors.grey,

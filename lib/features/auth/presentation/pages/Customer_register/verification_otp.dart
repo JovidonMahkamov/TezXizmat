@@ -134,6 +134,7 @@ class _VerificationPageState extends State<VerificationPage> {
                 Pinput(
                   controller: otpController,
                   length: 6,
+                  keyboardType: TextInputType.number,
                   onChanged: (value) => setState(() => _otp = value),
                   onCompleted: (pin) => setState(() => _otp = pin),
                   defaultPinTheme: PinTheme(

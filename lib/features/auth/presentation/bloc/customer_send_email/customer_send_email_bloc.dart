@@ -38,7 +38,9 @@ class CustomerSendEmailBloc extends Bloc<CustomerAuthEvent, CustomerSendEmailSta
       return "So‘rov vaqtida javob kelmadi. Keyinroq urinib ko‘ring.";
     } else if (error.response?.statusCode == 500) {
       return "Serverda nosozlik bor. Iltimos, keyinroq urinib ko‘ring.";
+    } else if (error.response?.statusCode == 400) {
+      return "Bu email allaqachon ro‘yxatdan o‘tgan.";
     }
 
-    return "Noma’lum xato yuz berdi. Iltimos, qayta urinib ko‘ring.";
+    return "Noma’lum xato yuz berdi. Iltimos qayta urinib ko'ring";
   }}

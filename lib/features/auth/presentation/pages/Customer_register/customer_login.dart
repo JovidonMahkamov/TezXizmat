@@ -11,7 +11,7 @@ import 'package:tez_xizmat/features/auth/presentation/bloc/customer_auth_event.d
 import 'package:tez_xizmat/features/auth/presentation/bloc/customer_login/customer_login_bloc.dart';
 import 'package:tez_xizmat/features/auth/presentation/bloc/customer_login/customer_login_state.dart';
 import 'package:tez_xizmat/features/auth/presentation/widgets/elevated_button_widget.dart';
-import 'package:tez_xizmat/features/auth/presentation/widgets/text_field_widget.dart';
+import 'package:tez_xizmat/features/auth/presentation/widgets/text_field_wodget_3.dart';
 
 class CustomerLoginPage extends StatefulWidget {
   const CustomerLoginPage({super.key});
@@ -145,8 +145,10 @@ class _CustomerLoginPageState extends State<CustomerLoginPage> {
                 SizedBox(height: 8.h),
 
                 /// EMAIL INPUT
-                TextFieldWidget(
+                TextFieldWidgetBoard(
                   controller: emailController,
+                  keyboardType: TextInputType.emailAddress,
+                  textCapitalization: TextCapitalization.none,
                   text: 'example@gmail.com',
                   obscureText: false, readOnly: false,
                 ),
@@ -168,11 +170,13 @@ class _CustomerLoginPageState extends State<CustomerLoginPage> {
                   alignment: Alignment.centerLeft,
                   child: Text("Parol", style: TextStyle(fontSize: 16.sp)),
                 ),
-                TextFieldWidget(
+                TextFieldWidgetBoard(
                   controller: _passwordController,
                   text: "********",
                   obscureText: eye,
                   errorText: _passwordError,
+                  keyboardType: TextInputType.emailAddress,
+                  textCapitalization: TextCapitalization.none,
                   suffixIcon: IconButton(
                     icon: Icon(eye ? IconlyLight.hide : IconlyLight.show),
                     onPressed: () {

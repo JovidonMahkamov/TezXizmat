@@ -1,6 +1,7 @@
 ﻿import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:loading_indicator/loading_indicator.dart';
 import 'package:readmore/readmore.dart';
 import 'package:tez_xizmat/core/routes/route_names.dart';
 import 'package:tez_xizmat/features/customer_home/presentation/widgets/service_widget.dart';
@@ -52,7 +53,17 @@ class _WorkerProfilePageState extends State<WorkerProfilePage> {
       body: BlocBuilder<WorkerProfileBloc, WorkerProfileState>(
         builder: (context, state) {
           if (state is WorkerProfileLoading) {
-            return const Center(child: CircularProgressIndicator());
+            return  Center(
+                child: SizedBox(
+                  width: 80,
+                  height: 80,
+                  child: LoadingIndicator(
+                    indicatorType: Indicator.ballSpinFadeLoader,
+                    colors: [Colors.blueAccent],
+                    strokeWidth: 2,
+                  ),
+                ),
+            );
           }
 
           if (state is WorkerProfileError) {
@@ -118,18 +129,34 @@ class _WorkerProfilePageState extends State<WorkerProfilePage> {
                   ),
 
                   SizedBox(height: 10.h),
-                  Text(
-                    "${profile.firstName} ${profile.lastName}",
-                    style: TextStyle(
-                      fontWeight: FontWeight.w700,
-                      fontSize: 20.sp,
-                    ),
-                  ),
-                  Text(
-                    profile.email,
-                    style: TextStyle(
-                      fontWeight: FontWeight.w400,
-                      fontSize: 18.sp,
+                  Center(
+                    child: Column(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(left: 40, right: 40),
+                          child: Text(
+                            "${profile.firstName} ${profile.lastName}",
+                            textAlign: TextAlign.center,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontSize: 18.sp,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.black,
+                            ),
+                          ),
+                        ),
+                        Text(
+                          profile.email,
+                          textAlign: TextAlign.center,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: 18.sp,
+                            color: Colors.black,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
 
@@ -150,9 +177,17 @@ class _WorkerProfilePageState extends State<WorkerProfilePage> {
                           profile.description,
                           trimLines: 2,
                           trimMode: TrimMode.Line,
-                          trimCollapsedText: " Read more",
-                          trimExpandedText: " Read less",
+                          trimCollapsedText: "Davomini o‘qish",
+                          trimExpandedText: " Qisqartirish",
                           style: TextStyle(fontSize: 14.sp),
+                          moreStyle: TextStyle(
+                            color: Colors.blue,
+                            fontWeight: FontWeight.w600,
+                          ),
+                          lessStyle: TextStyle(
+                            color: Color(0xff1778F2),
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
 
                         const Divider(),

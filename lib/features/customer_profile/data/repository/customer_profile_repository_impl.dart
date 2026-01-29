@@ -1,5 +1,6 @@
 import 'package:tez_xizmat/features/customer_profile/data/datasource/customer_profile_data_source.dart';
 import 'package:tez_xizmat/features/customer_profile/domain/entities/customer_profile_entity.dart';
+import 'package:tez_xizmat/features/customer_profile/domain/entities/customer_profile_image_entity.dart';
 import 'package:tez_xizmat/features/customer_profile/domain/entities/customer_update_profile_entity.dart';
 import 'package:tez_xizmat/features/customer_profile/domain/repository/customer_profile_repository.dart';
 
@@ -22,5 +23,10 @@ class CustomerProfileRepositoryImpl implements CustomerProfileRepository {
       name: name,
       surname: surname,
     );
+  }
+
+  @override
+  Future<CustomerProfileImageEntity> updateImage({required String filePath}) {
+    return customerProfileDataSource.updateImage(filePath: filePath);
   }
 }

@@ -28,4 +28,7 @@ abstract class CustomerApiUrls{
   // TOKEN
   static const String refreshCustomer = '${customer}token/refresh/';
   static const String refreshStaff = '${staff}token/refresh/';
+
+  //PROFILE
+  static const String updateImage = '${customer}profile/image/';
 }

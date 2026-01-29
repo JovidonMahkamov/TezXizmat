@@ -12,3 +12,7 @@ class CustomerUpdateProfileE extends CustomerProfileEvent {
 
   CustomerUpdateProfileE({required this.name, required this.surname});
 }
+class CustomerProfileImageE extends CustomerProfileEvent {
+  final String filePath;
+  const CustomerProfileImageE({required this.filePath});
+}

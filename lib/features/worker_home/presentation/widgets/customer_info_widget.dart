@@ -196,6 +196,11 @@ void customerShowInfoWidget(BuildContext context, {required PutOrdersStateEntity
                       context.read<PutStaffOrderBloc>().add(CompleteStaffOrderE(order.id));
                     }
 
+                    void doStart() {
+                      if (isLoading) return;
+                      context.read<PutStaffOrderBloc>().add(StartStaffOrderE(order.id));
+                    }
+
                     if (isPending) {
                       return Row(
                         children: [
@@ -248,27 +253,6 @@ void customerShowInfoWidget(BuildContext context, {required PutOrdersStateEntity
                       return Row(
                         children: [
                           Expanded(
-                            child: SizedBox(
-                              height: 46.h,
-                              child: ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  backgroundColor: Colors.red,
-                                ),
-                                onPressed:isLoading ? null : doCancel,
-                                child:  Center(
-                                  child: Text(
-                                      isLoading ? "..." : "Bekor qilish",
-                                    style: TextStyle (color: Colors.white),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                          SizedBox(width: 20.w),
-                          Expanded(
                             child:SizedBox(
                               height: 46.h,
                               child: ElevatedButton(
@@ -278,10 +262,10 @@ void customerShowInfoWidget(BuildContext context, {required PutOrdersStateEntity
                                   ),
                                   backgroundColor: Colors.blue,
                                 ),
-                                onPressed:isLoading ? null : doComplete,
+                                onPressed:isLoading ? null : doStart,
                                 child:  Center(
                                   child: Text(
-                                    isLoading ? "..." : "Yakunlash",
+                                    isLoading ? "..." : "Ishni boshlash",
                                     style: TextStyle (color: Colors.white),
                                   ),
                                 ),

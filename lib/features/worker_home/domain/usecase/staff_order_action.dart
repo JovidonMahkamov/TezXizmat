@@ -1,1 +1,1 @@
-enum StaffOrderAction { accept, cancel, complete }
+enum StaffOrderAction { accept, cancel, complete, pending }

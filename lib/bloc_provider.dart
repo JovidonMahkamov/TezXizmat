@@ -12,6 +12,7 @@ import 'package:tez_xizmat/features/customer_home/presentation/bloc/get_worker_i
 import 'package:tez_xizmat/features/customer_home/presentation/bloc/get_worker_reviews/get_worker_reviews_bloc.dart';
 import 'package:tez_xizmat/features/customer_order/presentation/bloc/customer_create_order/customer_create_order_bloc.dart';
 import 'package:tez_xizmat/features/customer_order/presentation/bloc/get_customer_all_orders/get_customer_all_orders_bloc.dart';
+import 'package:tez_xizmat/features/customer_profile/presentation/bloc/customer_profile_image/customer_profile_image_bloc.dart';
 import 'package:tez_xizmat/features/customer_profile/presentation/bloc/profile_bloc/customer_profile_bloc.dart';
 import 'package:tez_xizmat/features/customer_profile/presentation/bloc/update_profile_bloc/customer_update_profile_bloc.dart';
 import 'package:tez_xizmat/features/worker_home/presentation/bloc/get_staff_orders/get_staff_orders_bloc.dart';
@@ -48,6 +49,7 @@ class MyBlocProvider extends StatelessWidget {
         BlocProvider<GetCustomerAllOrdersBloc>(create: (context) => sl<GetCustomerAllOrdersBloc>()),
         BlocProvider<GetStaffOrdersBloc>(create: (context) => sl<GetStaffOrdersBloc>()),
         BlocProvider<PutStaffOrderBloc>(create: (context) => sl<PutStaffOrderBloc>()),
+        BlocProvider<CustomerProfileImageBloc>(create: (context) => sl<CustomerProfileImageBloc>()),
       ],
       child: child,
     );

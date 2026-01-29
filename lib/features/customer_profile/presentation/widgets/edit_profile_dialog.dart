@@ -1,10 +1,18 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:tez_xizmat/features/auth/presentation/widgets/text_field_widget.dart';
 import 'package:tez_xizmat/features/customer_profile/presentation/bloc/update_profile_bloc/customer_update_profile_bloc.dart';
 import 'package:tez_xizmat/features/customer_profile/presentation/bloc/update_profile_bloc/customer_update_profile_state.dart';
 import 'package:tez_xizmat/features/customer_profile/presentation/bloc/profile_bloc/customer_profile_bloc.dart';
 import 'package:tez_xizmat/features/customer_profile/presentation/bloc/customer_profile_event.dart';
+
+import '../../../worker_profile/presentation/widgets/worker_image_picker_widget.dart';
+import '../bloc/customer_profile_image/customer_profile_image_bloc.dart';
+import '../bloc/customer_profile_image/customer_profile_image_state.dart';
+import '../bloc/profile_bloc/customer_profile_state.dart';
 
 class EditProfileDialog extends StatefulWidget {
   final String firstName;
@@ -53,7 +61,7 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
           context.read<CustomerUpdateProfileBloc>().add(CustomerUpdateProfileE(name: nameController.text.trim(), surname: surnameController.text.trim()));
         }
 
-        // ❌ Error bo‘lsa Snackbar
+        // Error bo‘lsa Snackbar
         if (state is CustomerUpdateProfileError) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text(state.message)),
@@ -94,50 +102,97 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
                       ),
                     ],
                   ),
+                  Center(
+                    child: BlocConsumer<CustomerProfileImageBloc, CustomerProfileImageState>(
+                      listener: (context, imgState) {
+                        if (imgState is CustomerProfileImageError) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text(imgState.message)),
+                          );
+                        }
+                      },
+                      builder: (context, imgState) {
+                        // image pathni bloc state’dan olamiz
+                        final profileState = context.watch<CustomerProfileBloc>().state;
+                        String? imagePath;
 
+                        if (profileState is CustomerProfileSuccess) {
+                          imagePath = profileState.customerProfileEntity.image;
+                        }
+
+
+                        return WorkerImagePickerWidget(
+                          baseUrl: "https://tezxizmatlar.uz",
+                          initialImagePath: imagePath, // <-- endi state.profile.image emas
+                          uploadImage: (filePath) async {
+                            // Widget Future<String> kutyapti, shuning uchun bloc’dan natijani kutib qaytaramiz
+                            final bloc = context.read<CustomerProfileImageBloc>();
+
+                            final completer = Completer<String>();
+                            late final StreamSubscription sub;
+
+                            sub = bloc.stream.listen((s) {
+                              if (s is CustomerProfileImageSuccess) {
+                                context.read<CustomerProfileBloc>().add(CustomerProfileE());
+
+                                completer.complete(s.customerProfileImageEntity.image);
+                                sub.cancel();
+                              } else if (s is CustomerProfileImageError) {
+                                completer.completeError(s.message);
+                                sub.cancel();
+                              }
+                            });
+
+                            bloc.add(CustomerProfileImageE(filePath: filePath));
+
+                            return completer.future;
+                          },
+                        );
+                      },
+                    ),
+                  ),
                   Text("Ism", style: TextStyle(fontSize: 16.sp, color: Colors.grey)),
                   SizedBox(height: 2.h),
-                  TextField(
-                    controller: nameController,
-                    decoration: const InputDecoration(border: OutlineInputBorder()),
-                  ),
-
+                  TextFieldWidget(text: "", obscureText: false, readOnly: false, controller: nameController,),
                   SizedBox(height: 16.h),
                   Text("Familiya", style: TextStyle(fontSize: 16.sp, color: Colors.grey)),
                   SizedBox(height: 2.h),
-                  TextField(
-                    controller: surnameController,
-                    decoration: const InputDecoration(border: OutlineInputBorder()),
-                  ),
-
+                  TextFieldWidget(text: "", obscureText: false, readOnly: false, controller: surnameController,),
                   SizedBox(height: 24.h),
-
-                  SizedBox(
-                    width: double.infinity,
-                    height: 50,
-                    child: ElevatedButton(
-                      onPressed: isLoading
-                          ? null
-                          : () {
-                        final fn = nameController.text.trim();
-                        final ln = surnameController.text.trim();
-                        if (fn.isEmpty || ln.isEmpty) return;
-
-                        context.read<CustomerUpdateProfileBloc>().add(
-                          CustomerUpdateProfileE(
-                            name: fn, surname: ln,
-                          ),
-                        );
-                      },
-                      child: isLoading
-                          ? const SizedBox(
-                        width: 22,
-                        height: 22,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                          : const Text("Saqlash"),
+              SizedBox(
+                width: double.infinity,
+                height: 46.h,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
                     ),
+                    backgroundColor: Colors.blue,
                   ),
+                  onPressed:isLoading
+                      ? null
+                      : () {
+                    final fn = nameController.text.trim();
+                    final ln = surnameController.text.trim();
+                    if (fn.isEmpty || ln.isEmpty) return;
+
+                    context.read<CustomerUpdateProfileBloc>().add(
+                      CustomerUpdateProfileE(
+                        name: fn, surname: ln,
+                      ),
+                    );
+                  },
+                  child:  Center(
+                    child: isLoading
+                  ? const SizedBox(
+                width: 22,
+                height: 22,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              )
+                    :  Text("Saqlash", style: TextStyle(color: Colors.white),),
+                  ),
+                ),
+              ),
                 ],
               ),
             ),

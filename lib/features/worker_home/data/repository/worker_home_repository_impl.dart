@@ -27,6 +27,9 @@ class WorkerHomeRepositoryImpl implements WorkerHomeRepository {
 
       case StaffOrderAction.complete:
         return await workerHomeDataSource.complete(orderId);
+
+      case StaffOrderAction.pending:
+        return await workerHomeDataSource.start(orderId);
     }
   }
 }

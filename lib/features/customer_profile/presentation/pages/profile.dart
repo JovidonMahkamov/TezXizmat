@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:loading_indicator/loading_indicator.dart';
 import 'package:tez_xizmat/features/customer_profile/presentation/bloc/customer_profile_event.dart';
 import 'package:tez_xizmat/features/customer_profile/presentation/bloc/profile_bloc/customer_profile_bloc.dart';
 import 'package:tez_xizmat/features/customer_profile/presentation/bloc/profile_bloc/customer_profile_state.dart';
 import 'package:tez_xizmat/features/customer_profile/presentation/widgets/edit_profile_dialog.dart';
 import 'package:tez_xizmat/features/customer_profile/presentation/widgets/edit_profile_widget.dart';
-import 'package:tez_xizmat/features/customer_profile/presentation/widgets/image_picker_widget.dart';
 import 'package:tez_xizmat/features/customer_profile/presentation/widgets/profile_log_out_widget.dart';
 
 import '../../../worker_home/presentation/pages/worker_profile_image_view.dart';
@@ -38,12 +38,21 @@ class _ProfilePageState extends State<ProfilePage> {
           style: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.w700),
         ),
       ),
-
       body: BlocBuilder<CustomerProfileBloc, CustomerProfileState>(
         builder: (context, state) {
           // 1) LOADING
           if (state is CustomerProfileLoading) {
-            return const Center(child: CircularProgressIndicator());
+            return  Center(
+                child: SizedBox(
+                  width: 80,
+                  height: 80,
+                  child: LoadingIndicator(
+                    indicatorType: Indicator.ballSpinFadeLoader,
+                    colors: [Colors.blueAccent],
+                    strokeWidth: 2,
+                  ),
+                ),
+            );
           }
 
           // 2) ERROR
@@ -76,11 +85,10 @@ class _ProfilePageState extends State<ProfilePage> {
 
             final imageUrl = profile.image.isNotEmpty
                 ? (profile.image.startsWith('http')
-                ? profile.image
-                : 'https://tezxizmatlar.uz${profile.image}')
+                      ? profile.image
+                      : 'https://tezxizmatlar.uz${profile.image}')
                 : null;
             // profile: UserProfileEntity bo‘lishi kerak (firstName,lastName,email)
-
             return Column(
               children: [
                 SizedBox(height: 10.h),
@@ -88,17 +96,15 @@ class _ProfilePageState extends State<ProfilePage> {
                   onTap: imageUrl == null
                       ? null
                       : () {
-                    Navigator.push(
-                      context,
-                      PageRouteBuilder(
-                        opaque: false,
-                        pageBuilder: (_, __, ___) =>
-                            WorkerProfileImageView(
-                              imageUrl: imageUrl,
+                          Navigator.push(
+                            context,
+                            PageRouteBuilder(
+                              opaque: false,
+                              pageBuilder: (_, __, ___) =>
+                                  WorkerProfileImageView(imageUrl: imageUrl),
                             ),
-                      ),
-                    );
-                  },
+                          );
+                        },
                   child: Hero(
                     tag: profileHeroTag,
                     child: CircleAvatar(
@@ -106,9 +112,8 @@ class _ProfilePageState extends State<ProfilePage> {
                       backgroundColor: Colors.grey.shade300,
                       backgroundImage: imageUrl != null
                           ? NetworkImage(imageUrl)
-                          : const AssetImage(
-                        'assets/profile/per.png',
-                      ) as ImageProvider,
+                          : const AssetImage('assets/profile/per.png')
+                                as ImageProvider,
                     ),
                   ),
                 ),
@@ -150,7 +155,6 @@ class _ProfilePageState extends State<ProfilePage> {
                         lastName: profile.lastName,
                       ),
                     );
-
                   },
                   icon1: Icons.arrow_forward_ios_outlined,
                   textStyle: TextStyle(fontSize: 18.sp),

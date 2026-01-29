@@ -9,6 +9,8 @@ import 'package:tez_xizmat/features/auth/presentation/bloc/customer_register/cus
 import 'package:tez_xizmat/features/auth/presentation/bloc/customer_register/customer_register_state.dart';
 import 'package:tez_xizmat/features/auth/presentation/widgets/text_field_widget.dart';
 
+import '../../widgets/text_field_wodget_3.dart';
+
 class CustomerRegisterInfoPage extends StatefulWidget {
   final String email;
 
@@ -145,7 +147,7 @@ class _CustomerRegisterInfoPageState extends State<CustomerRegisterInfoPage> {
 
                   SizedBox(height: 25.h),
 
-                  /// ✅ EMAIL FIELD (NOMER O‘RNIGA)
+                  ///  EMAIL FIELD (NOMER O‘RNIGA)
                   _label("Emailingiz"),
                   TextFieldWidget(
                     controller: _emailController,
@@ -158,12 +160,13 @@ class _CustomerRegisterInfoPageState extends State<CustomerRegisterInfoPage> {
                   SizedBox(height: 25.h),
 
                   _label("Parol yarating"),
-                  TextFieldWidget(
+                  TextFieldWidgetBoard(
                     controller: _passwordController,
                     text: "********",
                     obscureText: eye,
                     errorText: _passwordError,
-                    suffixIcon: IconButton(
+                    keyboardType: TextInputType.emailAddress,
+                    textCapitalization: TextCapitalization.none,                    suffixIcon: IconButton(
                       icon: Icon(eye ? IconlyLight.hide : IconlyLight.show),
                       onPressed: () {
                         setState(() => eye = !eye);
@@ -174,10 +177,12 @@ class _CustomerRegisterInfoPageState extends State<CustomerRegisterInfoPage> {
                   SizedBox(height: 25.h),
 
                   _label("Parolni takrorlang"),
-                  TextFieldWidget(
+                  TextFieldWidgetBoard(
                     controller: _confirmPasswordController,
                     text: "********",
                     obscureText: eye1,
+                    keyboardType: TextInputType.emailAddress,
+                    textCapitalization: TextCapitalization.none,
                     suffixIcon: IconButton(
                       icon: Icon(eye1 ? IconlyLight.hide : IconlyLight.show),
                       onPressed: () {

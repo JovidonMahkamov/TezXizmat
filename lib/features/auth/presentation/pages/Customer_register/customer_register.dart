@@ -3,12 +3,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 import 'package:tez_xizmat/core/routes/route_names.dart';
-import 'package:tez_xizmat/features/auth/domain/entities/customer_send_email_entity.dart';
 import 'package:tez_xizmat/features/auth/presentation/bloc/customer_auth_event.dart';
 import 'package:tez_xizmat/features/auth/presentation/bloc/customer_send_email/customer_send_email_bloc.dart';
 import 'package:tez_xizmat/features/auth/presentation/bloc/customer_send_email/customer_send_email_state.dart';
 import 'package:tez_xizmat/features/auth/presentation/widgets/elevated_button_widget.dart';
-import 'package:tez_xizmat/features/auth/presentation/widgets/text_field_widget.dart';
+import '../../widgets/text_field_wodget_3.dart';
 
 class CustomerRegisterPage extends StatefulWidget {
   const CustomerRegisterPage({super.key});
@@ -104,9 +103,11 @@ class _CustomerRegisterPageState extends State<CustomerRegisterPage> {
                 SizedBox(height: 8.h),
 
                 /// EMAIL INPUT
-                TextFieldWidget(
+                TextFieldWidgetBoard(
                   controller: emailController,
                   text: 'emailingiz@gmail.com',
+                  keyboardType: TextInputType.emailAddress,
+                  textCapitalization: TextCapitalization.none,
                   obscureText: false, readOnly: false,
                 ),
 

@@ -2,30 +2,31 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-class TextFieldWidget extends StatefulWidget {
+class TextFieldWidgetBoard extends StatefulWidget {
   final TextEditingController? controller;
   final String text;
   final String? errorText;
+  final TextCapitalization? textCapitalization;
   final bool readOnly;
   final bool obscureText;
   final IconButton? suffixIcon;
   final TextInputType? keyboardType;
   final void Function(String)? onChanged;
 
-  const TextFieldWidget({
+  const TextFieldWidgetBoard({
     super.key,
     this.controller,
     required this.text,
     required this.obscureText,
     this.suffixIcon,
-    this.keyboardType, this.errorText, this.onChanged, required this.readOnly,
+    this.keyboardType, this.errorText, this.onChanged, required this.readOnly, this.textCapitalization,
   });
 
   @override
-  State<TextFieldWidget> createState() => _TextFieldWidgetState();
+  State<TextFieldWidgetBoard> createState() => _TextFieldWidgetState();
 }
 
-class _TextFieldWidgetState extends State<TextFieldWidget> {
+class _TextFieldWidgetState extends State<TextFieldWidgetBoard> {
   @override
   Widget build(BuildContext context) {
     return TextField(
@@ -33,6 +34,7 @@ class _TextFieldWidgetState extends State<TextFieldWidget> {
       onChanged: widget.onChanged,
       keyboardType: widget.keyboardType,
       controller: widget.controller,
+      textCapitalization: widget.textCapitalization!,
       obscureText: widget.obscureText,
       decoration: InputDecoration(
         errorText: widget.errorText,

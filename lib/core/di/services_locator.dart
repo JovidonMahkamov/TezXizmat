@@ -44,8 +44,10 @@ import 'package:tez_xizmat/features/customer_profile/data/datasource/customer_pr
 import 'package:tez_xizmat/features/customer_profile/data/datasource/customer_profile_data_source_impl.dart';
 import 'package:tez_xizmat/features/customer_profile/data/repository/customer_profile_repository_impl.dart';
 import 'package:tez_xizmat/features/customer_profile/domain/repository/customer_profile_repository.dart';
+import 'package:tez_xizmat/features/customer_profile/domain/usecase/customer_profile_image_use_case.dart';
 import 'package:tez_xizmat/features/customer_profile/domain/usecase/customer_profile_use_case.dart';
 import 'package:tez_xizmat/features/customer_profile/domain/usecase/customer_update_profile_use_case.dart';
+import 'package:tez_xizmat/features/customer_profile/presentation/bloc/customer_profile_image/customer_profile_image_bloc.dart';
 import 'package:tez_xizmat/features/customer_profile/presentation/bloc/profile_bloc/customer_profile_bloc.dart';
 import 'package:tez_xizmat/features/customer_profile/presentation/bloc/update_profile_bloc/customer_update_profile_bloc.dart';
 import 'package:tez_xizmat/features/worker_home/data/datasource/worker_home_data_source.dart';
@@ -151,6 +153,7 @@ Future<void> setup() async {
   ///* Profile Customer
   sl.registerLazySingleton(()=>CustomerProfileUseCase(sl()));
   sl.registerLazySingleton(()=>CustomerUpdateProfileUseCase(sl()));
+  sl.registerLazySingleton(()=>CustomerProfileImageUseCase(sl()));
   ///* Customer Order
   sl.registerLazySingleton(()=>CustomerCreateOrderUseCase(sl()));
   sl.registerLazySingleton(()=>CustomerGetAllOrdersUseCase(sl()));
@@ -180,6 +183,7 @@ Future<void> setup() async {
   ///* Profile Customer
   sl.registerFactory(() => CustomerProfileBloc(sl()));
   sl.registerFactory(() => CustomerUpdateProfileBloc(sl()));
+  sl.registerFactory(() => CustomerProfileImageBloc(sl()));
   ///* Customer Order
   sl.registerFactory(() => CustomerCreateOrderBloc(sl()));
   sl.registerFactory(() => GetCustomerAllOrdersBloc(sl()));
