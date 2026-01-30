@@ -34,7 +34,7 @@ class _ServicesFieldsWidgetState extends State<ServicesFieldsWidget> {
       controllers.add(TextEditingController());
     }
 
-    // ✅ birinchi marta parentga ham jo‘natib qo‘yamiz
+    // birinchi marta parentga ham jo‘natib qo‘yamiz
     WidgetsBinding.instance.addPostFrameCallback((_) => _notify());
   }
 

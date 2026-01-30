@@ -271,11 +271,11 @@ class _WorkerEditProfilePageState extends State<WorkerEditProfilePage> {
                       Text('Xizmatlar', style: TextStyle(fontSize: 14.sp, color: Colors.grey)),
                       SizedBox(height: 2.h),
                       ServicesFieldsWidget(
-                        key: ValueKey(_initialServices.join('|')), // ✅ initialValues kelsa widget qayta qurilsin
-                        initialValues: _initialServices,           // ✅ eski skill/service lar chiqadi
+                        key: ValueKey(_initialServices.join('|')), //  initialValues kelsa widget qayta qurilsin
+                        initialValues: _initialServices,           // eski skill/service lar chiqadi
                         onChanged: (list) {
                           services = list;
-                          skillsController.text = services.join(", "); // ✅ backend uchun string
+                          skillsController.text = services.join(", "); // backend uchun string
                         },
                       ),
 

@@ -22,6 +22,18 @@ class CustomDropdown extends StatelessWidget {
       'Santexnik',
       'Konditsioner ustasi',
       'Uy tozalovchi',
+      'Usta',
+      'Kafelchi',
+      'Malyar',
+      'Gipsokartonchi',
+      'Eshik-deraza ustasi',
+      'Konditsioner ustasi',
+      'Maishiy texnika ustasi',
+      'Mebel ustasi',
+      'Tom ustasi',
+      'Bog‘bon',
+      'Qo‘riqchi',
+      'Boshqa',
     ];
     final String? safeValue = items.contains(value) ? value : null;
 
@@ -60,7 +72,7 @@ class CustomDropdown extends StatelessWidget {
             );
           }).toList(),
           value: safeValue,
-          onChanged: onChanged, // ✅ eng muhim joy
+          onChanged: onChanged, // eng muhim joy
           buttonStyleData: ButtonStyleData(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             height: 50,

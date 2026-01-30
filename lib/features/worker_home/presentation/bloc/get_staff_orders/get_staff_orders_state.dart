@@ -10,7 +10,7 @@ class GetStaffOrdersInitial extends GetStaffOrdersState {}
 class GetStaffOrdersLoading extends GetStaffOrdersState {}
 
 class GetStaffOrdersSuccess extends GetStaffOrdersState {
-  final List <PutOrdersStateEntity> putOrdersStateEntity;
+  final List<PutOrdersStateEntity> putOrdersStateEntity;
 
   const GetStaffOrdersSuccess({required this.putOrdersStateEntity});
 }

@@ -4,8 +4,10 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:tez_xizmat/core/routes/route_names.dart';
 import 'package:tez_xizmat/features/customer_home/presentation/widgets/home_carousel_widget.dart';
+import 'package:tez_xizmat/features/worker_home/domain/entities/put_orders_state_entity.dart';
 import 'package:tez_xizmat/features/worker_home/presentation/bloc/get_staff_orders/get_staff_orders_bloc.dart';
 import 'package:tez_xizmat/features/worker_home/presentation/bloc/get_staff_orders/get_staff_orders_state.dart';
+import 'package:tez_xizmat/features/worker_home/presentation/bloc/worker_home_event.dart';
 import 'package:tez_xizmat/features/worker_home/presentation/widgets/customer_info_widget.dart';
 import 'package:tez_xizmat/features/worker_home/presentation/widgets/home_worker_app_bar_widget.dart';
 import 'package:tez_xizmat/features/worker_home/presentation/widgets/order_widget.dart';
@@ -13,8 +15,8 @@ import 'package:tez_xizmat/features/worker_home/presentation/widgets/order_widge
 import 'package:tez_xizmat/features/worker_profile/presentation/bloc/worker_profile/worker_profile_bloc.dart';
 import 'package:tez_xizmat/features/worker_profile/presentation/bloc/worker_profile_event.dart';
 
-import '../../domain/entities/put_orders_state_entity.dart';
-import '../bloc/worker_home_event.dart';
+
+
 
 class WorkerHomePage extends StatefulWidget {
 
@@ -29,7 +31,7 @@ class _WorkerHomePageState extends State<WorkerHomePage> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<GetStaffOrdersBloc>().add(const GetStaffOrdersE());
+      context.read<GetStaffOrdersBloc>().add( GetStaffOrdersE());
     });
     context.read<WorkerProfileBloc>().add(WorkerProfileE());
   }
@@ -176,7 +178,6 @@ class _WorkerHomePageState extends State<WorkerHomePage> {
       ),
     );
   }
-
   Widget _buildCompleted(List<PutOrdersStateEntity> list) {
     if (list.isEmpty) return _empty("Yakunlangan buyurtmalar yo‘q.");
 
@@ -201,9 +202,32 @@ class _WorkerHomePageState extends State<WorkerHomePage> {
       ),
     );
   }
-
   Widget _buildCanceled(List<PutOrdersStateEntity> list) {
     if (list.isEmpty) return _empty("Bekor qilingan buyurtmalar yo‘q.");
+
+    return RefreshIndicator(
+      onRefresh: _reload,
+      child: ListView.separated(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: EdgeInsets.only(top: 23.h),
+        itemCount: list.length,
+        separatorBuilder: (_, __) => SizedBox(height: 10.h),
+        itemBuilder: (context, index) {
+          final o = list[index];
+          return OrderWidgetTwo(
+            name: o.customer.firstName,
+            description: o.description,
+            time: _formatTime(o.canceledAt),
+            statusText: _statusText(o.status),
+            statusColor: _statusColor(o.status),
+            imageUrl: "assets/circular_avatar/profile.png",
+          );
+        },
+      ),
+    );
+  }
+  Widget _buildStarted(List<PutOrdersStateEntity> list) {
+    if (list.isEmpty) return _empty("");
 
     return RefreshIndicator(
       onRefresh: _reload,
@@ -357,6 +381,7 @@ class _WorkerHomePageState extends State<WorkerHomePage> {
                                   _buildActive(active),
                                   _buildCompleted(completed),
                                   _buildCanceled(canceled),
+                                  _buildStarted(started),
                                 ],
                               );
                             }
