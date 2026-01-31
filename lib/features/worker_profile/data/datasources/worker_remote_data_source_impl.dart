@@ -39,20 +39,21 @@ class WorkerRemoteDataSourceImpl implements WorkerRemoteDataSource {
   }
 
   @override
-  Future<WorkerEditProfileModel> editProfile({required String first_name, required String last_name, required String profession, required String description, required String skills, required String price, required String free_time}) async{
+  Future<WorkerEditProfileModel> editProfile({required String first_name, required String last_name, required String profession, required String description, required String skills_text, required String price_text, required String free_time_text}) async{
     try {
 
       final response = await customerDioClient.patch(
         StaffApiUrls.updateStaffProfile,
-        data: {
-          "first_name": first_name,
-          "last_name": last_name,
-          "profession": profession,
-          "description": description,
-          "skills": skills,
-          "price": price,
-          "free_time": free_time,
-        },
+          data: {
+            "first_name": first_name,
+            "last_name": last_name,
+            "profession": profession,
+            "description": description,
+            "skills_text": skills_text,
+            "price_text": price_text,
+            "free_time_text": free_time_text,
+          }
+
       );
       if (response.statusCode == 200 || response.statusCode == 201) {
         LoggerService.info('edit worker profile successful: ${response.data}');

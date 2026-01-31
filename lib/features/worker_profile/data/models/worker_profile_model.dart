@@ -8,12 +8,12 @@ class WorkerProfileModel extends WorkerProfileEntity {
     required super.firstName,
     required super.lastName,
     required super.profession,
-    required super.comments,
+    required super.createdAt,
     required super.description,
-    required super.skills,
-    required super.price,
-    required super.freeTime,
-    required super.isActive,
+    required super.freeTimeText,
+    required super.isEmailVerified,
+    required super.priceText,
+    required super.skillsText,
   });
 
   factory WorkerProfileModel.fromJson(Map<String, dynamic> json) {
@@ -23,13 +23,13 @@ class WorkerProfileModel extends WorkerProfileEntity {
       image: json['image']?? "",
       firstName: json['first_name']?? "",
       lastName: json['last_name']?? "",
-      profession: json['profession']?? "Sozlamalar bo'limidan ish turingizni kiriting",
-      comments: json['comments']?? "",
-      description: json['description']?? "Sozlamalar bo'limidan tajribangizni kiriting",
-      skills: json['skills']?? "Sozlamalar bo'limidan xizmatlaringizni kiriting",
-      price: json['price']?? "Sozlamalar bo'limidan xizmat narxini kiriting",
-      freeTime: json['free_time']?? "Sozlamalar bo'limidan ish vaqtingizni kiriting",
-      isActive: json['is_active'] == true,
+      profession: json['profession']?? "",
+      freeTimeText: json['free_time_text']?? "",
+      description: json['description']?? "",
+      isEmailVerified: json['is_email_verified'] == true,
+      priceText: json['price_text']?? "",
+      skillsText: json['skills_text']?? "",
+      createdAt: json['created_at'] ?? "",
     );
   }
 }

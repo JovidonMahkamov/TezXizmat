@@ -13,10 +13,10 @@ class CustomerSendEmail extends CustomerAuthEvent {
 class CustomerVerifyEmail extends CustomerAuthEvent {
   final String email;
   final String password;
-  final VerifyPurpose? purpose;
+  final VerifyPurpose purpose;
 
   const CustomerVerifyEmail({
-    this.purpose,
+    required this.purpose,
     required this.email,
     required this.password,
   });

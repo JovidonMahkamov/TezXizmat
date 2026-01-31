@@ -36,8 +36,11 @@ import 'package:tez_xizmat/features/customer_order/data/datasource/customer_orde
 import 'package:tez_xizmat/features/customer_order/data/datasource/customer_order_data_source_impl.dart';
 import 'package:tez_xizmat/features/customer_order/data/repository/customer_order_repository_impl.dart';
 import 'package:tez_xizmat/features/customer_order/domain/repository/customer_order_repository.dart';
+import 'package:tez_xizmat/features/customer_order/domain/usecase/cancel_order_use_case.dart';
+import 'package:tez_xizmat/features/customer_order/domain/usecase/confirm_completion_use_case.dart';
 import 'package:tez_xizmat/features/customer_order/domain/usecase/customer_create_order_use_case.dart';
 import 'package:tez_xizmat/features/customer_order/domain/usecase/customer_get_all_orders_use_case.dart';
+import 'package:tez_xizmat/features/customer_order/presentation/bloc/cancel_order/cancel_order_bloc.dart';
 import 'package:tez_xizmat/features/customer_order/presentation/bloc/customer_create_order/customer_create_order_bloc.dart';
 import 'package:tez_xizmat/features/customer_order/presentation/bloc/get_customer_all_orders/get_customer_all_orders_bloc.dart';
 import 'package:tez_xizmat/features/customer_profile/data/datasource/customer_profile_data_source.dart';
@@ -54,15 +57,20 @@ import 'package:tez_xizmat/features/worker_home/data/datasource/worker_home_data
 import 'package:tez_xizmat/features/worker_home/data/datasource/worker_home_data_source_impl.dart';
 import 'package:tez_xizmat/features/worker_home/data/repository/worker_home_repository_impl.dart';
 import 'package:tez_xizmat/features/worker_home/domain/repository/worker_home_repository.dart';
+import 'package:tez_xizmat/features/worker_home/domain/usecase/accept_order_use_case.dart';
+import 'package:tez_xizmat/features/worker_home/domain/usecase/complete_by_staff_use_case.dart';
+import 'package:tez_xizmat/features/worker_home/domain/usecase/start_order_use_case.dart';
+import 'package:tez_xizmat/features/worker_home/presentation/bloc/accept_order/accept_order_bloc.dart';
+import 'package:tez_xizmat/features/worker_home/presentation/bloc/complete_by_staff_order/complete_by_staff_bloc.dart';
 import 'package:tez_xizmat/features/worker_home/presentation/bloc/get_staff_orders/get_staff_orders_bloc.dart';
+import 'package:tez_xizmat/features/worker_home/presentation/bloc/start_order/start_order_bloc.dart';
 import 'package:tez_xizmat/features/worker_profile/data/datasources/worker_remote_data_source.dart';
 import 'package:tez_xizmat/features/worker_profile/data/datasources/worker_remote_data_source_impl.dart';
 import 'package:tez_xizmat/features/worker_profile/data/repositories/worker_profile_repository_impl.dart';
 import 'package:tez_xizmat/features/worker_profile/domain/repositories/worker_repository.dart';
 import 'package:tez_xizmat/features/worker_profile/domain/usecases/worker_edit_profile_use_case.dart';
+import '../../features/customer_order/presentation/bloc/confirm_completion_order/confirm_completion_bloc.dart';
 import '../../features/worker_home/domain/usecase/get_staff_orders_use_case.dart';
-import '../../features/worker_home/domain/usecase/put_orders_state_use_case.dart';
-import '../../features/worker_home/presentation/bloc/put_orders_state/put_orders_state_bloc.dart';
 import '../../features/worker_profile/domain/usecases/worker_profile_image_use_case.dart';
 import '../../features/worker_profile/domain/usecases/worker_profile_use_case.dart';
 import '../../features/worker_profile/presentation/bloc/worker_edit_profile/worker_edit_profile_bloc.dart';
@@ -157,6 +165,11 @@ Future<void> setup() async {
   ///* Customer Order
   sl.registerLazySingleton(()=>CustomerCreateOrderUseCase(sl()));
   sl.registerLazySingleton(()=>CustomerGetAllOrdersUseCase(sl()));
+  sl.registerLazySingleton(()=>CancelOrderUseCase(sl()));
+  sl.registerLazySingleton(()=>ConfirmCompletionUseCase(sl()));
+  sl.registerLazySingleton(()=>AcceptOrderUseCase(sl()));
+  sl.registerLazySingleton(()=>StartOrderUseCase(sl()));
+  sl.registerLazySingleton(()=>CompleteByStaffUseCase(sl()));
   ///* Customer Home
   sl.registerLazySingleton(()=>CustomerGetAllStaffUseCase(sl()));
 
@@ -187,6 +200,11 @@ Future<void> setup() async {
   ///* Customer Order
   sl.registerFactory(() => CustomerCreateOrderBloc(sl()));
   sl.registerFactory(() => GetCustomerAllOrdersBloc(sl()));
+  sl.registerFactory(() => CancelOrderBloc(sl()));
+  sl.registerFactory(() => ConfirmCompletionBloc(sl()));
+  sl.registerFactory(() => AcceptOrderBloc(sl()));
+  sl.registerFactory(() => CompleteByStaffBloc(sl()));
+  sl.registerFactory(() => StartOrderBloc(sl()));
 
   ///* Customer Home
   sl.registerFactory(() => CustomerGetAllStaffBloc(sl()));
@@ -200,14 +218,6 @@ Future<void> setup() async {
   sl.registerFactory(() => WorkerProfileBloc(sl()));
   sl.registerFactory(() => WorkerEditProfileBloc(sl()));
   sl.registerFactory(() => WorkerProfileImageBloc(sl()));
-
-  ///* Worker Home
-  sl.registerLazySingleton(() => PutOrdersStateUseCase(sl()));
-
-  ///! Bloc
-  ///* Worker Home
-  sl.registerFactory(() => PutStaffOrderBloc(putOrdersStateUseCase: sl()));
-
 }
 
 

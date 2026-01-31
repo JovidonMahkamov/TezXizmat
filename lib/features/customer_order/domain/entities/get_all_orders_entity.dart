@@ -1,30 +1,36 @@
-import 'package:tez_xizmat/features/customer_order/domain/entities/get_customer_order_entity.dart';
-import 'package:tez_xizmat/features/customer_order/domain/entities/get_staff_order_entity.dart';
-
 class GetAllOrdersEntity {
   final int id;
-  final GetCustomerOrderEntity customer;
-  final GetStaffOrderEntity staff;
-  final String description;
+  final int customerId;
+  final int staffId;
+  final String problemText;
   final String address;
   final String status;
+
   final String? acceptedAt;
-  final String? completedAt;
+  final String? startedAt;
+  final String? completedByStaffAt;
+  final String? completedByCustomerAt;
   final String? canceledAt;
+
+  final String? canceledBy;
+  final String? cancelReason;
+
   final String createdAt;
-  final String updatedAt;
 
   GetAllOrdersEntity({
     required this.id,
-    required this.customer,
-    required this.staff,
-    required this.description,
+    required this.customerId,
+    required this.staffId,
+    required this.problemText,
     required this.address,
     required this.status,
     this.acceptedAt,
-    this.completedAt,
+    this.startedAt,
+    this.completedByStaffAt,
+    this.completedByCustomerAt,
     this.canceledAt,
+    this.canceledBy,
+    this.cancelReason,
     required this.createdAt,
-    required this.updatedAt,
   });
 }

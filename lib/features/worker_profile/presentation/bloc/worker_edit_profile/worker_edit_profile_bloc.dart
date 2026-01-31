@@ -20,9 +20,9 @@ class WorkerEditProfileBloc extends Bloc<WorkerProfileEvent, WorkerEditProfileSt
         last_name: event.last_name,
         profession: event.profession,
         description: event.description,
-        skills: event.skills,
-        price: event.price,
-        free_time: event.free_time,
+        skills: event.skills_text,
+        price: event.price_text,
+        free_time: event.free_time_text,
       );
       emit(WorkerEditProfileSuccess(workerEditProfileEntity: result));
     } on DioException catch (e) {

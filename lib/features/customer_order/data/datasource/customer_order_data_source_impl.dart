@@ -4,6 +4,7 @@ import 'package:tez_xizmat/core/network/staff_dio_client.dart';
 import 'package:tez_xizmat/core/untils/logger.dart';
 import 'package:tez_xizmat/features/auth/data/datasource/local/auth_local_data_source.dart';
 import 'package:tez_xizmat/features/customer_order/data/datasource/customer_order_data_source.dart';
+import 'package:tez_xizmat/features/customer_order/data/model/cancel_order_model.dart';
 import 'package:tez_xizmat/features/customer_order/data/model/customer_create_order_model.dart';
 import 'package:tez_xizmat/features/customer_order/data/model/get_all_orders_model.dart';
 
@@ -28,7 +29,7 @@ class CustomerOrderDataSourceImpl implements CustomerOrderDataSource {
       final response = await customerDioClient.post(CustomerApiUrls.createOrder,
         data: {
           'staff_id': staff_id,
-          'description': description,
+          'problem_text': description,
           'address': address,
         },
       );
@@ -69,6 +70,57 @@ class CustomerOrderDataSourceImpl implements CustomerOrderDataSource {
       }
     } catch (e, s) {
       LoggerService.error('Error during get customer all orders: $e');
+      print(e);
+      print(s);
+      rethrow;
+    }
+  }
+
+  @override
+  Future<CancelOrderModel> cancelOrder({required String reason, required int id}) async{
+    try {
+      final response = await customerDioClient.put("${CustomerApiUrls.cancelOrder}/$id/cancel/",
+        data: {
+          'reason': reason,
+          'id': id,
+        },
+      );
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        LoggerService.info('cancel order successful: ${response.data}');
+        return CancelOrderModel.fromJson(response.data);
+      } else {
+        LoggerService.warning(
+          "cancel order failed: ${response.statusCode}",
+        );
+        throw Exception('cancel order failed: ${response.statusCode}');
+      }
+    } catch (e, s) {
+      LoggerService.error('Error during cancel order: $e');
+      print(e);
+      print(s);
+      rethrow;
+    }
+  }
+
+  @override
+  Future<CancelOrderModel> confirmCompletion({required int id}) async{
+    try {
+      final response = await customerDioClient.put("${CustomerApiUrls.confirmCompletion}/$id/confirm-completion/",
+        data: {
+          'id': id,
+        },
+      );
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        LoggerService.info('confirm completion order successful: ${response.data}');
+        return CancelOrderModel.fromJson(response.data);
+      } else {
+        LoggerService.warning(
+          "confirm completion order failed: ${response.statusCode}",
+        );
+        throw Exception('confirm completion order failed: ${response.statusCode}');
+      }
+    } catch (e, s) {
+      LoggerService.error('Error during confirm completion order: $e');
       print(e);
       print(s);
       rethrow;

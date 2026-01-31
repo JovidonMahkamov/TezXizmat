@@ -6,9 +6,9 @@ class WorkerEditProfileModel extends WorkerEditProfileEntity {
     required super.lastName,
     required super.profession,
     required super.description,
-    required super.skills,
-    required super.price,
-    required super.freeTime,
+    required super.skillsText,
+    required super.priceText,
+    required super.freeTimeText,
   });
 
   factory WorkerEditProfileModel.fromJson(Map<String, dynamic> json) {
@@ -17,9 +17,9 @@ class WorkerEditProfileModel extends WorkerEditProfileEntity {
       lastName: json['last_name']?? "",
       profession: json['profession']?? "",
       description: json['description']?? "",
-      skills: json['skills']?? "",
-      price: json['price']?? "",
-      freeTime: json['free_time']?? "",
+      skillsText: json['skills_text']?? "",
+      priceText: json['price_text']?? "",
+      freeTimeText: json['free_time_text']?? "",
     );
   }
 }

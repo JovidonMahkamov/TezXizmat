@@ -8,9 +8,9 @@ import 'package:tez_xizmat/features/auth/domain/entities/verify_purpose.dart';
 
 abstract class CustomerRemoteDataSource{
 Future<CustomerSendEmailModel> sendEmail({required String email});
-Future<CustomerVerifyEmailModel> verifyEmail({required String email,required String password, VerifyPurpose? purpose,});
+Future<CustomerVerifyEmailModel> verifyEmail({required String email,required String password,required VerifyPurpose purpose,});
 Future<CustomerRegisterModel> registerCustomer({required String name,required String surname, required String email, required String password, required String confirm_password});
 Future<CustomerLoginModel> loginCustomer({required String email,required String password,});
-Future<CustomerResendEmailModel> resendEmail({required String email});
+Future<CustomerResendEmailModel> resendEmail({required String email, });
 Future<CustomerResetPasswordModel> resetPassword({required String email,required String password, required String confirm_password});
 }

@@ -62,13 +62,13 @@ class _WorkerEditProfilePageState extends State<WorkerEditProfilePage> {
 
     context.read<WorkerEditProfileBloc>().add(
       WorkerEditProfile(
-        free_time: timeController.text.trim(),
+        free_time_text: timeController.text.trim(),
         first_name: nameController.text.trim(),
         last_name: surnameController.text.trim(),
         profession: professionController.text.trim(),
         description: experienceController.text.trim(),
-        skills: skillsController.text.trim(),
-        price: cashController.text.trim(),
+        skills_text: skillsController.text.trim(),
+        price_text: cashController.text.trim(),
         // agar backend qabul qilsa keyin services ham qo‘shamiz
       ),
     );
@@ -93,14 +93,14 @@ class _WorkerEditProfilePageState extends State<WorkerEditProfilePage> {
     nameController.text = p.firstName;
     surnameController.text = p.lastName;
     experienceController.text = p.description;
-    cashController.text = p.price;
-    timeController.text = p.freeTime;
+    cashController.text = p.priceText;
+    timeController.text = p.freeTimeText;
 
     selectedProfession = p.profession;
     professionController.text = p.profession;
 
     // "a, b, c" => ["a","b","c"]
-    _initialServices = p.skills
+    _initialServices = p.skillsText
         .split(',')
         .map((e) => e.trim())
         .where((e) => e.isNotEmpty)

@@ -7,7 +7,7 @@ class CustomerVerifyEmailUseCase {
 
   CustomerVerifyEmailUseCase(this.customerRepository);
 
-  Future<CustomerVerifyEmailEntity> call({required String email,required String password,VerifyPurpose? purpose,}) async {
+  Future<CustomerVerifyEmailEntity> call({required String email,required String password,required VerifyPurpose purpose,}) async {
     return await customerRepository.verifyEmail(email: email, password: password, purpose: purpose,);
   }
 }

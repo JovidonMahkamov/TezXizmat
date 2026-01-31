@@ -1,7 +1,4 @@
 class CustomerRegisterEntity {
-  // customer uchun
-  final String? detail;   // ba'zida detail keladi
-  final String? message;  // ba'zida message keladi
 
   // staff uchun
   final int? id;
@@ -9,7 +6,8 @@ class CustomerRegisterEntity {
   final String? firstName;
   final String? lastName;
   final String? profession;
-  final String? comments;
+  final String? image;
+  final String? createdAt;
   final String? description;
   final String? skills;
   final String? price;
@@ -17,18 +15,17 @@ class CustomerRegisterEntity {
   final bool? isActive;
 
   const CustomerRegisterEntity({
-    this.detail,
-    this.message,
     this.id,
     this.email,
     this.firstName,
     this.lastName,
     this.profession,
-    this.comments,
+    this.createdAt,
     this.description,
     this.skills,
     this.price,
     this.freeTime,
     this.isActive,
+    this.image,
   });
 }

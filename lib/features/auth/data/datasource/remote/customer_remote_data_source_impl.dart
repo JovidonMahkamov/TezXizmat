@@ -26,9 +26,9 @@ class CustomerRemoteDataSourceImpl implements CustomerRemoteDataSource {
   @override
   Future<CustomerSendEmailModel> sendEmail({required String email}) async {
     try {
-      final url = _isStaff ? StaffApiUrls.sendEmailStaff : CustomerApiUrls.sendEmail;
+    final url = _isStaff ? StaffApiUrls.sendEmailStaff : CustomerApiUrls.sendEmail;
 
-      final response = await customerDioClient.post(url, data: {'email': email});
+      final response = await customerDioClient.post(url, data: {'email': email, "purpose": "VERIFY"});
       if (response.statusCode == 200 || response.statusCode == 201) {
         LoggerService.info('send code successful: ${response.data}');
         return CustomerSendEmailModel.fromJson(response.data);
@@ -48,7 +48,7 @@ class CustomerRemoteDataSourceImpl implements CustomerRemoteDataSource {
   Future<CustomerVerifyEmailModel> verifyEmail({
     required String email,
     required String password,
-    VerifyPurpose? purpose,
+   required VerifyPurpose purpose,
   }) async {
     try {
       final url = _isStaff ? StaffApiUrls.verifyEmailStaff : CustomerApiUrls.verifyEmail;
@@ -92,7 +92,7 @@ class CustomerRemoteDataSourceImpl implements CustomerRemoteDataSource {
         data: {
           'email': email,
           'password': password,
-          'password2': confirm_password,
+          'confirm_password': confirm_password,
           'first_name': name,
           'last_name': surname,
         },
@@ -142,7 +142,7 @@ class CustomerRemoteDataSourceImpl implements CustomerRemoteDataSource {
   }
 
   @override
-  Future<CustomerResendEmailModel> resendEmail({required String email}) async {
+  Future<CustomerResendEmailModel> resendEmail({required String email, }) async {
     try {
       final url = _isStaff ? StaffApiUrls.resendEmailStaff : CustomerApiUrls.resendEmailCustomer;
 
@@ -174,7 +174,7 @@ class CustomerRemoteDataSourceImpl implements CustomerRemoteDataSource {
         data: {
           'email': email,
           'password': password,
-          'password2': confirm_password,
+          'confirm_password': confirm_password,
         },
       );
       if (response.statusCode == 200 || response.statusCode == 201) {

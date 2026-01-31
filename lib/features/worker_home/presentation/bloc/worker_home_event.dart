@@ -24,3 +24,18 @@ class StartStaffOrderE extends WorkerHomeEvent {
   final int id;
   StartStaffOrderE(this.id);
 }
+
+class AcceptOrderE extends WorkerHomeEvent {
+  final int id;
+  AcceptOrderE({required this.id});
+}
+
+class StartOrderE extends WorkerHomeEvent {
+  final int id;
+  StartOrderE({required this.id});
+}
+
+class CompleteOrderE extends WorkerHomeEvent {
+  final int id;
+  CompleteOrderE({required this.id});
+}

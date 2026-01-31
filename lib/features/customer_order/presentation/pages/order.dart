@@ -2,13 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:shimmer/shimmer.dart';
-import 'package:tez_xizmat/core/routes/route_names.dart';
 import 'package:tez_xizmat/features/customer_order/domain/entities/get_all_orders_entity.dart';
 import 'package:tez_xizmat/features/customer_order/presentation/bloc/customer_order_event.dart';
 import 'package:tez_xizmat/features/customer_order/presentation/bloc/get_customer_all_orders/get_customer_all_orders_bloc.dart';
 import 'package:tez_xizmat/features/customer_order/presentation/bloc/get_customer_all_orders/get_customer_all_orders_state.dart';
-import 'package:tez_xizmat/features/customer_order/presentation/widgets/order_Container_widget.dart';
-import 'package:tez_xizmat/features/customer_order/presentation/widgets/order_Container_widgetTwo.dart';
+import 'package:tez_xizmat/features/customer_home/presentation/bloc/customer_get_all_staff/customer_get_all_staff_bloc.dart';
+import 'package:tez_xizmat/features/customer_home/presentation/bloc/customer_get_all_staff/customer_get_all_staff_state.dart';
+import 'package:tez_xizmat/features/customer_home/presentation/bloc/customer_home_event.dart';
+
+import '../../../../core/routes/route_names.dart';
+import '../widgets/order_Container_widget.dart';
+import '../widgets/order_Container_widgetTwo.dart';
 
 class OrderPage extends StatefulWidget {
   const OrderPage({super.key});
@@ -24,10 +28,22 @@ class _OrderPageState extends State<OrderPage> {
     // Sahifa ochilishi bilan orderlarni olib keladi
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<GetCustomerAllOrdersBloc>().add(const GetCustomerAllOrdersE());
+      context.read<CustomerGetAllStaffBloc>().add(CustomerGetAllStaff());
     });
+
   }
 
   // ---------- Helpers ----------
+  String? _normalizeImage(String? raw) {
+    if (raw == null) return null;
+    final v = raw.trim();
+    if (v.isEmpty || v == 'null') return null;
+
+    if (v.startsWith('http://')) return v.replaceFirst('http://', 'https://');
+    if (v.startsWith('https://')) return v;
+    return 'https://tezxizmatlar.uz${v.startsWith('/') ? '' : '/'}$v';
+  }
+
   bool _isCompleted(String s) {
     final up = s.toUpperCase();
     return up == 'COMPLETED' || up == 'DONE' || up == 'FINISHED';
@@ -110,140 +126,6 @@ class _OrderPageState extends State<OrderPage> {
           textAlign: TextAlign.center,
           style: TextStyle(fontSize: 14.sp, color: Colors.grey),
         ),
-      ),
-    );
-  }
-
-  Widget _buildActiveList(List<GetAllOrdersEntity> list) {
-    if (list.isEmpty) return _empty("Faol buyurtmalar yo‘q.");
-    return RefreshIndicator(
-      onRefresh: _reload,
-      child: ListView.separated(
-        physics: const AlwaysScrollableScrollPhysics(),
-        padding: EdgeInsets.only(top: 23.h),
-        itemCount: list.length,
-        separatorBuilder: (_, __) => SizedBox(height: 10.h),
-        itemBuilder: (context, index) {
-          final o = list[index];
-
-          final imageUrl = o.staff.image.isNotEmpty
-              ? (o.staff.image.startsWith('http')
-              ? o.staff.image
-              : 'https://tezxizmatlar.uz${o.staff.image}')
-              : null;
-
-          final name = (o.staff.firstName.isNotEmpty)
-              ? "${o.staff.firstName} (${o.staff.profession})"
-              : o.staff.lastName;
-
-          final time = _formatTime(o.createdAt);
-
-          return OrderContainerWidget(
-            name: name,
-            description: o.description,
-            time: time,
-            statusText: _statusText(o.status),
-            statusColor: _statusColor(o.status),
-            imageUrl: imageUrl,
-            onViewTap: () {
-              // Hozircha orderView args olmayapti (xohlasang 2-qismni ham qilamiz)
-              Navigator.pushNamed(context, RouteNames.orderView);
-            },
-            onChatTap: () {
-              Navigator.pushNamed(
-                context,
-                RouteNames.chatWithWorker,
-                arguments: {
-                  "name": o.staff.firstName.isNotEmpty ? o.staff.profession : "Usta",
-                  "urlAsset": o.staff.image,
-                },
-              );
-            },
-          );
-        },
-      ),
-    );
-  }
-
-  Widget _buildCompletedList(List<GetAllOrdersEntity> list) {
-    if (list.isEmpty) return _empty("Yakunlangan buyurtmalar yo‘q.");
-    return RefreshIndicator(
-      onRefresh: _reload,
-      child: ListView.separated(
-        physics: const AlwaysScrollableScrollPhysics(),
-        padding: EdgeInsets.only(top: 23.h),
-        itemCount: list.length,
-        separatorBuilder: (_, __) => SizedBox(height: 10.h),
-        itemBuilder: (context, index) {
-          final o = list[index];
-          final imageUrl = o.staff.image.isNotEmpty
-              ? (o.staff.image.startsWith('http')
-              ? o.staff.image
-              : 'https://tezxizmatlar.uz${o.staff.image}')
-              : null;
-          final name = (o.staff.lastName.isNotEmpty)
-              ? "${o.staff.firstName} (${o.staff.profession})"
-              : o.staff.lastName;
-
-          final time = _formatTime(o.completedAt ?? o.updatedAt);
-
-          return OrderContainerWidget(
-            name: name,
-            description: o.description,
-            time: time,
-            statusText: _statusText(o.status),
-            statusColor: _statusColor(o.status),
-            imageUrl: imageUrl,
-            onViewTap: () {
-              Navigator.pushNamed(context, RouteNames.orderView);
-            },
-            onChatTap: () {
-              Navigator.pushNamed(
-                context,
-                RouteNames.chatWithWorker,
-                arguments: {
-                  "name": o.staff.firstName.isNotEmpty ? o.staff.profession : "Usta",
-                  "urlAsset": o.staff.image,
-                },
-              );
-            },
-          );
-        },
-      ),
-    );
-  }
-
-  Widget _buildCanceledList(List<GetAllOrdersEntity> list) {
-    if (list.isEmpty) return _empty("Bekor qilingan buyurtmalar yo‘q.");
-    return RefreshIndicator(
-      onRefresh: _reload,
-      child: ListView.separated(
-        physics: const AlwaysScrollableScrollPhysics(),
-        padding: EdgeInsets.only(top: 23.h),
-        itemCount: list.length,
-        separatorBuilder: (_, __) => SizedBox(height: 10.h),
-        itemBuilder: (context, index) {
-          final o = list[index];
-          final imageUrl = o.staff.image.isNotEmpty
-              ? (o.staff.image.startsWith('http')
-              ? o.staff.image
-              : 'https://tezxizmatlar.uz${o.staff.image}')
-              : null;
-          final name = (o.staff.firstName.isNotEmpty)
-              ? "${o.staff.firstName} (${o.staff.profession})"
-              : o.staff.lastName;
-
-          final time = _formatTime(o.canceledAt ?? o.updatedAt);
-
-          return OrderContainerWidgetTwo(
-            name: name,
-            description: o.description,
-            time: time,
-            statusText: _statusText(o.status),
-            statusColor: _statusColor(o.status),
-            imageUrl: imageUrl,
-          );
-        },
       ),
     );
   }
@@ -377,14 +259,84 @@ class _OrderPageState extends State<OrderPage> {
                         final completed = _completed(all);
                         final canceled = _canceled(all);
 
+                        // staff list state
+                        final staffState = context.watch<CustomerGetAllStaffBloc>().state;
+                        final staffMap = <int, dynamic>{};
+
+                        if (staffState is CustomerGetAllStaffSuccess) {
+                          for (final s in staffState.customerGetAllStaffEntity) {
+                            staffMap[s.id] = s;
+                          }
+                        }
+
+                        Widget buildList(List<GetAllOrdersEntity> list, {required bool withActions}) {
+                          if (list.isEmpty) return _empty("Hozircha buyurtmalar yo‘q.");
+
+                          return RefreshIndicator(
+                            onRefresh: _reload,
+                            child: ListView.separated(
+                              physics: const AlwaysScrollableScrollPhysics(),
+                              padding: EdgeInsets.only(top: 10.h),
+                              itemCount: list.length,
+                              separatorBuilder: (_, __) => SizedBox(height: 10.h),
+                              itemBuilder: (context, index) {
+                                final o = list[index];
+                                final staff = staffMap[o.staffId]; // CustomerGetAllStaffEntity bo‘ladi
+
+                                final name = staff != null
+                                    ? "${staff.first_name} ${staff.last_name} (${(staff.profession as String).isEmpty ? 'Usta' : staff.profession})"
+                                    : "Usta #${o.staffId}";
+
+                                final imageUrl = staff != null ? _normalizeImage(staff.image as String?) : null;
+
+                                final time = _formatTime(o.createdAt);
+
+                                if (withActions) {
+                                  return OrderContainerWidget(
+                                    name: name,
+                                    description: o.problemText,
+                                    time: time,
+                                    statusText: _statusText(o.status),
+                                    statusColor: _statusColor(o.status),
+                                    imageUrl: imageUrl,
+                                    onViewTap: () {
+                                      Navigator.pushNamed(context, RouteNames.orderView, arguments: o);
+                                    },
+                                    onChatTap: () {
+                                      Navigator.pushNamed(
+                                        context,
+                                        RouteNames.chatWithWorker,
+                                        arguments: {
+                                          "name": name,
+                                          "urlAsset": imageUrl ?? "assets/circular_avatar/profile.png",
+                                        },
+                                      );
+                                    },
+                                  );
+                                } else {
+                                  return OrderContainerWidgetTwo(
+                                    name: name,
+                                    description: o.problemText,
+                                    time: time,
+                                    statusText: _statusText(o.status),
+                                    statusColor: _statusColor(o.status),
+                                    imageUrl: imageUrl,
+                                  );
+                                }
+                              },
+                            ),
+                          );
+                        }
+
                         return TabBarView(
                           children: [
-                            _buildActiveList(active),
-                            _buildCompletedList(completed),
-                            _buildCanceledList(canceled),
+                            buildList(active, withActions: true),
+                            buildList(completed, withActions: true),
+                            buildList(canceled, withActions: false),
                           ],
                         );
                       }
+
 
                       // Initial holatda ham refresh bilan bo‘sh ko‘rsatamiz
                       return RefreshIndicator(

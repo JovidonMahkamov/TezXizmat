@@ -1,3 +1,4 @@
+import 'package:tez_xizmat/features/customer_order/domain/entities/cancel_order_entity.dart';
 import 'package:tez_xizmat/features/worker_home/data/datasource/worker_home_data_source.dart';
 import 'package:tez_xizmat/features/worker_home/domain/entities/put_orders_state_entity.dart';
 import 'package:tez_xizmat/features/worker_home/domain/repository/worker_home_repository.dart';
@@ -13,23 +14,20 @@ class WorkerHomeRepositoryImpl implements WorkerHomeRepository {
     return workerHomeDataSource.getStaffOrders();
   }
 
+
   @override
-  Future<PutOrdersStateEntity> putOrderAction({
-    required int orderId,
-    required StaffOrderAction action,
-  }) async {
-    switch (action) {
-      case StaffOrderAction.accept:
-        return await workerHomeDataSource.accept(orderId);
-
-      case StaffOrderAction.cancel:
-        return await workerHomeDataSource.cancel(orderId);
-
-      case StaffOrderAction.complete:
-        return await workerHomeDataSource.complete(orderId);
-
-      case StaffOrderAction.pending:
-        return await workerHomeDataSource.start(orderId);
-    }
+  Future<CancelOrderEntity> acceptOrder({required int id}){
+    return workerHomeDataSource.acceptOrder(id: id);
   }
+
+  @override
+  Future<CancelOrderEntity> startOrder({required int id}) {
+    return workerHomeDataSource.startOrder(id: id);
+  }
+
+  @override
+  Future<CancelOrderEntity> completeByStaffOrder({required int id}) {
+    return workerHomeDataSource.completeByStaffOrder(id: id);
+  }
+
 }

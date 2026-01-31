@@ -1,5 +1,6 @@
 import 'package:tez_xizmat/core/network/staff_api_urls.dart';
 import 'package:tez_xizmat/core/network/staff_dio_client.dart';
+import 'package:tez_xizmat/features/customer_order/data/model/cancel_order_model.dart';
 import 'package:tez_xizmat/features/worker_home/data/datasource/worker_home_data_source.dart';
 import 'package:tez_xizmat/features/worker_home/data/model/put_orders_state_model.dart';
 import '../../../../core/network/customer_dio_client.dart';
@@ -14,7 +15,7 @@ class WorkerHomeDataSourceImpl implements WorkerHomeDataSource {
   @override
   Future<List<PutOrdersStateModel>> getStaffOrders() async {
     try {
-      final response = await customerDioClient.get(StaffApiUrls.getStaffOrders);
+      final response = await staffDioClient.get(StaffApiUrls.getStaffOrders);
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         LoggerService.info('get staff orders successful: ${response.data}');
@@ -39,21 +40,21 @@ class WorkerHomeDataSourceImpl implements WorkerHomeDataSource {
   }
 
   @override
-  Future<PutOrdersStateModel> accept(int id) async{
+  Future<CancelOrderModel> acceptOrder({required int id}) async{
     try {
-      final response = await customerDioClient.put(StaffApiUrls.acceptOrder(id));
+      final response = await staffDioClient.put("${StaffApiUrls.acceptOrderByW}${id}/accept/");
 
       if (response.statusCode == 200 || response.statusCode == 201) {
-        LoggerService.info('put orders accept successful: ${response.data}');
-        return PutOrdersStateModel.fromJson(response.data);
+        LoggerService.info('accept order successful: ${response.data}');
+        return CancelOrderModel.fromJson(response.data);
 
       } else {
         LoggerService.warning(
-            "put orders accept failed: ${response.statusCode}");
-        throw Exception('put orders accept failed: ${response.statusCode}');
+            "accept order failed: ${response.statusCode}");
+        throw Exception('accept order failed: ${response.statusCode}');
       }
     } catch (e, s) {
-      LoggerService.error('Error during put orders accept : $e');
+      LoggerService.error('Error during accept order : $e');
       print(e);
       print(s);
       rethrow;
@@ -61,21 +62,21 @@ class WorkerHomeDataSourceImpl implements WorkerHomeDataSource {
   }
 
   @override
-  Future<PutOrdersStateModel> cancel(int id) async{
+  Future<CancelOrderModel> startOrder({required int id}) async {
     try {
-      final response = await customerDioClient.put(StaffApiUrls.cancelOrder(id));
+      final response = await staffDioClient.put("${StaffApiUrls.startOrderByW}${id}/start/");
 
       if (response.statusCode == 200 || response.statusCode == 201) {
-        LoggerService.info('put orders cancel successful: ${response.data}');
-        return PutOrdersStateModel.fromJson(response.data);
+        LoggerService.info('start order successful: ${response.data}');
+        return CancelOrderModel.fromJson(response.data);
 
       } else {
         LoggerService.warning(
-            "put orders cancel failed: ${response.statusCode}");
-        throw Exception('put orders cancel failed: ${response.statusCode}');
+            "start order failed: ${response.statusCode}");
+        throw Exception('start order failed: ${response.statusCode}');
       }
     } catch (e, s) {
-      LoggerService.error('Error during put orders cancel : $e');
+      LoggerService.error('Error during start order : $e');
       print(e);
       print(s);
       rethrow;
@@ -83,43 +84,21 @@ class WorkerHomeDataSourceImpl implements WorkerHomeDataSource {
   }
 
   @override
-  Future<PutOrdersStateModel> complete(int id) async {
+  Future<CancelOrderModel> completeByStaffOrder({required int id}) async{
     try {
-      final response = await customerDioClient.put(StaffApiUrls.completeOrder(id));
+      final response = await staffDioClient.put("${StaffApiUrls.completeOrderByW}${id}/complete-by-staff/");
 
       if (response.statusCode == 200 || response.statusCode == 201) {
-        LoggerService.info('put orders complete successful: ${response.data}');
-        return PutOrdersStateModel.fromJson(response.data);
+        LoggerService.info('complete order successful: ${response.data}');
+        return CancelOrderModel.fromJson(response.data);
 
       } else {
         LoggerService.warning(
-            "put orders complete failed: ${response.statusCode}");
-        throw Exception('put orders complete failed: ${response.statusCode}');
+            "complete order failed: ${response.statusCode}");
+        throw Exception('complete order failed: ${response.statusCode}');
       }
     } catch (e, s) {
-      LoggerService.error('Error during put orders complete : $e');
-      print(e);
-      print(s);
-      rethrow;
-    }
-  }
-
-  @override
-  Future<PutOrdersStateModel> start(int id) async{
-    try {
-      final response = await customerDioClient.put(StaffApiUrls.startOrder(id));
-
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        LoggerService.info('put orders start successful: ${response.data}');
-         return PutOrdersStateModel.fromJson(response.data);
-
-      } else {
-        LoggerService.warning(
-            "put orders start failed: ${response.statusCode}");
-        throw Exception('put orders start failed: ${response.statusCode}');
-      }
-    } catch (e, s) {
-      LoggerService.error('Error during put orders start : $e');
+      LoggerService.error('Error during complete order : $e');
       print(e);
       print(s);
       rethrow;

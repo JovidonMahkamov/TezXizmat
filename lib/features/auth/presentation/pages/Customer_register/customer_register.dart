@@ -140,7 +140,7 @@ class _CustomerRegisterPageState extends State<CustomerRegisterPage> {
                         Navigator.pushNamedAndRemoveUntil(
                           context,
                           RouteNames.verificationOtp,(route) => false,
-                            arguments: {"email":state.customerSendEmailEntity.email, "expires_at":state.customerSendEmailEntity.expires_at}
+                            arguments: {"email":state.customerSendEmailEntity.email, "expires_at":state.customerSendEmailEntity.expires_in}
                         );
                       }
                     },

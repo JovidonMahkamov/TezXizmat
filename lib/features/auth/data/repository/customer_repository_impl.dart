@@ -20,7 +20,7 @@ class CustomerRepositoryImpl implements CustomerRepository {
   }
 
   @override
-  Future<CustomerVerifyEmailEntity> verifyEmail({required String email, required String password, VerifyPurpose? purpose,}) {
+  Future<CustomerVerifyEmailEntity> verifyEmail({required String email, required String password, required VerifyPurpose purpose,}) {
     return customerRemoteDataSource.verifyEmail(email: email, password: password, purpose: purpose);
   }
 

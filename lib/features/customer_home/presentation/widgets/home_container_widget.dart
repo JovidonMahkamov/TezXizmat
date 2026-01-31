@@ -4,14 +4,14 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 class HomeContainerWidget extends StatefulWidget {
   final ImageProvider circularImage;
   final String nameText;
-  final String experienceText;
+  final String profession;
   final VoidCallback? onTap;
 
   const HomeContainerWidget({
     super.key,
     required this.circularImage,
     required this.nameText,
-    required this.experienceText,
+    required this.profession,
     this.onTap,
   });
 
@@ -57,7 +57,7 @@ class _HomeContainerWidgetState extends State<HomeContainerWidget> {
                   ),
                   SizedBox(height: 5.h),
                   Text(
-                    widget.experienceText,
+                    widget.profession,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(

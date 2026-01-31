@@ -1,17 +1,15 @@
+import 'package:tez_xizmat/features/auth/domain/entities/login_user_entity.dart';
+
 class CustomerLoginEntity {
   final String refresh;
   final String access;
-  final String email;
-  final String first_name;
-  final String last_name;
-  final int id;
+  final String tokenType;
+  final LoginUserEntity user;
 
   const CustomerLoginEntity({
     required this.refresh,
-    required this.access,
-    required this.email,
-    required this.first_name,
-    required this.last_name,
-    required this.id,
+    required  this.access,
+    required  this.tokenType,
+    required  this.user
   });
 }

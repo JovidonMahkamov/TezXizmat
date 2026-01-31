@@ -1,9 +1,13 @@
 class CustomerResendEmailEntity {
-  final String detail;
-  final String expires_at;
+  final String message;
+  final String email;
+  final String purpose;
+  final int expires_in;
 
   const CustomerResendEmailEntity({
-    required this.detail,
-    required this.expires_at,
+    required this.message,
+    required this.email,
+    required this.purpose,
+    required this.expires_in,
   });
 }

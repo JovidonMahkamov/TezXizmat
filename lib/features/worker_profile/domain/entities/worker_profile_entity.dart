@@ -5,12 +5,12 @@ class WorkerProfileEntity {
   final String firstName;
   final String lastName;
   final String profession;
-  final String comments;
   final String description;
-  final String skills;
-  final String price;
-  final String freeTime;
-  final bool isActive;
+  final String skillsText;
+  final String priceText;
+  final bool isEmailVerified;
+  final String createdAt;
+  final String freeTimeText;
 
   const WorkerProfileEntity({
     required this.image,
@@ -19,11 +19,11 @@ class WorkerProfileEntity {
     required this.firstName,
     required this.lastName,
     required this.profession,
-    required this.comments,
     required this.description,
-    required this.skills,
-    required this.price,
-    required this.freeTime,
-    required this.isActive,
+    required this.skillsText,
+    required this.priceText,
+    required this.isEmailVerified,
+    required this.createdAt,
+    required this.freeTimeText,
   });
 }

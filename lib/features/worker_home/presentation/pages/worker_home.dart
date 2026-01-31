@@ -8,10 +8,10 @@ import 'package:tez_xizmat/features/worker_home/domain/entities/put_orders_state
 import 'package:tez_xizmat/features/worker_home/presentation/bloc/get_staff_orders/get_staff_orders_bloc.dart';
 import 'package:tez_xizmat/features/worker_home/presentation/bloc/get_staff_orders/get_staff_orders_state.dart';
 import 'package:tez_xizmat/features/worker_home/presentation/bloc/worker_home_event.dart';
-import 'package:tez_xizmat/features/worker_home/presentation/widgets/customer_info_widget.dart';
 import 'package:tez_xizmat/features/worker_home/presentation/widgets/home_worker_app_bar_widget.dart';
 import 'package:tez_xizmat/features/worker_home/presentation/widgets/order_widget.dart';
 import 'package:tez_xizmat/features/worker_home/presentation/widgets/order_widget_two.dart';
+import 'package:tez_xizmat/features/worker_home/presentation/widgets/worker_order_action_dialog.dart';
 import 'package:tez_xizmat/features/worker_profile/presentation/bloc/worker_profile/worker_profile_bloc.dart';
 import 'package:tez_xizmat/features/worker_profile/presentation/bloc/worker_profile_event.dart';
 
@@ -153,13 +153,14 @@ class _WorkerHomePageState extends State<WorkerHomePage> {
             // lekin entityda yo‘q bo‘lsa title chiqib qoladi.
             // Agar API customer_name qaytarsa entityga ham qo‘shib olamiz.
             name: o.customer.firstName, // vaqtinchalik
-            description: o.description,
+            description: o.problemText,
             time: _formatTime(o.createdAt),
             statusText: _statusText(o.status),
             statusColor: _statusColor(o.status),
             imageUrl: "assets/circular_avatar/profile.png",
-            onViewTap: () {
-              customerShowInfoWidget(context, order: o);
+            onViewTap: () async{
+              await showWorkerOrderActionSheet(context, o);
+              _reload();
               // agar orderni dialogga uzatmoqchi bo‘lsang:
               // customerShowInfoWidget(context, order: o);
             },
@@ -192,8 +193,8 @@ class _WorkerHomePageState extends State<WorkerHomePage> {
           final o = list[index];
           return OrderWidgetTwo(
             name: o.customer.firstName,
-            description: o.description,
-            time: _formatTime(o.completedAt),
+            description: o.problemText,
+            time: _formatTime(o.completedByStaffAt),
             statusText: _statusText(o.status),
             statusColor: _statusColor(o.status),
             imageUrl: "assets/circular_avatar/profile.png",
@@ -216,7 +217,7 @@ class _WorkerHomePageState extends State<WorkerHomePage> {
           final o = list[index];
           return OrderWidgetTwo(
             name: o.customer.firstName,
-            description: o.description,
+            description: o.problemText,
             time: _formatTime(o.canceledAt),
             statusText: _statusText(o.status),
             statusColor: _statusColor(o.status),
@@ -240,7 +241,7 @@ class _WorkerHomePageState extends State<WorkerHomePage> {
           final o = list[index];
           return OrderWidgetTwo(
             name: o.customer.firstName,
-            description: o.description,
+            description: o.problemText,
             time: _formatTime(o.canceledAt),
             statusText: _statusText(o.status),
             statusColor: _statusColor(o.status),
@@ -381,7 +382,6 @@ class _WorkerHomePageState extends State<WorkerHomePage> {
                                   _buildActive(active),
                                   _buildCompleted(completed),
                                   _buildCanceled(canceled),
-                                  _buildStarted(started),
                                 ],
                               );
                             }

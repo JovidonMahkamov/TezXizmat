@@ -10,9 +10,9 @@ abstract class WorkerRemoteDataSource{
     required String last_name,
     required String profession,
     required String description,
-    required String skills,
-    required String price,
-    required String free_time,});
+    required String skills_text,
+    required String price_text,
+    required String free_time_text,});
   Future<WorkerProfileImageModel> putImage({required String filePath});
 
 }

@@ -2,23 +2,34 @@ import 'package:tez_xizmat/features/customer_home/domain/entities/get_worker_inf
 
 class GetWorkerInfoModel extends GetWorkerInfoEntity {
   const GetWorkerInfoModel({
-    required super.id, required super.avg_rating, required super.description, required super.first_name, required super.last_name, required super.email, required super.free_time, required super.image, required super.price, required super.profession, required super.ratings_count, required super.reviews_text_count, required super.skills,
+    required super.id,
+    required super.avgStar,
+    required super.description,
+    required super.firstName,
+    required super.lastName,
+    required super.freeTimeText,
+    required super.image,
+    required super.priceText,
+    required super.profession,
+    required super.ratingsCount,
+    required super.textReviewsCount,
+    required super.skillsText,
   });
+
   factory GetWorkerInfoModel.fromJson(Map<String, dynamic> json) {
     return GetWorkerInfoModel(
       id: json['id'],
       description: json['description'],
-      skills: json['skills'],
-      email: json['email'],
-      first_name: json['first_name'],
-      last_name: json['last_name'],
-      price: json['price'],
-      avg_rating: json['avg_rating']?? 0.0,
+      skillsText: json['skills_text'],
+      firstName: json['first_name'],
+      lastName: json['last_name'],
+      priceText: json['price_text'],
+      avgStar: json['avg_star'] ?? 0.0,
       image: (json['image'] ?? '') as String,
       profession: json['profession'],
-      free_time: json['free_time'],
-      ratings_count: json['ratings_count'],
-      reviews_text_count: json['reviews_text_count'],
+      freeTimeText: json['free_time_text'],
+      ratingsCount: json['ratings_count'],
+      textReviewsCount: json['text_reviews_count'],
     );
   }
 }

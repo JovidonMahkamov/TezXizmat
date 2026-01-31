@@ -13,3 +13,16 @@ class CustomerCreateOrder extends CustomerOrderEvent {
 class GetCustomerAllOrdersE extends CustomerOrderEvent {
   const GetCustomerAllOrdersE();
 }
+
+class CancelOrderE extends CustomerOrderEvent {
+  final int id;
+  final String reason;
+
+  const CancelOrderE({required this.reason, required this.id});
+}
+
+class ConfirmCompletionE extends CustomerOrderEvent {
+  final int id;
+
+  const ConfirmCompletionE({required this.id});
+}

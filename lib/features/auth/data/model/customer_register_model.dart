@@ -2,39 +2,35 @@ import 'package:tez_xizmat/features/auth/domain/entities/customer_register_entit
 
 class CustomerRegisterModel extends CustomerRegisterEntity {
   const CustomerRegisterModel({
-    super.detail,
-    super.message,
     super.id,
     super.email,
     super.firstName,
     super.lastName,
     super.profession,
-    super.comments,
+    super.createdAt,
     super.description,
     super.skills,
     super.price,
     super.freeTime,
     super.isActive,
+    super.image,
   });
 
   factory CustomerRegisterModel.fromJson(Map<String, dynamic> json) {
     return CustomerRegisterModel(
-      // customer response (message/detail)
-      detail: json['detail']?.toString(),
-      message: json['message']?.toString(),
-
-      // staff response
+      // staff and customer response
       id: json['id'] is int ? json['id'] : int.tryParse('${json['id']}'),
       email: json['email']?.toString(),
       firstName: json['first_name']?.toString(),
       lastName: json['last_name']?.toString(),
       profession: json['profession']?.toString(),
-      comments: json['comments']?.toString(),
+      createdAt: json['created_at']?.toString(),
       description: json['description']?.toString(),
-      skills: json['skills']?.toString(),
-      price: json['price']?.toString(),
-      freeTime: json['free_time']?.toString(),
-      isActive: json['is_active'] == true,
+      skills: json['skills_text']?.toString(),
+      price: json['price_text']?.toString(),
+      freeTime: json['free_time_text']?.toString(),
+      image: json['image']?.toString(),
+      isActive: json['is_email_verified'] == true,
     );
   }
 }

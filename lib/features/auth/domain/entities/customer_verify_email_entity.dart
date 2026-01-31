@@ -1,6 +1,10 @@
 class CustomerVerifyEmailEntity{
-  final String detail;
+  final String message;
+  final String email;
+  final String purpose;
   const CustomerVerifyEmailEntity({
-    required this.detail,
+    required this.message,
+    required this.email,
+    required this.purpose,
   });
 }

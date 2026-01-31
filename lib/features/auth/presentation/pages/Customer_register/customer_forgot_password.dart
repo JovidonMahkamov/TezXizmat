@@ -140,7 +140,7 @@ class _CustomerForgotPasswordPageState
                               arguments: {
                                 "email": emailController.text.trim(),
                                 "expires_at":
-                                    state.customerResendEmailEntity.expires_at,
+                                    state.customerResendEmailEntity.expires_in,
                               },
                             );
                           }

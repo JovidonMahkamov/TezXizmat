@@ -15,8 +15,8 @@ class  WorkerProfileRepositoryImpl implements WorkerRepository {
   }
 
   @override
-  Future<WorkerEditProfileEntity> editProfile({required String first_name, required String last_name, required String profession, required String description, required String skills, required String price, required String free_time}) {
-   return workerRemoteDataSource.editProfile(first_name: first_name, last_name: last_name, profession: profession,  description: description, skills: skills, price: price, free_time: free_time);
+  Future<WorkerEditProfileEntity> editProfile({required String first_name, required String last_name, required String profession, required String description, required String skills_text, required String price_text, required String free_time_text}) {
+   return workerRemoteDataSource.editProfile(first_name: first_name, last_name: last_name, profession: profession,  description: description, skills_text: skills_text, price_text: price_text, free_time_text: free_time_text);
   }
 
   @override

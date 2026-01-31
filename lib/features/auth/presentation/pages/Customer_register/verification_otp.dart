@@ -12,9 +12,11 @@ import 'package:tez_xizmat/features/auth/presentation/bloc/customer_send_email/c
 import 'package:tez_xizmat/features/auth/presentation/bloc/customer_verify_email/customer_verify_email_bloc.dart';
 import 'package:tez_xizmat/features/auth/presentation/bloc/customer_verify_email/customer_verify_email_state.dart';
 
+import '../../../domain/entities/verify_purpose.dart';
+
 class VerificationPage extends StatefulWidget {
   final String email;
-  final String expires_at;
+  final int expires_at;
 
   const VerificationPage({
     super.key,
@@ -41,7 +43,7 @@ class _VerificationPageState extends State<VerificationPage> {
     super.initState();
 
     // expires_at ni birinchi init qilib ol
-    _expiresAt = DateTime.parse(widget.expires_at).toLocal();
+    _expiresAt = DateTime.now().add(Duration(seconds: widget.expires_at));
 
     _startTimer();
   }
@@ -213,9 +215,10 @@ class _VerificationPageState extends State<VerificationPage> {
                             context.read<CustomerVerifyEmailBloc>().add(
                               CustomerVerifyEmail(
                                 email: widget.email,
-                                // bu joy backendga qarab "code/otp" bo'lishi kerak
                                 password: otpController.text.trim(),
+                                purpose: VerifyPurpose.verify,
                               ),
+
                             );
                           }
                               : null,
@@ -252,11 +255,10 @@ class _VerificationPageState extends State<VerificationPage> {
                       listener: (context, state) {
                         if (state is CustomerSendEmailSuccess) {
                           // ✅ yangi expires_at ni olib, timer restart qilamiz
-                          setState(() {
-                            _expiresAt = DateTime.parse(
-                              state.customerSendEmailEntity.expires_at,
-                            ).toLocal();
-                          });
+                          _expiresAt = DateTime.now().add(
+                            Duration(seconds: state.customerSendEmailEntity.expires_in),
+                          );
+
                           _startTimer();
 
                           ScaffoldMessenger.of(context).showSnackBar(

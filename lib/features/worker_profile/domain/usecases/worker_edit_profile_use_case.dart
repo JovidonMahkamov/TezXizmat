@@ -20,9 +20,9 @@ class WorkerEditProfileUseCase {
       last_name: last_name,
       profession: profession,
       description: description,
-      skills: skills,
-      price: price,
-      free_time: free_time,
+      skills_text: skills,
+      price_text: price,
+      free_time_text: free_time,
     );
   }
 }

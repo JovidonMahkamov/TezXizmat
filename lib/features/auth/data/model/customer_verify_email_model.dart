@@ -3,11 +3,15 @@ import 'package:tez_xizmat/features/auth/domain/entities/customer_verify_email_e
 
 class CustomerVerifyEmailModel extends CustomerVerifyEmailEntity {
   const CustomerVerifyEmailModel({
-    required super.detail,
+    required super.message,
+    required super.email,
+    required super.purpose,
   });
   factory CustomerVerifyEmailModel.fromJson(Map<String, dynamic> json) {
     return CustomerVerifyEmailModel(
-      detail: json['detail'],
+      message: json['message'],
+      email: json['email'],
+      purpose: json['purpose'],
     );
   }
 }

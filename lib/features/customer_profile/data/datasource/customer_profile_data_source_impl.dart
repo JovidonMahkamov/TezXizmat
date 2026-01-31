@@ -20,7 +20,7 @@ class CustomerProfileDataSourceImpl extends CustomerProfileDataSource {
   Future<CustomerProfileModel> getProfile() async {
     try {
       final response = await customerDioClient.get(
-        'https://tezxizmatlar.uz/api/auth/customer/profile/',
+        CustomerApiUrls.getProfile,
       );
       if (response.statusCode == 200 || response.statusCode == 201) {
         LoggerService.info('get profile info successful: ${response.data}');
@@ -46,7 +46,7 @@ class CustomerProfileDataSourceImpl extends CustomerProfileDataSource {
   }) async {
     try {
       final response = await customerDioClient.patch(
-        'https://tezxizmatlar.uz/api/auth/customer/profile/update/',
+        CustomerApiUrls.updateProfile,
         data: {"first_name": name, "last_name": surname},
       );
       if (response.statusCode == 200 || response.statusCode == 201) {

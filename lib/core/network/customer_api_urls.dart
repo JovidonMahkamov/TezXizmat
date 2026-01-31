@@ -7,16 +7,18 @@ abstract class CustomerApiUrls{
   static const String staff = '/api/auth/staff/';
 
   // AUTH
-  static const String sendEmail = '${customer}send-email/';
-  static const String verifyEmail = '${customer}verify-email/';
+  static const String sendEmail = '/api/auth/api/auth/customer/send-email/';
+  static const String verifyEmail = '/api/auth/api/auth/customer/verify-email/';
   static const String registerCustomer = '${customer}register/';
   static const String loginCustomer = '${customer}login/';
-  static const String resendEmailCustomer = '${customer}resend-email/';
+  static const String resendEmailCustomer = '/api/auth/api/auth/customer/resend-email/';
   static const String resetPasswordCustomer = '${customer}reset-password/';
 
   // ORDER
-  static const String createOrder = '/api/orders/create/';
-  static const String getCusAllOrders = '/api/orders/customer-orders/';
+  static const String createOrder = '/api/orders/';
+  static const String getCusAllOrders = '/api/orders/customer/';
+  static const String cancelOrder = '/api/orders/';
+  static const String confirmCompletion = '/api/orders/';
 
   // HOME
   static const String getAllStaff = '/api/staff/';
@@ -31,4 +33,6 @@ abstract class CustomerApiUrls{
 
   //PROFILE
   static const String updateImage = '${customer}profile/image/';
+  static const String getProfile = '${customer}profile/';
+  static const String updateProfile = '${customer}profile/';
 }

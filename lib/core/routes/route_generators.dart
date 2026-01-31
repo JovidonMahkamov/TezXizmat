@@ -15,6 +15,7 @@ import 'package:tez_xizmat/features/customer_chat/presentation/pages/chat_with_w
 import 'package:tez_xizmat/features/customer_home/presentation/pages/notification.dart';
 import 'package:tez_xizmat/features/customer_home/presentation/pages/search.dart';
 import 'package:tez_xizmat/features/customer_home/presentation/pages/worker_info.dart';
+import 'package:tez_xizmat/features/customer_order/domain/entities/get_all_orders_entity.dart';
 import 'package:tez_xizmat/features/customer_order/presentation/pages/order_view.dart';
 import 'package:tez_xizmat/features/select_bottom_navbar/customer_bottom_nav_bar.dart';
 import 'package:tez_xizmat/features/select_bottom_navbar/worker_bottom_nav_bar.dart';
@@ -39,7 +40,7 @@ class AppRoute {
       case RouteNames.customerRegister:
         return MaterialPageRoute(builder: (_) =>  CustomerRegisterPage());
       case RouteNames.verificationOtp:
-        final email = routeSettings.arguments as Map<String, dynamic>;
+        final email = routeSettings.arguments as Map<dynamic, dynamic>;
         return MaterialPageRoute(builder: (_) =>  VerificationPage(email: email["email"], expires_at: email["expires_at"],));
       case RouteNames.customerRegisterInfo:
         final email = routeSettings.arguments as String;
@@ -49,7 +50,7 @@ class AppRoute {
       case RouteNames.customerForgotPassword:
         return MaterialPageRoute(builder: (_) =>  CustomerForgotPasswordPage());
       case RouteNames.customerForgotPasswordOtp:
-        final args = routeSettings.arguments as Map<String, dynamic>;
+        final args = routeSettings.arguments as Map<dynamic, dynamic>;
         return MaterialPageRoute(
           builder: (_) => CustomerForgotPasswordOtPage(
             email: args["email"],
@@ -75,7 +76,8 @@ class AppRoute {
       case RouteNames.notification:
         return MaterialPageRoute(builder: (_) => const NotificationPage());
       case RouteNames.orderView:
-        return MaterialPageRoute(builder: (_) => const OrderViewPage());
+        final order = routeSettings.arguments as GetAllOrdersEntity;
+        return MaterialPageRoute(builder: (_) => OrderViewPage(order: order));
       case RouteNames.chatWithCustomer:
         final urlPath = routeSettings.arguments as Map<String, dynamic>;
         return MaterialPageRoute(builder: (_) =>  ChatWithCustomerPage(name: urlPath["name"], urlAsset: urlPath["urlAsset"],));

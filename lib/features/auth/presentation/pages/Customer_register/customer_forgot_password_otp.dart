@@ -15,7 +15,7 @@ import 'package:tez_xizmat/features/auth/presentation/bloc/customer_verify_email
 
 class CustomerForgotPasswordOtPage extends StatefulWidget {
   final String email;
-  final String expiresAt;
+  final int expiresAt;
 
   const CustomerForgotPasswordOtPage({
     super.key,
@@ -42,7 +42,7 @@ class _CustomerForgotPasswordOtPageState extends State<CustomerForgotPasswordOtP
     super.initState();
 
     // expires_at ni birinchi init qilib ol
-    _expiresAt = DateTime.parse(widget.expiresAt).toLocal();
+    _expiresAt = DateTime.now().add(Duration(seconds: widget.expiresAt));
 
     _startTimer();
   }
@@ -254,9 +254,7 @@ class _CustomerForgotPasswordOtPageState extends State<CustomerForgotPasswordOtP
                         if (state is CustomerSendEmailSuccess) {
                           // ✅ yangi expires_at ni olib, timer restart qilamiz
                           setState(() {
-                            _expiresAt = DateTime.parse(
-                              state.customerSendEmailEntity.expires_at,
-                            ).toLocal();
+                            _expiresAt = DateTime.now().add(Duration(seconds: widget.expiresAt));
                           });
                           _startTimer();
 

@@ -99,12 +99,19 @@ class _WorkerInfoPageState extends State<WorkerInfoPage> {
           // 3) LOADED
           if (state is GetWorkerInfoSuccess) {
             final getWorkerInfo = state.getWorkerInfoEntity;
-            final img = getWorkerInfo.image.trim();
-            final imageUrl = img.isEmpty
-                ? null
-                : (img.startsWith('http')
-                      ? img
-                      : 'https://tezxizmatlar.uz$img');
+            final raw0 = getWorkerInfo.image.trim();
+            final raw = (raw0.isEmpty || raw0 == 'null') ? null : raw0;
+
+            String? imageUrl;
+            if (raw != null) {
+              if (raw.startsWith('http://')) {
+                imageUrl = raw.replaceFirst('http://', 'https://');
+              } else if (raw.startsWith('https://')) {
+                imageUrl = raw;
+              } else {
+                imageUrl = 'https://tezxizmatlar.uz${raw.startsWith('/') ? '' : '/'}$raw';
+              }
+            }
             return SingleChildScrollView(
               child: Padding(
                 padding: const EdgeInsets.only(left: 24, right: 24, top: 20),
@@ -130,7 +137,7 @@ class _WorkerInfoPageState extends State<WorkerInfoPage> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                "${getWorkerInfo.first_name}${getWorkerInfo.last_name}",
+                                "${getWorkerInfo.firstName}${getWorkerInfo.lastName}",
                                 style: TextStyle(
                                   fontSize: 18.sp,
                                   fontWeight: FontWeight.w600,
@@ -154,7 +161,7 @@ class _WorkerInfoPageState extends State<WorkerInfoPage> {
                                   ),
                                   SizedBox(width: 4.w),
                                   Text(
-                                    getWorkerInfo.avg_rating.toString(),
+                                    getWorkerInfo.avgStar.toString(),
                                     style: TextStyle(
                                       fontSize: 15.sp,
                                       fontWeight: FontWeight.w600,
@@ -177,7 +184,7 @@ class _WorkerInfoPageState extends State<WorkerInfoPage> {
                                         );
                                       },
                                       child: Text(
-                                        getWorkerInfo.ratings_count.toString(),
+                                        getWorkerInfo.ratingsCount.toString(),
                                         style: TextStyle(
                                           color: Color(0xff1778F2),
                                           fontSize: 15.sp,
@@ -235,7 +242,7 @@ class _WorkerInfoPageState extends State<WorkerInfoPage> {
                     SizedBox(height: 10.h),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      children: getWorkerInfo.skills
+                      children: getWorkerInfo.skillsText
                           .split(',')
                           .map((e) => e.trim())
                           .where((e) => e.isNotEmpty)
@@ -255,7 +262,7 @@ class _WorkerInfoPageState extends State<WorkerInfoPage> {
                     ),
                     SizedBox(height: 10.h),
                     Text(
-                      getWorkerInfo.price,
+                      getWorkerInfo.priceText,
                       style: TextStyle(
                         fontSize: 14.sp,
                         color: Color(0xff4D4D4D),
@@ -271,7 +278,7 @@ class _WorkerInfoPageState extends State<WorkerInfoPage> {
                     ),
                     SizedBox(height: 10.h),
                     Text(
-                      getWorkerInfo.free_time,
+                      getWorkerInfo.freeTimeText,
                       style: TextStyle(
                         fontSize: 14.sp,
                         color: Color(0xff4D4D4D),

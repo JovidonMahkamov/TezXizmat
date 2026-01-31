@@ -209,7 +209,7 @@ class _HomePageState extends State<HomePage> {
                         }
 
                         if (state is CustomerGetAllStaffSuccess) {
-                          final staffList = state.customerGetAllStaffEntity; // ✅ List
+                          final staffList = state.customerGetAllStaffEntity; //  List
 
                           if (staffList.isEmpty) {
                             return const Padding(
@@ -227,12 +227,20 @@ class _HomePageState extends State<HomePage> {
                               itemBuilder: (context, index) {
                                 final staff = staffList[index];
 
-                                final raw = staff.image; // String? bo‘lishi kerak
-                                final imageUrl = (raw.trim().isNotEmpty)
-                                    ? (raw.startsWith('http') ? raw : 'https://tezxizmatlar.uz$raw')
-                                    : null;
+                                debugPrint("staff.image(raw) = '${staff.image}'");
+                                final raw0 = staff.image?.trim();
+                                final raw = (raw0 == null || raw0.isEmpty || raw0 == 'null') ? null : raw0;
 
-
+                                String? imageUrl;
+                                if (raw != null) {
+                                  if (raw.startsWith('http://')) {
+                                    imageUrl = raw.replaceFirst('http://', 'https://');
+                                  } else if (raw.startsWith('https://')) {
+                                    imageUrl = raw;
+                                  } else {
+                                    imageUrl = 'https://tezxizmatlar.uz${raw.startsWith('/') ? '' : '/'}$raw';
+                                  }
+                                }
                                 return HomeContainerWidget(
                                   onTap: () {
                                     Navigator.pushNamed(
@@ -243,10 +251,10 @@ class _HomePageState extends State<HomePage> {
                                   },
                                   circularImage: imageUrl != null
                                       ? NetworkImage(imageUrl)
-                                      : const AssetImage("assets/circular_avatar/profile.png")
-                                  as ImageProvider,
-                                  nameText: "${staff.first_name} (${staff.profession})",
-                                  experienceText: staff.price,
+                                      : const AssetImage("assets/circular_avatar/profile.png") as ImageProvider,
+
+                                  nameText: "${staff.first_name} ${staff.last_name}",
+                                  profession: staff.profession,
                                 );
                               },
                             ),

@@ -1,4 +1,4 @@
-package com.example.tez_xizmat
+package com.TezXizmat
 
 import io.flutter.embedding.android.FlutterActivity
 

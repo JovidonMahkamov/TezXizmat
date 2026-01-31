@@ -194,7 +194,7 @@ class _WorkerProfilePageState extends State<WorkerProfilePage> {
                         _title("Xizmatlar"),
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
-                          children: profile.skills
+                          children: profile.skillsText
                               .split(',')
                               .map((e) => e.trim())
                               .where((e) => e.isNotEmpty)
@@ -209,11 +209,11 @@ class _WorkerProfilePageState extends State<WorkerProfilePage> {
 
                         const Divider(),
                         _title("Narx"),
-                        _text(profile.price),
+                        _text(profile.priceText),
 
                         const Divider(),
                         _title("Mavjud vaqt"),
-                        _text(profile.freeTime),
+                        _text(profile.freeTimeText),
 
                         const Divider(),
                       ],

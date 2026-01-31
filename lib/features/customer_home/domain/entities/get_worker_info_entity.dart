@@ -1,31 +1,30 @@
+
 class GetWorkerInfoEntity{
-  final String first_name;
-  final String last_name;
+  final String firstName;
+  final String lastName;
   final String image;
-  final String email;
   final String profession;
   final String description;
-  final String skills;
-  final String price;
+  final String skillsText;
+  final String priceText;
   final int id;
-  final String free_time;
-  final double avg_rating;
-  final int ratings_count;
-  final int reviews_text_count;
+  final String freeTimeText;
+  final double avgStar;
+  final int ratingsCount;
+  final int textReviewsCount;
 
   const GetWorkerInfoEntity({
-    required this.first_name,
-    required this.last_name,
+    required this.firstName,
+    required this.lastName,
     required this.image,
-    required this.email,
-    required this.skills,
+    required this.skillsText,
     required this.profession,
-    required this.price,
+    required this.priceText,
     required this.id,
-    required this.avg_rating,
-    required this.free_time,
+    required this.avgStar,
+    required this.freeTimeText,
     required this.description,
-    required this.ratings_count,
-    required this.reviews_text_count,
+    required this.ratingsCount,
+    required this.textReviewsCount,
   });
 }

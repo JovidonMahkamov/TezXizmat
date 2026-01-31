@@ -1,48 +1,52 @@
-import 'package:equatable/equatable.dart';
-import 'package:tez_xizmat/features/worker_home/domain/entities/get_staff_orders_entity.dart';
-import 'customer_entity.dart';
-
-class PutOrdersStateEntity extends Equatable {
+class PutOrdersStateEntity {
   final int id;
-  final CustomerEntity customer;
-  final GetStaffOrdersEntity staff;
-  final String description;
-  final String address;
   final String status;
+  final String address;
+  final String problemText;
+  final int customerId;
+  final int staffId;
+
+  final OrderCustomerShortEntity customer; // workerga customer kerak
+  final String createdAt;
 
   final String? acceptedAt;
-  final String? completedAt;
+  final String? startedAt;
+  final String? completedByStaffAt;
+  final String? completedByCustomerAt;
   final String? canceledAt;
 
-  final String createdAt;
-  final String updatedAt;
+  final String? canceledBy;
+  final String? cancelReason;
 
   const PutOrdersStateEntity({
     required this.id,
-    required this.customer,
-    required this.staff,
-    required this.description,
-    required this.address,
     required this.status,
-    required this.acceptedAt,
-    required this.completedAt,
-    required this.canceledAt,
+    required this.address,
+    required this.problemText,
+    required this.customerId,
+    required this.staffId,
+    required this.customer,
     required this.createdAt,
-    required this.updatedAt,
+    this.acceptedAt,
+    this.startedAt,
+    this.completedByStaffAt,
+    this.completedByCustomerAt,
+    this.canceledAt,
+    this.canceledBy,
+    this.cancelReason,
   });
+}
 
-  @override
-  List<Object?> get props => [
-    id,
-    customer,
-    staff,
-    description,
-    address,
-    status,
-    acceptedAt,
-    completedAt,
-    canceledAt,
-    createdAt,
-    updatedAt,
-  ];
+class OrderCustomerShortEntity {
+  final int id;
+  final String firstName;
+  final String lastName;
+  final String image;
+
+  const OrderCustomerShortEntity({
+    required this.id,
+    required this.firstName,
+    required this.lastName,
+    required this.image,
+  });
 }
