@@ -79,7 +79,7 @@ class CustomerOrderDataSourceImpl implements CustomerOrderDataSource {
   @override
   Future<CancelOrderModel> cancelOrder({required String reason, required int id}) async{
     try {
-      final response = await customerDioClient.put("${CustomerApiUrls.cancelOrder}/$id/cancel/",
+      final response = await customerDioClient.put("${CustomerApiUrls.cancelOrder}$id/cancel/",
         data: {
           'reason': reason,
           'id': id,
@@ -105,7 +105,7 @@ class CustomerOrderDataSourceImpl implements CustomerOrderDataSource {
   @override
   Future<CancelOrderModel> confirmCompletion({required int id}) async{
     try {
-      final response = await customerDioClient.put("${CustomerApiUrls.confirmCompletion}/$id/confirm-completion/",
+      final response = await customerDioClient.put("${CustomerApiUrls.confirmCompletion}$id/confirm-completion/",
         data: {
           'id': id,
         },

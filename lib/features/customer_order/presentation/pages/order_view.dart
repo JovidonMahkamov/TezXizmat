@@ -1,20 +1,15 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:tez_xizmat/core/routes/route_names.dart';
-import 'package:tez_xizmat/features/customer_order/domain/entities/get_all_orders_entity.dart';
-import 'package:tez_xizmat/features/customer_order/presentation/widgets/order_Container_with_Worker_widget.dart';
-import 'package:tez_xizmat/features/customer_order/presentation/widgets/order_reject_or_not.dart';
-import 'package:tez_xizmat/features/customer_order/presentation/widgets/reject_button_widget.dart';
 
-import '../bloc/cancel_order/cancel_order_bloc.dart';
-import '../bloc/cancel_order/cancel_order_state.dart';
-import '../bloc/confirm_completion_order/confirm_completion_bloc.dart';
-import '../bloc/confirm_completion_order/confirm_completion_state.dart';
-import '../bloc/customer_order_event.dart';
-import '../bloc/get_customer_all_orders/get_customer_all_orders_bloc.dart';
+import 'package:tez_xizmat/features/customer_order/domain/entities/get_all_orders_entity.dart';
+import 'package:tez_xizmat/features/customer_order/presentation/bloc/cancel_order/cancel_order_bloc.dart';
+import 'package:tez_xizmat/features/customer_order/presentation/bloc/cancel_order/cancel_order_state.dart';
+import 'package:tez_xizmat/features/customer_order/presentation/bloc/confirm_completion_order/confirm_completion_bloc.dart';
+import 'package:tez_xizmat/features/customer_order/presentation/bloc/confirm_completion_order/confirm_completion_state.dart';
+import 'package:tez_xizmat/features/customer_order/presentation/bloc/customer_order_event.dart';
+import 'package:tez_xizmat/features/customer_order/presentation/bloc/get_customer_all_orders/get_customer_all_orders_bloc.dart';
+import 'package:tez_xizmat/features/customer_order/presentation/bloc/get_customer_all_orders/get_customer_all_orders_state.dart';
+import 'package:tez_xizmat/features/customer_order/presentation/widgets/reject_button_widget.dart';
 
 class OrderViewPage extends StatefulWidget {
   final GetAllOrdersEntity order;
@@ -25,94 +20,162 @@ class OrderViewPage extends StatefulWidget {
 }
 
 class _OrderViewPageState extends State<OrderViewPage> {
+  late GetAllOrdersEntity currentOrder;
+
+  @override
+  void initState() {
+    super.initState();
+    currentOrder = widget.order;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<GetCustomerAllOrdersBloc>().add(const GetCustomerAllOrdersE());
+    });
+  }
+  String get _status => (currentOrder.status).toUpperCase();
 
   bool get canCancel =>
-      (widget.order.acceptedAt == null || widget.order.acceptedAt!.isEmpty) &&
-          (widget.order.status.toUpperCase() == 'PENDING');
+      (currentOrder.acceptedAt == null || currentOrder.acceptedAt!.isEmpty) &&
+          _status == 'PENDING';
 
   bool get isAccepted =>
-      (widget.order.acceptedAt != null && widget.order.acceptedAt!.isNotEmpty) ||
-          widget.order.status.toUpperCase() == 'ACCEPTED';
+      (currentOrder.acceptedAt != null && currentOrder.acceptedAt!.isNotEmpty) ||
+          _status == 'ACCEPTED';
 
   bool get isStarted =>
-      (widget.order.startedAt != null && widget.order.startedAt!.isNotEmpty) ||
-          widget.order.status.toUpperCase() == 'IN_PROGRESS' ||
-          widget.order.status.toUpperCase() == 'STARTED';
+      (currentOrder.startedAt != null && currentOrder.startedAt!.isNotEmpty) ||
+          _status == 'IN_PROGRESS' ||
+          _status == 'STARTED';
 
   bool get staffCompleted =>
-      (widget.order.completedByStaffAt != null && widget.order.completedByStaffAt!.isNotEmpty);
+      (currentOrder.completedByStaffAt != null &&
+          currentOrder.completedByStaffAt!.isNotEmpty);
 
   bool get customerCompleted =>
-      (widget.order.completedByCustomerAt != null && widget.order.completedByCustomerAt!.isNotEmpty) ||
-          widget.order.status.toUpperCase() == 'COMPLETED';
+      (currentOrder.completedByCustomerAt != null &&
+          currentOrder.completedByCustomerAt!.isNotEmpty) ||
+          _status == 'COMPLETED';
+
+  String get pageTitle {
+    if (isStarted) return "Ish bajarilmoqda";
+    if (isAccepted) return "Qabul qilindi";
+    return "Ko‘rib chiqilmoqda";
+  }
+
+  String get infoText {
+    if (isStarted) {
+      return "Ish yakunlangach, iltimos “Ish yakunlandi” tugmasini bosing. "
+          "Bu orqali buyurtma yopiladi va to‘lov jarayoni boshlanadi.";
+    }
+    if (isAccepted) {
+      return "Buyurtmangiz qabul qilindi. Ijrochi bilan bog‘lanish uchun chatdan foydalanishingiz mumkin.";
+    }
+    return "Ijrochi hali buyurtmani qabul qilmagan. Javob berishi kutilmoqda...";
+  }
+
+  ({String text, bool enabled, Color color}) get buttonConfig {
+    if (customerCompleted) {
+      return (text: "Yakunlangan", enabled: false, color: Colors.green);
+    }
+
+    if (isStarted) {
+      // Staff complete qilmaguncha customer confirm qilolmaydi
+      final enabled = staffCompleted;
+      return (
+      text: "Ish yakunlandi",
+      enabled: enabled,
+      color: enabled ? Colors.green : Colors.green.shade200
+      );
+    }
+
+    if (isAccepted) {
+      return (
+      text: "Jarayon bekor qilib bo‘lmaydi",
+      enabled: false,
+      color: Colors.orange.shade200
+      );
+    }
+
+    return (text: "Jarayonni bekor qilish", enabled: canCancel, color: Colors.red);
+  }
+
+  Future<void> _reload() async {
+    context.read<GetCustomerAllOrdersBloc>().add(const GetCustomerAllOrdersE());
+  }
 
   @override
   Widget build(BuildContext context) {
-    // 1) Button matn + enabled
-    String buttonText;
-    bool enabled;
-    Color color;
-
-    if (customerCompleted) {
-      buttonText = "Yakunlangan";
-      enabled = false;
-      color = Colors.green;
-    } else if (isStarted) {
-      buttonText = "Ish yakunlandi";
-      enabled = staffCompleted; // faqat staff complete-by-staff qilsa ishlaydi
-      color = enabled ? Colors.green : Colors.green.shade200;
-    } else if (isAccepted) {
-      buttonText = "Jarayon bekor qilib bo‘lmaydi";
-      enabled = false;
-      color = Colors.orange.shade200;
-    } else {
-      buttonText = "Jarayonni bekor qilish";
-      enabled = canCancel;
-      color = Colors.red;
-    }
-
     return MultiBlocListener(
       listeners: [
         BlocListener<CancelOrderBloc, CancelOrderState>(
           listener: (context, state) {
             if (state is CancelOrderSuccess) {
-              context.read<GetCustomerAllOrdersBloc>().add(const GetCustomerAllOrdersE());
-              Navigator.pop(context); // order viewdan chiqib ketish ixtiyoriy
+              _reload();
+              Navigator.pop(context);
             }
           },
         ),
         BlocListener<ConfirmCompletionBloc, ConfirmCompletionState>(
           listener: (context, state) {
             if (state is ConfirmCompletionSuccess) {
-              context.read<GetCustomerAllOrdersBloc>().add(const GetCustomerAllOrdersE());
-              // TODO: rating page (keyin ulaysan)
+              _reload();
+
+              // TODO: rating bottomsheet (keyin ulaysan)
+              // showModalBottomSheet(...);
             }
           },
         ),
       ],
-      child: Scaffold(
-        // ...
-        bottomNavigationBar: Padding(
-          padding: const EdgeInsets.all(20),
-          child: RejectButtonWidget(
-            text: buttonText,
-            backgroundColor: color,
-            textColor: Colors.white,
-            onPressed: !enabled
-                ? () {}
-                : () {
-              if (canCancel) {
-                // cancel dialog -> HA bosilganda CancelOrderBloc ga event
-                _showCancelDialog(context, widget.order.id);
-              } else if (isStarted && staffCompleted) {
-                // confirm completion
-                context.read<ConfirmCompletionBloc>().add(
-                  ConfirmCompletionE(id: widget.order.id),
-                );
-              }
-            },
-          ),
-        ),
+      child: BlocBuilder<GetCustomerAllOrdersBloc, GetCustomerAllOrdersState>(
+        builder: (context, state) {
+          // ✅ eng muhim joy: bloc’dan kelgan listdan currentOrder yangilansin
+          if (state is GetCustomerAllOrdersSuccess) {
+            final list = state.getAllOrdersEntity;
+            final idx = list.indexWhere((e) => e.id == widget.order.id);
+            if (idx != -1) {
+              currentOrder = list[idx];
+            }
+          }
+          final cfg = buttonConfig;
+          return Scaffold(
+            appBar: AppBar(
+              title: Text(pageTitle),
+              centerTitle: true,
+            ),
+            body: RefreshIndicator(
+              onRefresh: _reload,
+              child: SingleChildScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  children: [
+                    _InfoCard(text: infoText),
+                    const SizedBox(height: 12),
+                    _OrderCard(order: currentOrder),
+                  ],
+                ),
+              ),
+            ),
+            bottomNavigationBar: Padding(
+              padding: const EdgeInsets.all(20),
+              child: RejectButtonWidget(
+                text: cfg.text,
+                backgroundColor: cfg.color,
+                textColor: Colors.white,
+                //  disabled bo‘lishi uchun null
+                onPressed: cfg.enabled
+                    ? () {
+                  if (canCancel) {
+                    _showCancelDialog(context, currentOrder.id);
+                  } else if (isStarted && staffCompleted) {
+                    context.read<ConfirmCompletionBloc>().add(
+                      ConfirmCompletionE(id: currentOrder.id),
+                    );
+                  }
+                }
+                    : null,
+              ),
+            ),
+          );
+        },
       ),
     );
   }
@@ -123,7 +186,10 @@ class _OrderViewPageState extends State<OrderViewPage> {
       builder: (_) => AlertDialog(
         title: const Text("Bekor qilasizmi?"),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text("Yo‘q")),
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("Yo‘q"),
+          ),
           TextButton(
             onPressed: () {
               Navigator.pop(context);
@@ -139,76 +205,78 @@ class _OrderViewPageState extends State<OrderViewPage> {
   }
 }
 
+// ====== UI widgets ======
+
+class _InfoCard extends StatelessWidget {
+  final String text;
+  const _InfoCard({required this.text});
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        automaticallyImplyLeading: false,
-        leading: IconButton(
-          onPressed: () {
-            Navigator.pop(context);
-          },
-          icon: Icon(Icons.arrow_back_ios),
-        ),
-        title: Text(
-          "Ko’rib chiqilmoqda ",
-          style: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.w700),
-        ),
-        actions: [
-          IconButton(
-            onPressed: () {
-              Navigator.pushNamed(context, RouteNames.chatWithWorker,arguments: {
-                "name":"Jovidon (Elektrik)",
-                "urlAsset": "assets/circular_avatar/profile.png",
-              });
-            },
-            icon: SvgPicture.asset("assets/home/message.svg"),
-          ),
-        ],
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.black12),
+        borderRadius: BorderRadius.circular(12),
       ),
+      child: Text(
+        text,
+        style: const TextStyle(fontSize: 13, height: 1.35),
+      ),
+    );
+  }
+}
 
-      body: Padding(
-        padding: const EdgeInsets.only(left: 20, right: 20, top: 30),
-        child: Column(
-          children: [
-            Container(
-              child: Padding(
-                padding: const EdgeInsets.all(12),
-                child: Text(
-                  "Ijrochi hali buyurtmani qabul qilmagan. Javob berishi kutilmoqda...",
-                  style: TextStyle(
-                    fontSize: 16.sp,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xff212121),
-                  ),
-                ),
-              ),
-              decoration: BoxDecoration(
-                border: BoxBorder.all(color: Color(0xffCCCCCC), width: 1),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              width: double.infinity,
-              height: 80,
-            ),
-            SizedBox(height: 20,),
-            ViewContainerWorkerWidget(
-              circularImage: AssetImage("assets/circular_avatar/profile.png"),
-              nameText: "Jovidon (Elektrik)",
-              experienceText:
-                  "4 yildan beri elektrika ishlari bilan shug‘ullanaman ", time: '14:20',
-            ),
-            SizedBox(height: 300.h,),
-            RejectButtonWidget(onPressed: (){
-              showQuestionDialog(context);
-            },
-                text: "Jarayonni bekor qilish",
-                backgroundColor: Colors.red,
-                textColor: Colors.white),
-          ],
-        ),
+class _OrderCard extends StatelessWidget {
+  final GetAllOrdersEntity order;
+  const _OrderCard({required this.order});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.black12),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            "Buyurtma #${order.id}",
+            style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
+          ),
+          const SizedBox(height: 8),
+          _row("Manzil", order.address),
+          const SizedBox(height: 6),
+          _row("Muammo", order.problemText),
+          const SizedBox(height: 6),
+          _row("Holat", order.status),
+        ],
       ),
     );
   }
 
+  Widget _row(String label, String value) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(
+          width: 70,
+          child: Text(
+            "$label:",
+            style: const TextStyle(fontSize: 12, color: Colors.black54),
+          ),
+        ),
+        Expanded(
+          child: Text(
+            value,
+            style: const TextStyle(fontSize: 12),
+          ),
+        ),
+      ],
+    );
+  }
+}
