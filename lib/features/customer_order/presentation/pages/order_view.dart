@@ -165,7 +165,7 @@ class _OrderViewPageState extends State<OrderViewPage> {
 
           return Scaffold(
             appBar: AppBar(
-              title: Text(pageTitle),
+              title: Text(pageTitle, style: TextStyle(fontWeight: FontWeight.w500),),
               centerTitle: true,
             ),
             body: RefreshIndicator(
@@ -183,7 +183,7 @@ class _OrderViewPageState extends State<OrderViewPage> {
               ),
             ),
             bottomNavigationBar: Padding(
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.only(bottom: 150, left: 20, right: 20),
               child: RejectButtonWidget(
                 text: cfg.text,
                 backgroundColor: cfg.color,
@@ -247,7 +247,7 @@ class _InfoCard extends StatelessWidget {
         border: Border.all(color: Colors.black12),
         borderRadius: BorderRadius.circular(12),
       ),
-      child: Text(text, style: const TextStyle(fontSize: 13, height: 1.35)),
+      child: Text(text, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w400, height: 1.35)),
     );
   }
 }
@@ -268,13 +268,13 @@ class _OrderCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text("Buyurtma #${order.id}", style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700)),
+          Text("Buyurtma soni: ${order.id}", style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600)),
           const SizedBox(height: 8),
           _row("Manzil", order.address),
           const SizedBox(height: 6),
           _row("Muammo", order.problemText),
           const SizedBox(height: 6),
-          _row("Holat", order.status),
+          // _row("Holat", order.status),
         ],
       ),
     );
@@ -285,11 +285,11 @@ class _OrderCard extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         SizedBox(
-          width: 70,
-          child: Text("$label:", style: const TextStyle(fontSize: 12, color: Colors.black54)),
+          width: 100,
+          child: Text("$label:", style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: Colors.black54)),
         ),
         Expanded(
-          child: Text(value, style: const TextStyle(fontSize: 12)),
+          child: Text(value, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w400)),
         ),
       ],
     );

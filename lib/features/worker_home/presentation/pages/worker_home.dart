@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -27,26 +29,54 @@ class WorkerHomePage extends StatefulWidget {
 }
 
 class _WorkerHomePageState extends State<WorkerHomePage> {
+  Timer? _pollTimer;
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<GetStaffOrdersBloc>().add( GetStaffOrdersE());
+    _pollTimer = Timer.periodic(Duration(seconds: 8), (_){
+      if(!mounted)return;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        context.read<GetStaffOrdersBloc>().add( GetStaffOrdersE());
+      });
+      context.read<WorkerProfileBloc>().add(WorkerProfileE());
     });
-    context.read<WorkerProfileBloc>().add(WorkerProfileE());
+  }
+  @override
+  dispose(){
+    _pollTimer?.cancel();
+    _pollTimer = null;
+    super.dispose();
   }
 
   Future<void> _reload() async {
     context.read<GetStaffOrdersBloc>().add(const GetStaffOrdersE());
   }
 
-  bool _isCompleted(String s) {
-    final up = s.toUpperCase();
-    return up == 'COMPLETED' || up == 'DONE' || up == 'FINISHED';
+  bool _isCompleted(PutOrdersStateEntity o) {
+    final up = o.status.toUpperCase();
+
+    // Customer tasdiqlagan bo'lsa — final completed
+    if (up == 'COMPLETED_BY_CUSTOMER' ||
+        up == 'CONFIRMED_BY_CUSTOMER' ||
+        up == 'CONFIRMED' ||
+        up == 'COMPLETED' ||
+        up == 'DONE' ||
+        up == 'FINISHED') {
+      return true;
+    }
+
+    // Ba'zi backendlar status o'zgartirmay, faqat vaqtlarni to'ldiradi
+    if ((o.completedByCustomerAt != null && o.completedByCustomerAt!.isNotEmpty) ||
+        (o.completedByStaffAt != null && o.completedByStaffAt!.isNotEmpty)) {
+      return true;
+    }
+
+    return false;
   }
 
-  bool _isCanceled(String s) {
-    final up = s.toUpperCase();
+  bool _isCanceled(PutOrdersStateEntity o) {
+    if (o.canceledAt != null && o.canceledAt!.isNotEmpty) return true;
+    final up = o.status.toUpperCase();
     return up == 'CANCELED' || up == 'CANCELLED';
   }
 
@@ -57,16 +87,17 @@ class _WorkerHomePageState extends State<WorkerHomePage> {
 
 
   List<PutOrdersStateEntity> _active(List<PutOrdersStateEntity> all) {
-    return all.where((o) => !_isCompleted(o.status) && !_isCanceled(o.status)).toList();
+    return all.where((o) => !_isCompleted(o) && !_isCanceled(o)).toList();
   }
 
   List<PutOrdersStateEntity> _completed(List<PutOrdersStateEntity> all) {
-    return all.where((o) => _isCompleted(o.status)).toList();
+    return all.where(_isCompleted).toList();
   }
 
   List<PutOrdersStateEntity> _canceled(List<PutOrdersStateEntity> all) {
-    return all.where((o) => _isCanceled(o.status)).toList();
+    return all.where(_isCanceled).toList();
   }
+
 
   List<PutOrdersStateEntity> _startedOrders(
       List<PutOrdersStateEntity> all,
@@ -88,7 +119,12 @@ class _WorkerHomePageState extends State<WorkerHomePage> {
   }
 
   String _statusText(String status) {
-    switch (status.toUpperCase()) {
+    final up = status.toUpperCase();
+    switch (up) {
+      case 'COMPLETED_BY_STAFF':
+        return "Siz yakunladingiz, mijoz tasdiqlashi kerak";
+      case 'COMPLETED_BY_CUSTOMER':
+        return "Mijoz tasdiqladi. Yakunlandi";
       case 'PENDING':
         return "Hali qabul qilmagansiz";
       case 'ACCEPTED':
@@ -169,8 +205,10 @@ class _WorkerHomePageState extends State<WorkerHomePage> {
                 context,
                 RouteNames.chatWithWorker,
                 arguments: {
-                  "name": "Mijoz",
-                  "urlAsset": "assets/circular_avatar/profile.png",
+                  "roomId":o.customerId,
+                  "name": o.customer.firstName,
+                  "urlAsset": o.customer.image,
+                  // "assets/circular_avatar/profile.png",
                 },
               );
             },
@@ -194,8 +232,7 @@ class _WorkerHomePageState extends State<WorkerHomePage> {
           return OrderWidgetTwo(
             name: o.customer.firstName,
             description: o.problemText,
-            time: _formatTime(o.completedByStaffAt),
-            statusText: _statusText(o.status),
+            time: _formatTime(o.completedByCustomerAt ?? o.completedByStaffAt),            statusText: _statusText(o.status),
             statusColor: _statusColor(o.status),
             imageUrl: "assets/circular_avatar/profile.png",
           );

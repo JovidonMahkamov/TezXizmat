@@ -27,10 +27,10 @@ class RejectButtonWidget extends StatelessWidget {
         child:  Row(
           children: [
             SvgPicture.asset("assets/chat/undov.svg"),
-            SizedBox(width: 60.w,),
+            SizedBox(width: 40.w,),
             Text(
               text,
-              style: TextStyle (color: textColor),
+              style: TextStyle (color: textColor, fontSize: 18),
             ),
           ],
         ),

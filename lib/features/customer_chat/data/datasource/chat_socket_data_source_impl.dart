@@ -10,7 +10,6 @@ class ChatSocketDataSourceImpl implements ChatSocketDataSource {
 
   @override
   Future<void> connect({required int roomId, required String token}) async {
-    // Eski ulanish bo‘lsa yopamiz
     await disconnect();
 
     final url = ChatApiUrls.wsConnect(roomId: roomId, token: token);
@@ -18,10 +17,13 @@ class ChatSocketDataSourceImpl implements ChatSocketDataSource {
 
     _channel!.stream.listen(
           (event) => _controller.add(event.toString()),
-      onError: (e) => _controller.addError(e),
-      onDone: () {},
+      onError: (e, st) => _controller.addError(e, st),
+      onDone: () {
+        _controller.addError(StateError('WebSocket closed'));
+      },
     );
   }
+
 
   @override
   Future<void> disconnect() async {
@@ -36,6 +38,11 @@ class ChatSocketDataSourceImpl implements ChatSocketDataSource {
 
   @override
   Future<void> sendRaw(String data) async {
-    _channel?.sink.add(data);
+    final ch = _channel;
+    if (ch == null) {
+      throw StateError('WebSocket not connected');
+    }
+    ch.sink.add(data);
   }
+
 }

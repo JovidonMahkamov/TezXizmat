@@ -6,7 +6,7 @@ class ElevatedWidget extends StatelessWidget {
   final String text;
   final Color backgroundColor;
   final Color textColor;
-  const ElevatedWidget({super.key, required this.onPressed,required this.text, this.size, required this.backgroundColor, required this.textColor});
+  const ElevatedWidget({super.key, required this.onPressed,required this.text, this.size, required this.backgroundColor, required this.textColor,});
   @override
   Widget build (BuildContext context) {
     return SizedBox(

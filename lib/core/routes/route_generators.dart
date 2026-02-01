@@ -68,11 +68,19 @@ class AppRoute {
         final id = routeSettings.arguments as int;
         return MaterialPageRoute(builder: (_) => WorkerInfoPage(id: id));
       case RouteNames.chatWithWorker:
-        final args = routeSettings.arguments as Map;
+        final args = (routeSettings.arguments as Map?) ?? {};
+        final roomId = args["roomId"];
+        if (roomId == null) {
+          return MaterialPageRoute(
+            builder: (_) => const Scaffold(
+              body: Center(child: Text("roomId kelmadi (null). Chatga kirishdan oldin roomId topilishi kerak.")),
+            ),
+          );
+        }
         return MaterialPageRoute(
           builder: (_) => ChatWithWorkerPage(
-            roomId: args["roomId"] as int,
-            name: args["name"] as String,
+            roomId: roomId as int,
+            name: (args["name"] ?? "Chat") as String,
             imageUrl: args["imageUrl"] as String?,
           ),
         );
@@ -82,11 +90,19 @@ class AppRoute {
         final order = routeSettings.arguments as GetAllOrdersEntity;
         return MaterialPageRoute(builder: (_) => OrderViewPage(order: order));
       case RouteNames.chatWithCustomer:
-        final args = routeSettings.arguments as Map;
+        final args = (routeSettings.arguments as Map?) ?? {};
+        final roomId = args["roomId"];
+        if (roomId == null) {
+          return MaterialPageRoute(
+            builder: (_) => const Scaffold(
+              body: Center(child: Text("roomId kelmadi (null). Chatga kirishdan oldin roomId topilishi kerak.")),
+            ),
+          );
+        }
         return MaterialPageRoute(
           builder: (_) => ChatWithCustomerPage(
-            roomId: args["roomId"] as int,
-            name: args["name"] as String,
+            roomId: roomId as int,
+            name: (args["name"] ?? "Chat") as String,
             imageUrl: args["imageUrl"] as String?,
           ),
         );

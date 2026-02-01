@@ -93,18 +93,20 @@ class ChatDetailBloc extends Bloc<ChatEvent, ChatDetailState> {
     final text = e.text.trim();
     if (text.isEmpty) return;
 
-    // 1) avval WS orqali yuboramiz
     try {
-      await sendSocket(text: text);
-    } catch (_) {
-      // WS yuborish ishlamasa REST fallback
+      // 1) REST asosiy (ishonchli)
+      final sent = await sendRest(roomId: e.roomId, text: text);
+
+      final updated = List<ChatMessageEntity>.from(s.messages)..add(sent);
+      emit(s.copyWith(messages: updated));
+    } catch (err) {
+      // 2) REST yiqilsa, WS fallback
       try {
-        final sent = await sendRest(roomId: e.roomId, text: text);
-        // REST response qaytargan message’ni listga qo‘shib qo‘yamiz
-        final updated = List<ChatMessageEntity>.from(s.messages)..add(sent);
-        emit(s.copyWith(messages: updated));
-      } catch (err) {
-        // xohlasang error snack uchun state saqlab qo‘yish mumkin
+        await sendSocket(text: text);
+        // Agar server senderga echo yubormasa ham UI ko‘rinishi uchun
+        // (xohlasang optimistik qo‘shish ham mumkin)
+      } catch (_) {
+        // bu yerda snack/toast qilib error ko‘rsatish mumkin
       }
     }
   }

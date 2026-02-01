@@ -45,18 +45,23 @@ class ChatRepositoryImpl implements ChatRepository {
 
     // WS streamni domain streamga convert qilamiz
     socket.rawStream().listen((raw) {
-      // Server JSON yuboradi deb qabul qilamiz:
-      // {"id":0,"text":"...","sender_type":"...","created_at":"..."}
       try {
-        final map = jsonDecode(raw) as Map<String, dynamic>;
-        final msg = ChatMessageModel.fromJson(map);
+        final decoded = jsonDecode(raw);
+
+        Map<String, dynamic>? payload;
+
+        if (decoded is Map<String, dynamic>) {
+          final inner = decoded['data'] ?? decoded['message'] ?? decoded;
+          if (inner is Map<String, dynamic>) payload = inner;
+        }
+
+        if (payload == null) return;
+
+        final msg = ChatMessageModel.fromJson(payload);
         _messageController.add(msg);
-      } catch (e) {
-        // ba'zan server oddiy string yuborishi mumkin
-        // xohlasa log qilib qo‘yasan
+      } catch (_) {
+        // xohlasang debugPrint(raw) qilib ko‘rib olasan
       }
-    }, onError: (e) {
-      _messageController.addError(e);
     });
   }
 
