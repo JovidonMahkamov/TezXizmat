@@ -1,10 +1,6 @@
 import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:tez_xizmat/features/worker_profile/domain/usecases/worker_profile_image_use_case.dart';
-import 'package:tez_xizmat/features/worker_profile/presentation/bloc/worker_profile_event.dart';
-import 'package:tez_xizmat/features/worker_profile/presentation/bloc/worker_profile_image/worker_profile_image_state.dart';
-
 import '../../../domain/usecase/customer_profile_image_use_case.dart';
 import '../customer_profile_event.dart';
 import 'customer_profile_image_state.dart';

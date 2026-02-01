@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:dio/dio.dart';
 import 'package:tez_xizmat/core/network/staff_api_urls.dart';
-import 'customer_api_urls.dart';
 import 'package:tez_xizmat/features/auth/data/datasource/local/auth_local_data_source.dart';
 
 class StaffDioClient {

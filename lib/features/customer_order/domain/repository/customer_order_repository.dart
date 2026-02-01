@@ -13,5 +13,5 @@ abstract class CustomerOrderRepository {
 
   Future<CancelOrderEntity> cancelOrder({required String reason, required int id});
 
-  Future<CancelOrderEntity> confirmCompletion({required int id});
+  Future<void> confirmCompletion({required int id});
 }

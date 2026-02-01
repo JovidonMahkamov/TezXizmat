@@ -1,9 +1,7 @@
 import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:tez_xizmat/features/customer_order/domain/usecase/customer_create_order_use_case.dart';
 import 'package:tez_xizmat/features/customer_order/domain/usecase/customer_get_all_orders_use_case.dart';
-import 'package:tez_xizmat/features/customer_order/presentation/bloc/customer_create_order/customer_create_order_state.dart';
 import 'package:tez_xizmat/features/customer_order/presentation/bloc/customer_order_event.dart';
 import 'package:tez_xizmat/features/customer_order/presentation/bloc/get_customer_all_orders/get_customer_all_orders_state.dart';
 

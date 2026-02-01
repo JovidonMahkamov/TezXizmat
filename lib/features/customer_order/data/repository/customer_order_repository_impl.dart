@@ -25,7 +25,7 @@ class CustomerOrderRepositoryImpl implements CustomerOrderRepository{
   }
 
   @override
-  Future<CancelOrderEntity> confirmCompletion({required int id}) {
+  Future<void> confirmCompletion({required int id}) {
     return customerOrderRemoteDataSource.confirmCompletion(id: id);
   }
 }

@@ -29,7 +29,7 @@ class _MyAppState extends State<MyApp> {
             useMaterial3: true,
           ),
           initialRoute: RouteNames.splash,
-          onGenerateRoute: AppRoute(context: context).onGenerateRoute,
+          onGenerateRoute: AppRoute().onGenerateRoute,
         );
       },
     );

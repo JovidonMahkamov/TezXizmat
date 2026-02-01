@@ -1,4 +1,3 @@
-import 'package:tez_xizmat/features/customer_home/domain/entities/get_worker_info_entity.dart';
 import 'package:tez_xizmat/features/customer_home/domain/entities/get_worker_reviews_entity.dart';
 import 'package:tez_xizmat/features/customer_home/domain/repository/customer_home_repository.dart';
 

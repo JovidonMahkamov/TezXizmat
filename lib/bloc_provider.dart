@@ -7,6 +7,8 @@ import 'package:tez_xizmat/features/auth/presentation/bloc/customer_resend_email
 import 'package:tez_xizmat/features/auth/presentation/bloc/customer_reset_password/customer_reset_password_bloc.dart';
 import 'package:tez_xizmat/features/auth/presentation/bloc/customer_send_email/customer_send_email_bloc.dart';
 import 'package:tez_xizmat/features/auth/presentation/bloc/customer_verify_email/customer_verify_email_bloc.dart';
+import 'package:tez_xizmat/features/customer_chat/presentation/bloc/chat_detail/chat_detail_bloc.dart';
+import 'package:tez_xizmat/features/customer_chat/presentation/bloc/chat_rooms/chat_rooms_bloc.dart';
 import 'package:tez_xizmat/features/customer_home/presentation/bloc/customer_get_all_staff/customer_get_all_staff_bloc.dart';
 import 'package:tez_xizmat/features/customer_home/presentation/bloc/get_worker_info/get_worker_info_bloc.dart';
 import 'package:tez_xizmat/features/customer_home/presentation/bloc/get_worker_reviews/get_worker_reviews_bloc.dart';
@@ -57,6 +59,8 @@ class MyBlocProvider extends StatelessWidget {
         BlocProvider<AcceptOrderBloc>(create: (context) => sl<AcceptOrderBloc>()),
         BlocProvider<StartOrderBloc>(create: (context) => sl<StartOrderBloc>()),
         BlocProvider<CompleteByStaffBloc>(create: (context) => sl<CompleteByStaffBloc>()),
+        BlocProvider<ChatRoomsBloc>(create: (context) => sl<ChatRoomsBloc>(),),
+        BlocProvider<ChatDetailBloc>(create: (context) => sl<ChatDetailBloc>(),),
       ],
       child: child,
     );

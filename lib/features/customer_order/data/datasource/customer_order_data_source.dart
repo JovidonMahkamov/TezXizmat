@@ -6,5 +6,5 @@ abstract class CustomerOrderDataSource {
   Future<CustomerCreateOrderModel> createOrder({required int staff_id, required String description, required String address});
   Future<List<GetAllOrdersModel>> getCusAllOrders();
   Future<CancelOrderModel> cancelOrder({required String reason, required int id});
-  Future<CancelOrderModel> confirmCompletion({required int id});
+  Future<void> confirmCompletion({required int id});
 }

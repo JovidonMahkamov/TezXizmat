@@ -1,6 +1,5 @@
 import 'package:tez_xizmat/core/network/customer_api_urls.dart';
 import 'package:tez_xizmat/core/network/customer_dio_client.dart';
-import 'package:tez_xizmat/core/network/staff_dio_client.dart';
 import 'package:tez_xizmat/core/untils/logger.dart';
 import 'package:tez_xizmat/features/auth/data/datasource/local/auth_local_data_source.dart';
 import 'package:tez_xizmat/features/customer_order/data/datasource/customer_order_data_source.dart';
@@ -9,12 +8,10 @@ import 'package:tez_xizmat/features/customer_order/data/model/customer_create_or
 import 'package:tez_xizmat/features/customer_order/data/model/get_all_orders_model.dart';
 
 class CustomerOrderDataSourceImpl implements CustomerOrderDataSource {
-  final StaffDioClient staffDioClient;
   final CustomerDioClient customerDioClient;
   final AuthLocalDataSource local;
 
   CustomerOrderDataSourceImpl(
-     this.staffDioClient,
      this.customerDioClient,
      this.local,
   );
@@ -101,29 +98,31 @@ class CustomerOrderDataSourceImpl implements CustomerOrderDataSource {
       rethrow;
     }
   }
-
   @override
-  Future<CancelOrderModel> confirmCompletion({required int id}) async{
+  Future<void> confirmCompletion({required int id}) async {
     try {
-      final response = await customerDioClient.put("${CustomerApiUrls.confirmCompletion}$id/confirm-completion/",
-        data: {
-          'id': id,
-        },
+      final response = await customerDioClient.put(
+        "${CustomerApiUrls.confirmCompletion}$id/confirm-completion/",
+        data: null, // ko‘pincha body kerak emas
       );
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        LoggerService.info('confirm completion order successful: ${response.data}');
-        return CancelOrderModel.fromJson(response.data);
-      } else {
-        LoggerService.warning(
-          "confirm completion order failed: ${response.statusCode}",
-        );
-        throw Exception('confirm completion order failed: ${response.statusCode}');
+
+      // 200/201/204 ham success bo‘lsin
+      final ok = response.statusCode == 200 ||
+          response.statusCode == 201 ||
+          response.statusCode == 204;
+
+      if (ok) {
+        LoggerService.info('confirm completion success: ${response.statusCode}');
+        return;
       }
+
+      LoggerService.warning("confirm completion failed: ${response.statusCode} data=${response.data}");
+      throw Exception('confirm completion failed: ${response.statusCode}');
     } catch (e, s) {
-      LoggerService.error('Error during confirm completion order: $e');
-      print(e);
+      LoggerService.error('Error confirm completion: $e');
       print(s);
       rethrow;
     }
   }
+
 }

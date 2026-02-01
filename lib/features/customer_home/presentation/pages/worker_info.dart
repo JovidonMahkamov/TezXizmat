@@ -45,25 +45,6 @@ class _WorkerInfoPageState extends State<WorkerInfoPage> {
           "Ma'lumot",
           style: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.w700),
         ),
-        actions: [
-          IconButton(
-            onPressed: () {
-              Navigator.pushNamed(
-                context,
-                RouteNames.chatWithWorker,
-                arguments: {
-                  "name": "Jovidon (Santexnik)",
-                  "urlAsset": "assets/circular_avatar/profile.png",
-                },
-              );
-            },
-            icon: SvgPicture.asset(
-              "assets/home/message.svg",
-              width: 28,
-              height: 28,
-            ),
-          ),
-        ],
       ),
       body: BlocBuilder<GetWorkerInfoBloc, GetWorkerInfoState>(
         builder: (context, state) {

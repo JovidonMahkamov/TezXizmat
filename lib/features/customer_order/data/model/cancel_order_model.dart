@@ -1,7 +1,7 @@
+import 'package:tez_xizmat/features/customer_order/data/model/order_customer_model.dart';
+import 'package:tez_xizmat/features/customer_order/data/model/order_staff_model.dart';
 import 'package:tez_xizmat/features/customer_order/domain/entities/cancel_order_entity.dart';
 
-import 'order_customer_model.dart';
-import 'order_staff_model.dart';
 
 class CancelOrderModel extends CancelOrderEntity {
   const CancelOrderModel({

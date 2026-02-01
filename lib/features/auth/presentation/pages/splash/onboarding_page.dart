@@ -48,7 +48,6 @@ class _CarouselPageState extends State<CarouselPage> {
   @override
   Widget build(BuildContext context) {
     double w = MediaQuery.of(context).size.width;
-    double h = MediaQuery.of(context).size.height;
     return WillPopScope(
       onWillPop: () async {
         SystemNavigator.pop();

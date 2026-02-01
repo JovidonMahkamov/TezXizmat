@@ -1,9 +1,6 @@
 import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:tez_xizmat/features/customer_home/domain/usecase/customer_get_all_staff_use_case.dart';
-import 'package:tez_xizmat/features/customer_home/presentation/bloc/customer_get_all_staff/customer_get_all_staff_state.dart';
-import 'package:tez_xizmat/features/customer_home/presentation/bloc/customer_home_event.dart';
 import 'package:tez_xizmat/features/worker_home/domain/usecase/get_staff_orders_use_case.dart';
 import 'package:tez_xizmat/features/worker_home/presentation/bloc/get_staff_orders/get_staff_orders_state.dart';
 

@@ -25,12 +25,10 @@ class _OrderPageState extends State<OrderPage> {
   @override
   void initState() {
     super.initState();
-    // Sahifa ochilishi bilan orderlarni olib keladi
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<GetCustomerAllOrdersBloc>().add(const GetCustomerAllOrdersE());
+      _reload();
       context.read<CustomerGetAllStaffBloc>().add(CustomerGetAllStaff());
     });
-
   }
 
   // ---------- Helpers ----------
@@ -44,22 +42,31 @@ class _OrderPageState extends State<OrderPage> {
     return 'https://tezxizmatlar.uz${v.startsWith('/') ? '' : '/'}$v';
   }
 
-  bool _isCompleted(String s) {
-    final up = s.toUpperCase();
-    return up == 'COMPLETED' || up == 'DONE' || up == 'FINISHED';
-  }
-
   bool _isCanceled(String s) {
     final up = s.toUpperCase();
     return up == 'CANCELED' || up == 'CANCELLED';
   }
 
+  ///  Final yakunlangan (customer tasdiqlaganidan keyin)
+  bool _isFinalCompleted(String s) {
+    final up = s.toUpperCase();
+    return up == 'COMPLETED' ||
+        up == 'COMPLETED_BY_CUSTOMER' ||
+        up == 'CONFIRMED_BY_CUSTOMER' ||
+        up == 'CONFIRMED';
+  }
+
+  ///  Staff yakunlagan, customer tasdiqlashi kerak
+  bool _needsCustomerConfirm(String s) => s.toUpperCase() == 'COMPLETED_BY_STAFF';
+
   List<GetAllOrdersEntity> _active(List<GetAllOrdersEntity> all) {
-    return all.where((o) => !_isCompleted(o.status) && !_isCanceled(o.status)).toList();
+    // Active = Canceled ham emas, Final completed ham emas
+    //  COMPLETED_BY_STAFF ham shu yerga tushadi
+    return all.where((o) => !_isFinalCompleted(o.status) && !_isCanceled(o.status)).toList();
   }
 
   List<GetAllOrdersEntity> _completed(List<GetAllOrdersEntity> all) {
-    return all.where((o) => _isCompleted(o.status)).toList();
+    return all.where((o) => _isFinalCompleted(o.status)).toList();
   }
 
   List<GetAllOrdersEntity> _canceled(List<GetAllOrdersEntity> all) {
@@ -79,15 +86,22 @@ class _OrderPageState extends State<OrderPage> {
   }
 
   String _statusText(String status) {
-    switch (status.toUpperCase()) {
+    final up = status.toUpperCase();
+    switch (up) {
       case 'PENDING':
         return "Yuborildi";
       case 'ACCEPTED':
         return "Qabul qilindi";
       case 'IN_PROGRESS':
+      case 'STARTED':
         return "Jarayonda";
+      case 'COMPLETED_BY_STAFF':
+        return "Tasdiqlash kutilmoqda";
       case 'COMPLETED':
-        return "Bajarildi";
+      case 'COMPLETED_BY_CUSTOMER':
+      case 'CONFIRMED_BY_CUSTOMER':
+      case 'CONFIRMED':
+        return "Yakunlangan";
       case 'CANCELED':
       case 'CANCELLED':
         return "Bekor qilindi";
@@ -97,13 +111,20 @@ class _OrderPageState extends State<OrderPage> {
   }
 
   Color _statusColor(String status) {
-    switch (status.toUpperCase()) {
+    final up = status.toUpperCase();
+    switch (up) {
       case 'PENDING':
         return Colors.orange;
       case 'ACCEPTED':
       case 'IN_PROGRESS':
+      case 'STARTED':
         return Colors.blueAccent;
+      case 'COMPLETED_BY_STAFF':
+        return Colors.purple; // ko‘zga ajralib tursin
       case 'COMPLETED':
+      case 'COMPLETED_BY_CUSTOMER':
+      case 'CONFIRMED_BY_CUSTOMER':
+      case 'CONFIRMED':
         return Colors.green;
       case 'CANCELED':
       case 'CANCELLED':
@@ -180,8 +201,8 @@ class _OrderPageState extends State<OrderPage> {
                             return Padding(
                               padding: const EdgeInsets.only(bottom: 12, top: 20),
                               child: Shimmer.fromColors(
-                                baseColor: Color(0xffF2F2F2),
-                                highlightColor: Color(0xffFBFBFB),
+                                baseColor: const Color(0xffF2F2F2),
+                                highlightColor: const Color(0xffFBFBFB),
                                 child: Container(
                                   height: 180,
                                   padding: const EdgeInsets.all(12),
@@ -191,34 +212,16 @@ class _OrderPageState extends State<OrderPage> {
                                   ),
                                   child: Row(
                                     children: [
-                                      // Avatar shimmer
-                                      Container(
-                                        width: 56,
-                                        height: 56,
-                                        decoration: const BoxDecoration(
-                                          color: Colors.white,
-                                          shape: BoxShape.circle,
-                                        ),
-                                      ),
+                                      Container(width: 56, height: 56, decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle)),
                                       const SizedBox(width: 12),
-
-                                      // Text shimmer
                                       Expanded(
                                         child: Column(
                                           mainAxisAlignment: MainAxisAlignment.center,
                                           crossAxisAlignment: CrossAxisAlignment.start,
                                           children: [
-                                            Container(
-                                              height: 14,
-                                              width: double.infinity,
-                                              color: Colors.white,
-                                            ),
+                                            Container(height: 14, width: double.infinity, color: Colors.white),
                                             const SizedBox(height: 8),
-                                            Container(
-                                              height: 12,
-                                              width: 120,
-                                              color: Colors.white,
-                                            ),
+                                            Container(height: 12, width: 120, color: Colors.white),
                                           ],
                                         ),
                                       ),
@@ -230,6 +233,7 @@ class _OrderPageState extends State<OrderPage> {
                           },
                         );
                       }
+
                       if (state is GetCustomerAllOrdersError) {
                         return Center(
                           child: Padding(
@@ -237,16 +241,9 @@ class _OrderPageState extends State<OrderPage> {
                             child: Column(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Text(
-                                  state.message,
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(fontSize: 14.sp),
-                                ),
+                                Text(state.message, textAlign: TextAlign.center, style: TextStyle(fontSize: 14.sp)),
                                 SizedBox(height: 12.h),
-                                ElevatedButton(
-                                  onPressed: _reload,
-                                  child: const Text("Qayta urinish"),
-                                )
+                                ElevatedButton(onPressed: _reload, child: const Text("Qayta urinish")),
                               ],
                             ),
                           ),
@@ -259,7 +256,6 @@ class _OrderPageState extends State<OrderPage> {
                         final completed = _completed(all);
                         final canceled = _canceled(all);
 
-                        // staff list state
                         final staffState = context.watch<CustomerGetAllStaffBloc>().state;
                         final staffMap = <int, dynamic>{};
 
@@ -281,14 +277,13 @@ class _OrderPageState extends State<OrderPage> {
                               separatorBuilder: (_, __) => SizedBox(height: 10.h),
                               itemBuilder: (context, index) {
                                 final o = list[index];
-                                final staff = staffMap[o.staffId]; // CustomerGetAllStaffEntity bo‘ladi
+                                final staff = staffMap[o.staffId];
 
                                 final name = staff != null
                                     ? "${staff.first_name} ${staff.last_name} (${(staff.profession as String).isEmpty ? 'Usta' : staff.profession})"
                                     : "Usta #${o.staffId}";
 
                                 final imageUrl = staff != null ? _normalizeImage(staff.image as String?) : null;
-
                                 final time = _formatTime(o.createdAt);
 
                                 if (withActions) {
@@ -299,8 +294,9 @@ class _OrderPageState extends State<OrderPage> {
                                     statusText: _statusText(o.status),
                                     statusColor: _statusColor(o.status),
                                     imageUrl: imageUrl,
-                                    onViewTap: () {
-                                      Navigator.pushNamed(context, RouteNames.orderView, arguments: o);
+                                    onViewTap: () async {
+                                      await Navigator.pushNamed(context, RouteNames.orderView, arguments: o);
+                                      _reload(); //  qaytganda refresh
                                     },
                                     onChatTap: () {
                                       Navigator.pushNamed(
@@ -309,20 +305,21 @@ class _OrderPageState extends State<OrderPage> {
                                         arguments: {
                                           "name": name,
                                           "urlAsset": imageUrl ?? "assets/circular_avatar/profile.png",
+                                          "roomId": o.staffId,
                                         },
                                       );
                                     },
                                   );
-                                } else {
-                                  return OrderContainerWidgetTwo(
-                                    name: name,
-                                    description: o.problemText,
-                                    time: time,
-                                    statusText: _statusText(o.status),
-                                    statusColor: _statusColor(o.status),
-                                    imageUrl: imageUrl,
-                                  );
                                 }
+
+                                return OrderContainerWidgetTwo(
+                                  name: name,
+                                  description: o.problemText,
+                                  time: time,
+                                  statusText: _statusText(o.status),
+                                  statusColor: _statusColor(o.status),
+                                  imageUrl: imageUrl,
+                                );
                               },
                             ),
                           );
@@ -337,14 +334,9 @@ class _OrderPageState extends State<OrderPage> {
                         );
                       }
 
-
-                      // Initial holatda ham refresh bilan bo‘sh ko‘rsatamiz
                       return RefreshIndicator(
                         onRefresh: _reload,
-                        child: ListView(
-                          physics: const AlwaysScrollableScrollPhysics(),
-                          children: const [SizedBox(height: 200)],
-                        ),
+                        child: ListView(physics: const AlwaysScrollableScrollPhysics(), children: const [SizedBox(height: 200)]),
                       );
                     },
                   ),

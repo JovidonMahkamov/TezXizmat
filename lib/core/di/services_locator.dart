@@ -22,6 +22,21 @@ import 'package:tez_xizmat/features/auth/presentation/bloc/customer_resend_email
 import 'package:tez_xizmat/features/auth/presentation/bloc/customer_reset_password/customer_reset_password_bloc.dart';
 import 'package:tez_xizmat/features/auth/presentation/bloc/customer_send_email/customer_send_email_bloc.dart';
 import 'package:tez_xizmat/features/auth/presentation/bloc/customer_verify_email/customer_verify_email_bloc.dart';
+import 'package:tez_xizmat/features/customer_chat/data/datasource/chat_remote_data_source.dart';
+import 'package:tez_xizmat/features/customer_chat/data/datasource/chat_remote_data_source_impl.dart';
+import 'package:tez_xizmat/features/customer_chat/data/datasource/chat_socket_data_source.dart';
+import 'package:tez_xizmat/features/customer_chat/data/datasource/chat_socket_data_source_impl.dart';
+import 'package:tez_xizmat/features/customer_chat/data/repositories/chat_repository_impl.dart';
+import 'package:tez_xizmat/features/customer_chat/domain/repositories/chat_repository.dart';
+import 'package:tez_xizmat/features/customer_chat/domain/usecase/connect_chat_socket_use_case.dart';
+import 'package:tez_xizmat/features/customer_chat/domain/usecase/disconnect_chat_socket_use_case.dart';
+import 'package:tez_xizmat/features/customer_chat/domain/usecase/get_chat_rooms_use_case.dart';
+import 'package:tez_xizmat/features/customer_chat/domain/usecase/get_room_messages_use_case.dart';
+import 'package:tez_xizmat/features/customer_chat/domain/usecase/send_message_rest_use_case.dart';
+import 'package:tez_xizmat/features/customer_chat/domain/usecase/send_message_socket_use_case.dart';
+import 'package:tez_xizmat/features/customer_chat/domain/usecase/socket_messages_use_case.dart';
+import 'package:tez_xizmat/features/customer_chat/presentation/bloc/chat_detail/chat_detail_bloc.dart';
+import 'package:tez_xizmat/features/customer_chat/presentation/bloc/chat_rooms/chat_rooms_bloc.dart';
 import 'package:tez_xizmat/features/customer_home/data/datasource/customer_home_data_source.dart';
 import 'package:tez_xizmat/features/customer_home/data/datasource/customer_home_data_source_impl.dart';
 import 'package:tez_xizmat/features/customer_home/data/repository/customer_home_repository_impl.dart';
@@ -107,7 +122,7 @@ Future<void> setup() async {
 
   ///* Customer Order
   sl.registerLazySingleton<CustomerOrderDataSource>(
-        () => CustomerOrderDataSourceImpl(sl(), sl(), sl()),
+        () => CustomerOrderDataSourceImpl(sl(), sl(),),
   );
 
   ///* Customer Home
@@ -118,6 +133,18 @@ Future<void> setup() async {
   ///* Worker Home
   sl.registerLazySingleton<WorkerHomeDataSource>(
         () => WorkerHomeDataSourceImpl(sl(), sl()),
+  );
+  ///* CHAT
+  sl.registerLazySingleton<ChatRemoteDataSource>(
+        () => ChatRemoteDataSourceImpl(
+      customerClient: sl(),
+      staffClient: sl(),
+      local: sl(),
+    ),
+  );
+
+  sl.registerLazySingleton<ChatSocketDataSource>(
+        () => ChatSocketDataSourceImpl(),
   );
 
   ///! Repository
@@ -146,6 +173,14 @@ Future<void> setup() async {
   ///* Worker Home
   sl.registerLazySingleton<WorkerHomeRepository>(
         () => WorkerHomeRepositoryImpl(workerHomeDataSource: sl()),
+  );
+  ///* CHAT
+  sl.registerLazySingleton<ChatRepository>(
+        () => ChatRepositoryImpl(
+      remote: sl(),
+      socket: sl(),
+      local: sl(),
+    ),
   );
 
   ///! UseCase
@@ -183,6 +218,14 @@ Future<void> setup() async {
   sl.registerLazySingleton(()=>WorkerProfileUseCase(sl()));
   sl.registerLazySingleton(()=>WorkerEditProfileUseCase(sl()));
   sl.registerLazySingleton(()=>WorkerProfileImageUseCase(sl()));
+  ///* CHAT
+  sl.registerLazySingleton(() => GetChatRoomsUseCase(sl()));
+  sl.registerLazySingleton(() => GetRoomMessagesUseCase(sl()));
+  sl.registerLazySingleton(() => SendMessageRestUseCase(sl()));
+  sl.registerLazySingleton(() => ConnectChatSocketUseCase(sl()));
+  sl.registerLazySingleton(() => DisconnectChatSocketUseCase(sl()));
+  sl.registerLazySingleton(() => SendMessageSocketUseCase(sl()));
+  sl.registerLazySingleton(() => SocketMessagesUseCase(sl()));
 
   ///! Bloc
   ///* Auth
@@ -218,6 +261,19 @@ Future<void> setup() async {
   sl.registerFactory(() => WorkerProfileBloc(sl()));
   sl.registerFactory(() => WorkerEditProfileBloc(sl()));
   sl.registerFactory(() => WorkerProfileImageBloc(sl()));
+  ///* CHAT
+  sl.registerFactory(() => ChatRoomsBloc(getRooms: sl()));
+  sl.registerFactory(
+        () => ChatDetailBloc(
+      getMessages: sl(),
+      connectSocket: sl(),
+      disconnectSocket: sl(),
+      socketStream: sl(),
+      sendSocket: sl(),
+      sendRest: sl(),
+    ),
+  );
+
 }
 
 

@@ -25,9 +25,6 @@ import 'package:tez_xizmat/features/worker_profile/presentation/pages/worker_pro
 import 'package:tez_xizmat/features/worker_profile/presentation/pages/worker_profile_settings.dart';
 
 class AppRoute {
-  BuildContext context;
-
-  AppRoute({required this.context});
 
   Route onGenerateRoute(RouteSettings routeSettings) {
     switch (routeSettings.name) {
@@ -71,16 +68,28 @@ class AppRoute {
         final id = routeSettings.arguments as int;
         return MaterialPageRoute(builder: (_) => WorkerInfoPage(id: id));
       case RouteNames.chatWithWorker:
-        final urlPath = routeSettings.arguments as Map<String, dynamic>;
-        return MaterialPageRoute(builder: (_) =>  ChatWithWorkerPage(name: urlPath["name"], urlAsset: urlPath["urlAsset"],));
+        final args = routeSettings.arguments as Map;
+        return MaterialPageRoute(
+          builder: (_) => ChatWithWorkerPage(
+            roomId: args["roomId"] as int,
+            name: args["name"] as String,
+            imageUrl: args["imageUrl"] as String?,
+          ),
+        );
       case RouteNames.notification:
         return MaterialPageRoute(builder: (_) => const NotificationPage());
       case RouteNames.orderView:
         final order = routeSettings.arguments as GetAllOrdersEntity;
         return MaterialPageRoute(builder: (_) => OrderViewPage(order: order));
       case RouteNames.chatWithCustomer:
-        final urlPath = routeSettings.arguments as Map<String, dynamic>;
-        return MaterialPageRoute(builder: (_) =>  ChatWithCustomerPage(name: urlPath["name"], urlAsset: urlPath["urlAsset"],));
+        final args = routeSettings.arguments as Map;
+        return MaterialPageRoute(
+          builder: (_) => ChatWithCustomerPage(
+            roomId: args["roomId"] as int,
+            name: args["name"] as String,
+            imageUrl: args["imageUrl"] as String?,
+          ),
+        );
       case RouteNames.workerProfile:
         return MaterialPageRoute(builder: (_) => const WorkerProfilePage());
       case RouteNames.workerEditProfile:

@@ -26,48 +26,72 @@ class _OrderViewPageState extends State<OrderViewPage> {
   void initState() {
     super.initState();
     currentOrder = widget.order;
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<GetCustomerAllOrdersBloc>().add(const GetCustomerAllOrdersE());
+      _reload();
     });
   }
-  String get _status => (currentOrder.status).toUpperCase();
 
-  bool get canCancel =>
-      (currentOrder.acceptedAt == null || currentOrder.acceptedAt!.isEmpty) &&
-          _status == 'PENDING';
+  String get _status => currentOrder.status.toUpperCase();
+
+  bool get isCanceled => _status == 'CANCELED' || _status == 'CANCELLED';
+
+  bool get isPending => _status == 'PENDING';
 
   bool get isAccepted =>
-      (currentOrder.acceptedAt != null && currentOrder.acceptedAt!.isNotEmpty) ||
-          _status == 'ACCEPTED';
+      _status == 'ACCEPTED' ||
+          (currentOrder.acceptedAt != null && currentOrder.acceptedAt!.isNotEmpty);
 
   bool get isStarted =>
-      (currentOrder.startedAt != null && currentOrder.startedAt!.isNotEmpty) ||
-          _status == 'IN_PROGRESS' ||
-          _status == 'STARTED';
+      _status == 'IN_PROGRESS' ||
+          _status == 'STARTED' ||
+          (currentOrder.startedAt != null && currentOrder.startedAt!.isNotEmpty);
 
-  bool get staffCompleted =>
-      (currentOrder.completedByStaffAt != null &&
-          currentOrder.completedByStaffAt!.isNotEmpty);
+  bool get isCompletedByStaff => _status == 'COMPLETED_BY_STAFF';
 
   bool get customerCompleted =>
-      (currentOrder.completedByCustomerAt != null &&
-          currentOrder.completedByCustomerAt!.isNotEmpty) ||
-          _status == 'COMPLETED';
+      _status == 'COMPLETED' ||
+          _status == 'COMPLETED_BY_CUSTOMER' ||
+          _status == 'CONFIRMED_BY_CUSTOMER' ||
+          _status == 'CONFIRMED' ||
+          (currentOrder.completedByCustomerAt != null && currentOrder.completedByCustomerAt!.isNotEmpty);
+
+  bool get canCancel => isPending && !isCanceled;
+
+  /// ✅ Staff complete bo‘lsa customer confirm bosishi kerak
+  bool get canConfirmCompletion => isCompletedByStaff && !customerCompleted && !isCanceled;
 
   String get pageTitle {
-    if (isStarted) return "Ish bajarilmoqda";
+    if (customerCompleted) return "Yakunlangan";
+    if (isCanceled) return "Bekor qilingan";
+
+    // ✅ COMPLETED_BY_STAFF ham shu yerga kiradi
+    if (isCompletedByStaff || isStarted) return "Ish bajarilmoqda";
+
     if (isAccepted) return "Qabul qilindi";
     return "Ko‘rib chiqilmoqda";
   }
 
   String get infoText {
-    if (isStarted) {
-      return "Ish yakunlangach, iltimos “Ish yakunlandi” tugmasini bosing. "
-          "Bu orqali buyurtma yopiladi va to‘lov jarayoni boshlanadi.";
+    if (customerCompleted) {
+      return "Buyurtma yakunlandi ✅";
     }
+    if (isCanceled) {
+      return "Buyurtma bekor qilingan ❌";
+    }
+
+    if (isCompletedByStaff) {
+      return "Ijrochi ishni yakunladi. Buyurtmani yopish uchun pastdagi “Ish yakunlandi” tugmasini bosing.";
+    }
+
+    if (isStarted) {
+      return "Ish bajarilmoqda. Ijrochi ishni tugatgach, buyurtma sizga tasdiqlash uchun keladi.";
+    }
+
     if (isAccepted) {
       return "Buyurtmangiz qabul qilindi. Ijrochi bilan bog‘lanish uchun chatdan foydalanishingiz mumkin.";
     }
+
     return "Ijrochi hali buyurtmani qabul qilmagan. Javob berishi kutilmoqda...";
   }
 
@@ -76,25 +100,22 @@ class _OrderViewPageState extends State<OrderViewPage> {
       return (text: "Yakunlangan", enabled: false, color: Colors.green);
     }
 
-    if (isStarted) {
-      // Staff complete qilmaguncha customer confirm qilolmaydi
-      final enabled = staffCompleted;
-      return (
-      text: "Ish yakunlandi",
-      enabled: enabled,
-      color: enabled ? Colors.green : Colors.green.shade200
-      );
+    if (isCanceled) {
+      return (text: "Bekor qilingan", enabled: false, color: Colors.red.shade200);
     }
 
-    if (isAccepted) {
-      return (
-      text: "Jarayon bekor qilib bo‘lmaydi",
-      enabled: false,
-      color: Colors.orange.shade200
-      );
+    // ✅ Asosiy fix: COMPLETED_BY_STAFF bo‘lsa confirm tugmasi ishlasin
+    if (canConfirmCompletion) {
+      return (text: "Ish yakunlandi", enabled: true, color: Colors.green);
     }
 
-    return (text: "Jarayonni bekor qilish", enabled: canCancel, color: Colors.red);
+    // pending paytida cancel mumkin
+    if (canCancel) {
+      return (text: "Jarayonni bekor qilish", enabled: true, color: Colors.red);
+    }
+
+    // qolgan holatlar: cancel ham, confirm ham yo‘q
+    return (text: "Jarayon davom etmoqda", enabled: false, color: Colors.orange.shade200);
   }
 
   Future<void> _reload() async {
@@ -115,26 +136,33 @@ class _OrderViewPageState extends State<OrderViewPage> {
         ),
         BlocListener<ConfirmCompletionBloc, ConfirmCompletionState>(
           listener: (context, state) {
+            if (state is ConfirmCompletionLoading) {
+              // xohlasang loader qo‘shamiz
+            }
             if (state is ConfirmCompletionSuccess) {
               _reload();
-
-              // TODO: rating bottomsheet (keyin ulaysan)
-              // showModalBottomSheet(...);
+              // ✅ confirm bo‘lgach orqaga qaytib list yangilansin
+              Navigator.pop(context);
+            }
+            if (state is ConfirmCompletionError) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text(state.message)),
+              );
             }
           },
         ),
       ],
       child: BlocBuilder<GetCustomerAllOrdersBloc, GetCustomerAllOrdersState>(
         builder: (context, state) {
-          // ✅ eng muhim joy: bloc’dan kelgan listdan currentOrder yangilansin
+          // ✅ listdan kelgan order bilan currentOrder yangilansin
           if (state is GetCustomerAllOrdersSuccess) {
             final list = state.getAllOrdersEntity;
             final idx = list.indexWhere((e) => e.id == widget.order.id);
-            if (idx != -1) {
-              currentOrder = list[idx];
-            }
+            if (idx != -1) currentOrder = list[idx];
           }
+
           final cfg = buttonConfig;
+
           return Scaffold(
             appBar: AppBar(
               title: Text(pageTitle),
@@ -160,12 +188,11 @@ class _OrderViewPageState extends State<OrderViewPage> {
                 text: cfg.text,
                 backgroundColor: cfg.color,
                 textColor: Colors.white,
-                //  disabled bo‘lishi uchun null
                 onPressed: cfg.enabled
                     ? () {
                   if (canCancel) {
                     _showCancelDialog(context, currentOrder.id);
-                  } else if (isStarted && staffCompleted) {
+                  } else if (canConfirmCompletion) {
                     context.read<ConfirmCompletionBloc>().add(
                       ConfirmCompletionE(id: currentOrder.id),
                     );
@@ -220,10 +247,7 @@ class _InfoCard extends StatelessWidget {
         border: Border.all(color: Colors.black12),
         borderRadius: BorderRadius.circular(12),
       ),
-      child: Text(
-        text,
-        style: const TextStyle(fontSize: 13, height: 1.35),
-      ),
+      child: Text(text, style: const TextStyle(fontSize: 13, height: 1.35)),
     );
   }
 }
@@ -244,10 +268,7 @@ class _OrderCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            "Buyurtma #${order.id}",
-            style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
-          ),
+          Text("Buyurtma #${order.id}", style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700)),
           const SizedBox(height: 8),
           _row("Manzil", order.address),
           const SizedBox(height: 6),
@@ -265,16 +286,10 @@ class _OrderCard extends StatelessWidget {
       children: [
         SizedBox(
           width: 70,
-          child: Text(
-            "$label:",
-            style: const TextStyle(fontSize: 12, color: Colors.black54),
-          ),
+          child: Text("$label:", style: const TextStyle(fontSize: 12, color: Colors.black54)),
         ),
         Expanded(
-          child: Text(
-            value,
-            style: const TextStyle(fontSize: 12),
-          ),
+          child: Text(value, style: const TextStyle(fontSize: 12)),
         ),
       ],
     );
