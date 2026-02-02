@@ -16,8 +16,15 @@ class ChatOpenRoomE extends ChatEvent {
 class ChatSendE extends ChatEvent {
   final int roomId;
   final String text;
-  const ChatSendE({required this.roomId, required this.text});
+  final SenderType senderType;
+
+  const ChatSendE({
+    required this.roomId,
+    required this.text,
+    required this.senderType,
+  });
 }
+
 
 class ChatDisconnectE extends ChatEvent {
   const ChatDisconnectE();
@@ -28,3 +35,6 @@ class ChatIncomingE extends ChatEvent {
   final ChatMessageEntity message;
   const ChatIncomingE(this.message);
 }
+class ChatSocketConnectedE extends ChatEvent {}
+
+class ChatSocketDisconnectedE extends ChatEvent {}

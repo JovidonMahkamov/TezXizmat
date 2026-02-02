@@ -1,36 +1,58 @@
-import 'dart:async';
-import 'package:web_socket_channel/web_socket_channel.dart';
-import 'package:web_socket_channel/status.dart' as status;
 import 'package:tez_xizmat/core/network/chat_api_urls.dart';
-import 'chat_socket_data_source.dart';
+import 'package:tez_xizmat/core/network/customer_api_urls.dart';
+import 'package:tez_xizmat/features/customer_chat/data/datasource/chat_socket_data_source.dart';
+import 'package:web_socket_channel/io.dart';
+import 'package:web_socket_channel/web_socket_channel.dart';
+import 'dart:async';
 
 class ChatSocketDataSourceImpl implements ChatSocketDataSource {
+  final String baseUrl;
   WebSocketChannel? _channel;
+
   final _controller = StreamController<String>.broadcast();
+
+  ChatSocketDataSourceImpl({String? baseUrl})
+      : baseUrl = baseUrl ?? CustomerApiUrls.baseUrl;
 
   @override
   Future<void> connect({required int roomId, required String token}) async {
-    await disconnect();
+    print("🔑 token(raw)='${token}'");
+    print("🔑 token(trim)='${token.trim()}'");
+    print("🔑 token endsWith# = ${token.trim().endsWith('#')}");
 
-    final url = ChatApiUrls.wsConnect(roomId: roomId, token: token);
-    _channel = WebSocketChannel.connect(Uri.parse(url));
+    final wsUrl = ChatApiUrls.wsChat(
+      baseUrl: baseUrl,
+      roomId: roomId,
+      token: token,
+    );
+
+    final wsUri = Uri.parse(wsUrl);
+    print("✅ WS URI = $wsUri");
+
+    try {
+      _channel = IOWebSocketChannel.connect(
+        wsUri,
+        pingInterval: const Duration(seconds: 10),
+      );
+    } catch (e) {
+      print("❌ WS CONNECT THROW: $e");
+      // xohlasang shu yerda custom exception qil
+      rethrow;
+    }
 
     _channel!.stream.listen(
-          (event) => _controller.add(event.toString()),
-      onError: (e, st) => _controller.addError(e, st),
-      onDone: () {
-        _controller.addError(StateError('WebSocket closed'));
+          (event) {
+        if (event is String) _controller.add(event);
       },
+      onError: (e) {
+        print("❌ WS ERROR: $e");
+        _controller.addError(e);
+      },
+      onDone: () {
+        print("! WS CLOSED");
+      },
+      cancelOnError: false,
     );
-  }
-
-
-  @override
-  Future<void> disconnect() async {
-    try {
-      await _channel?.sink.close(status.goingAway);
-    } catch (_) {}
-    _channel = null;
   }
 
   @override
@@ -39,10 +61,13 @@ class ChatSocketDataSourceImpl implements ChatSocketDataSource {
   @override
   Future<void> sendRaw(String data) async {
     final ch = _channel;
-    if (ch == null) {
-      throw StateError('WebSocket not connected');
-    }
+    if (ch == null) throw StateError('Socket ulanmagan');
     ch.sink.add(data);
   }
 
+  @override
+  Future<void> disconnect() async {
+    await _channel?.sink.close();
+    _channel = null;
+  }
 }

@@ -32,48 +32,65 @@ class ChatDetailBloc extends Bloc<ChatEvent, ChatDetailState> {
     on<ChatIncomingE>(_onIncoming);
     on<ChatSendE>(_onSend);
     on<ChatDisconnectE>(_onDisconnect);
+
+    // qo'shimcha eventlar (socket status uchun)
+    on<ChatSocketConnectedE>(_onSocketConnected);
+    on<ChatSocketDisconnectedE>(_onSocketDisconnected);
   }
 
+  // ===== OPEN ROOM =====
   Future<void> _onOpenRoom(ChatOpenRoomE e, Emitter<ChatDetailState> emit) async {
     emit(const ChatDetailLoading());
 
     try {
-      // 1) history
+      // 1) History (REST)
       final history = await getMessages(roomId: e.roomId);
 
-      // 2) ready state
+      // 2) UI ready: history ko‘rinadi, socket hali false
       emit(ChatDetailReady(
         roomId: e.roomId,
         socketConnected: false,
         messages: history,
       ));
+    } catch (err) {
+      emit(ChatDetailError(err.toString()));
+      return;
+    }
 
-      // 3) ws connect
+    // 3) Socket ulash (history kelgan bo'lsa ham socket yiqilsa UI yiqilmasin)
+    try {
       await connectSocket(roomId: e.roomId, accessToken: e.accessToken);
 
-      // 4) stream listen (yangi kelgan xabarlar)
+      // 4) stream listen (socketdan keladigan xabarlar)
       await _sub?.cancel();
       _sub = socketStream().listen(
             (msg) => add(ChatIncomingE(msg)),
-        onError: (err) {
-          // socket error bo‘lsa state errorga tushirmaymiz, faqat flagni o‘chirib qo‘yamiz
-          final s = state;
-          if (s is ChatDetailReady) {
-            emit(s.copyWith(socketConnected: false));
-          }
-        },
+        onError: (_) => add(ChatSocketDisconnectedE()),
+        onDone: () => add(ChatSocketDisconnectedE()),
       );
 
-      // connected flag
-      final s = state;
-      if (s is ChatDetailReady) {
-        emit(s.copyWith(socketConnected: true));
-      }
-    } catch (err) {
-      emit(ChatDetailError(err.toString()));
+      add(ChatSocketConnectedE());
+    } catch (_) {
+      // socket ulanmadi -> UI history bilan turadi, socketConnected false qoladi
+      add(ChatSocketDisconnectedE());
     }
   }
 
+  void _onSocketConnected(ChatSocketConnectedE e, Emitter<ChatDetailState> emit) {
+    final s = state;
+    if (s is ChatDetailReady) {
+      emit(s.copyWith(socketConnected: true));
+    }
+  }
+
+  void _onSocketDisconnected(ChatSocketDisconnectedE e, Emitter<ChatDetailState> emit) {
+    final s = state;
+    if (s is ChatDetailReady) {
+      emit(s.copyWith(socketConnected: false));
+    }
+  }
+
+  // ===== INCOMING MESSAGE =====
   void _onIncoming(ChatIncomingE e, Emitter<ChatDetailState> emit) {
     final s = state;
     if (s is! ChatDetailReady) return;
@@ -93,28 +110,57 @@ class ChatDetailBloc extends Bloc<ChatEvent, ChatDetailState> {
     final text = e.text.trim();
     if (text.isEmpty) return;
 
+    // senderType: bu page qaysi rol ekaniga qarab qo'yiladi
+    // Agar senga worker page bo'lsa -> staff bo'lishi kerak.
+    // Hozircha customer deb qoldirdim, xohlasang pastda "isStaff" yechimni beraman.
+    final optimistic = ChatMessageEntity(
+      id: -DateTime.now().millisecondsSinceEpoch,
+      text: text,
+      createdAt: DateTime.now(),
+      senderType: e.senderType,
+    );
+
+    // 0) Optimistic UI (darhol ko‘rinadi)
+    emit(s.copyWith(messages: [...s.messages, optimistic]));
+
+    // 1) WS bilan yuborishga urinib ko‘ramiz
     try {
-      // 1) REST asosiy (ishonchli)
+      await sendSocket(text: text);
+      // server WS orqali qaytarib ham berishi mumkin, duplicate bo‘lmasligi uchun
+      // incoming’da id bo‘yicha tekshiruv bor
+      return;
+    } catch (_) {
+      // WS ishlamadi -> REST fallback
+    }
+
+    // 2) REST fallback
+    try {
       final sent = await sendRest(roomId: e.roomId, text: text);
 
-      final updated = List<ChatMessageEntity>.from(s.messages)..add(sent);
-      emit(s.copyWith(messages: updated));
-    } catch (err) {
-      // 2) REST yiqilsa, WS fallback
-      try {
-        await sendSocket(text: text);
-        // Agar server senderga echo yubormasa ham UI ko‘rinishi uchun
-        // (xohlasang optimistik qo‘shish ham mumkin)
-      } catch (_) {
-        // bu yerda snack/toast qilib error ko‘rsatish mumkin
+      final now = state;
+      if (now is ChatDetailReady) {
+        final replaced = now.messages.map((m) {
+          if (m.id == optimistic.id) return sent;
+          return m;
+        }).toList();
+        emit(now.copyWith(messages: replaced));
+      }
+    } catch (_) {
+      // REST ham yiqildi -> optimisticni olib tashlaymiz
+      final now = state;
+      if (now is ChatDetailReady) {
+        final cleaned = now.messages.where((m) => m.id != optimistic.id).toList();
+        emit(now.copyWith(messages: cleaned));
       }
     }
   }
 
+  // ===== DISCONNECT =====
   Future<void> _onDisconnect(ChatDisconnectE e, Emitter<ChatDetailState> emit) async {
     await _sub?.cancel();
     _sub = null;
     await disconnectSocket();
+
     final s = state;
     if (s is ChatDetailReady) {
       emit(s.copyWith(socketConnected: false));

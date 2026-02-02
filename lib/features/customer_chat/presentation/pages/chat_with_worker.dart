@@ -31,19 +31,21 @@ class _ChatWithWorkerPageState extends State<ChatWithWorkerPage> {
     // CUSTOMER UI: sender_type == "customer" bo‘lsa isMe = true
     return m.senderType == SenderType.customer;
   }
+  late final ChatDetailBloc _chatBloc;
 
   @override
   void initState() {
     super.initState();
+    _chatBloc = context.read<ChatDetailBloc>(); // 👈 shart
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final token = sl<AuthLocalDataSource>().getAccessToken() ?? '';
-      context.read<ChatDetailBloc>().add(ChatOpenRoomE(roomId: widget.roomId, accessToken: token));
+      _chatBloc.add(ChatOpenRoomE(roomId: widget.roomId, accessToken: token));
     });
   }
 
   @override
   void dispose() {
-    context.read<ChatDetailBloc>().add(const ChatDisconnectE());
+    _chatBloc.add(ChatDisconnectE());
     _controller.dispose();
     super.dispose();
   }
@@ -51,7 +53,7 @@ class _ChatWithWorkerPageState extends State<ChatWithWorkerPage> {
   void _send() {
     final text = _controller.text.trim();
     if (text.isEmpty) return;
-    context.read<ChatDetailBloc>().add(ChatSendE(roomId: widget.roomId, text: text));
+    context.read<ChatDetailBloc>().add(ChatSendE(roomId: widget.roomId, text: text, senderType: SenderType.customer));
     _controller.clear();
   }
 

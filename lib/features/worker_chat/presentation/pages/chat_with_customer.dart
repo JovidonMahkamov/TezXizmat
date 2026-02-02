@@ -28,16 +28,21 @@ class _ChatWithCustomerPageState extends State<ChatWithCustomerPage> {
   final TextEditingController _controller = TextEditingController();
 
   bool _isMeStaff(ChatMessageEntity m) {
-    // STAFF UI: sender_type == staff bo‘lsa isMe = true
     return m.senderType == SenderType.staff;
   }
+
+  late final ChatDetailBloc _chatBloc;
 
   @override
   void initState() {
     super.initState();
+
+    // 1) Blocni oldindan olib qo'yamiz
+    _chatBloc = context.read<ChatDetailBloc>();
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final token = sl<AuthLocalDataSource>().getAccessToken() ?? '';
-      context.read<ChatDetailBloc>().add(
+      _chatBloc.add(
         ChatOpenRoomE(roomId: widget.roomId, accessToken: token),
       );
     });
@@ -45,7 +50,8 @@ class _ChatWithCustomerPageState extends State<ChatWithCustomerPage> {
 
   @override
   void dispose() {
-    context.read<ChatDetailBloc>().add(const ChatDisconnectE());
+    // 2) endi context.read ishlatmaymiz
+    _chatBloc.add(ChatDisconnectE());
     _controller.dispose();
     super.dispose();
   }
@@ -54,7 +60,7 @@ class _ChatWithCustomerPageState extends State<ChatWithCustomerPage> {
     final text = _controller.text.trim();
     if (text.isEmpty) return;
 
-    context.read<ChatDetailBloc>().add(ChatSendE(roomId: widget.roomId, text: text));
+    context.read<ChatDetailBloc>().add(ChatSendE(roomId: widget.roomId, text: text, senderType: SenderType.staff));
     _controller.clear();
   }
 

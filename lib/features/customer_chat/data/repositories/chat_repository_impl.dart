@@ -35,7 +35,7 @@ class ChatRepositoryImpl implements ChatRepository {
     required String text,
   }) =>
       remote.sendMessage(roomId: roomId, text: text);
-
+  StreamSubscription<String>? _rawSub;
   @override
   Future<void> connectSocket({
     required int roomId,
@@ -43,30 +43,42 @@ class ChatRepositoryImpl implements ChatRepository {
   }) async {
     await socket.connect(roomId: roomId, token: accessToken);
 
-    // WS streamni domain streamga convert qilamiz
-    socket.rawStream().listen((raw) {
-      try {
-        final decoded = jsonDecode(raw);
+    // eski listener bo'lsa bekor qilamiz (duplicate bo'lmasin)
+    await _rawSub?.cancel();
 
-        Map<String, dynamic>? payload;
+    _rawSub = socket.rawStream().listen(
+          (raw) {
+        try {
+          final decoded = jsonDecode(raw);
+          Map<String, dynamic>? payload;
 
-        if (decoded is Map<String, dynamic>) {
-          final inner = decoded['data'] ?? decoded['message'] ?? decoded;
-          if (inner is Map<String, dynamic>) payload = inner;
-        }
+          if (decoded is Map<String, dynamic>) {
+            final inner = decoded['data'] ?? decoded['message'] ?? decoded;
+            if (inner is Map<String, dynamic>) payload = inner;
+          }
+          if (payload == null) return;
 
-        if (payload == null) return;
-
-        final msg = ChatMessageModel.fromJson(payload);
-        _messageController.add(msg);
-      } catch (_) {
-        // xohlasang debugPrint(raw) qilib ko‘rib olasan
-      }
-    });
+          final msg = ChatMessageModel.fromJson(payload);
+          _messageController.add(msg);
+        } catch (_) {}
+      },
+      onError: (e) {
+        // xohlasang: _messageController.addError(e);
+        // yoki shunchaki jim:
+      },
+      onDone: () {
+        // socket yopildi — xohlasang signal ber
+      },
+      cancelOnError: false,
+    );
   }
 
   @override
-  Future<void> disconnectSocket() => socket.disconnect();
+  Future<void> disconnectSocket() async {
+    await _rawSub?.cancel();
+    _rawSub = null;
+    await socket.disconnect();
+  }
 
   @override
   Stream<ChatMessageEntity> socketMessages() => _messageController.stream;
