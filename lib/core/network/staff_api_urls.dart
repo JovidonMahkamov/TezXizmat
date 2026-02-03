@@ -18,9 +18,10 @@ abstract class StaffApiUrls {
   static const String getStaffProfile = '${staff}profile/';
   static const String updateStaffProfile = '${staff}profile/';
   static const String staffProfileImage = "${staff}profile/image/";
+  static const String getMyReviews = "/api/reviews/staff/my/";
 
   // HOME
-  static const String getStaffOrders = '/api/orders/staff/';
+  static const String getStaffOrders = '/api/orders/staff-orders/';
 
   // ORDERS STATE
   static String acceptOrder(int id) => "/api/orders/$id/accept/";

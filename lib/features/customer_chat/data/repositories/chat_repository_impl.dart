@@ -60,7 +60,9 @@ class ChatRepositoryImpl implements ChatRepository {
 
           final msg = ChatMessageModel.fromJson(payload);
           _messageController.add(msg);
-        } catch (_) {}
+        } catch (_) {
+          print("WS decode error: $raw");
+        }
       },
       onError: (e) {
         // xohlasang: _messageController.addError(e);

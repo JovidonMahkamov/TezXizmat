@@ -11,21 +11,20 @@ class ChatApiUrls {
     final http = Uri.parse(baseUrl);
     final wsScheme = (http.scheme == 'https') ? 'wss' : 'ws';
 
-    // ✅ MUHIM: ws/wss uchun default portni qo'lda beramiz
-    final port = http.hasPort
-        ? http.port
-        : (wsScheme == 'wss' ? 443 : 80);
+    final safeToken = token.trim().replaceAll('#', '');
 
-    final safeToken = token.trim().replaceAll('#', ''); // ehtiyot uchun
+    // default port bo'lsa UMUMAN yozmaymiz
+    final usePort = http.hasPort && http.port != 80 && http.port != 443;
 
     final uri = Uri(
       scheme: wsScheme,
       host: http.host,
-      port: port,
+      port: usePort ? http.port : null,
       path: '/ws/chat/$roomId/',
       queryParameters: {'token': safeToken},
     );
 
     return uri.toString();
   }
+
 }

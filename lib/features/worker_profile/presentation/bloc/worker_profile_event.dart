@@ -30,3 +30,7 @@ class WorkerProfileImage extends WorkerProfileEvent {
   final String filePath;
   const WorkerProfileImage({required this.filePath});
 }
+
+class MyReviewsE extends WorkerProfileEvent {
+  const MyReviewsE();
+}

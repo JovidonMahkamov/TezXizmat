@@ -9,7 +9,10 @@ import 'package:tez_xizmat/features/customer_order/presentation/bloc/confirm_com
 import 'package:tez_xizmat/features/customer_order/presentation/bloc/customer_order_event.dart';
 import 'package:tez_xizmat/features/customer_order/presentation/bloc/get_customer_all_orders/get_customer_all_orders_bloc.dart';
 import 'package:tez_xizmat/features/customer_order/presentation/bloc/get_customer_all_orders/get_customer_all_orders_state.dart';
+import 'package:tez_xizmat/features/customer_order/presentation/bloc/post_reviews/post_reviews_bloc.dart';
 import 'package:tez_xizmat/features/customer_order/presentation/widgets/reject_button_widget.dart';
+
+import '../widgets/post_rating_dialog_widget.dart';
 
 class OrderViewPage extends StatefulWidget {
   final GetAllOrdersEntity order;
@@ -31,6 +34,27 @@ class _OrderViewPageState extends State<OrderViewPage> {
       _reload();
     });
   }
+
+  void _showRatingDialog(BuildContext context, int orderId) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) {
+        return MultiBlocProvider(
+          providers: [
+            BlocProvider.value(value: context.read<ConfirmCompletionBloc>()),
+            BlocProvider.value(value: context.read<PostReviewsBloc>()),
+          ],
+          child: PostRatingDialogWidget(
+            orderId: orderId,
+            pageContext: context,
+          ),
+        );
+      },
+    );
+  }
+
+
 
   String get _status => currentOrder.status.toUpperCase();
 
@@ -97,16 +121,15 @@ class _OrderViewPageState extends State<OrderViewPage> {
 
   ({String text, bool enabled, Color color}) get buttonConfig {
     if (customerCompleted) {
-      return (text: "Yakunlangan", enabled: false, color: Colors.green);
+      return (text: "Yakunlangan", enabled: false, color: Colors.green.shade400,);
     }
-
     if (isCanceled) {
       return (text: "Bekor qilingan", enabled: false, color: Colors.red.shade200);
     }
 
     // ✅ Asosiy fix: COMPLETED_BY_STAFF bo‘lsa confirm tugmasi ishlasin
     if (canConfirmCompletion) {
-      return (text: "Ish yakunlandi", enabled: true, color: Colors.green);
+      return (text: "Ish yakunlandi", enabled: true, color: Colors.purple);
     }
 
     // pending paytida cancel mumkin
@@ -114,8 +137,12 @@ class _OrderViewPageState extends State<OrderViewPage> {
       return (text: "Jarayonni bekor qilish", enabled: true, color: Colors.red);
     }
 
+    if (isAccepted) {
+      return (text: "Qabul qilingan", enabled: false, color: Colors.blue.shade400);
+    }
+
     // qolgan holatlar: cancel ham, confirm ham yo‘q
-    return (text: "Jarayon davom etmoqda", enabled: false, color: Colors.orange.shade200);
+    return (text: "Jarayon davom etmoqda", enabled: false, color: Colors.orange.shade400);
   }
 
   Future<void> _reload() async {
@@ -141,9 +168,8 @@ class _OrderViewPageState extends State<OrderViewPage> {
             }
             if (state is ConfirmCompletionSuccess) {
               _reload();
-              // ✅ confirm bo‘lgach orqaga qaytib list yangilansin
-              Navigator.pop(context);
             }
+
             if (state is ConfirmCompletionError) {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(content: Text(state.message)),
@@ -192,10 +218,8 @@ class _OrderViewPageState extends State<OrderViewPage> {
                     ? () {
                   if (canCancel) {
                     _showCancelDialog(context, currentOrder.id);
-                  } else if (canConfirmCompletion) {
-                    context.read<ConfirmCompletionBloc>().add(
-                      ConfirmCompletionE(id: currentOrder.id),
-                    );
+                  }else if (canConfirmCompletion) {
+                    _showRatingDialog(context, currentOrder.id);
                   }
                 }
                     : null,
@@ -274,7 +298,6 @@ class _OrderCard extends StatelessWidget {
           const SizedBox(height: 6),
           _row("Muammo", order.problemText),
           const SizedBox(height: 6),
-          // _row("Holat", order.status),
         ],
       ),
     );

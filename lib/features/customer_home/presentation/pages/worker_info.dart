@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:readmore/readmore.dart';
-import 'package:tez_xizmat/core/routes/route_names.dart';
 import 'package:tez_xizmat/features/auth/presentation/widgets/elevated_button_widget.dart';
 import 'package:tez_xizmat/features/customer_home/presentation/bloc/customer_home_event.dart';
 import 'package:tez_xizmat/features/customer_home/presentation/bloc/get_worker_info/get_worker_info_bloc.dart';
@@ -27,6 +26,13 @@ class _WorkerInfoPageState extends State<WorkerInfoPage> {
   void initState() {
     context.read<GetWorkerInfoBloc>().add(GetWorkerInfoE(id: widget.id));
     super.initState();
+  }
+
+  String formatRating(num v, {int decimals = 1}) {
+    final d = v.toDouble();
+    if (d.isNaN || d.isInfinite) return "0";
+    final fixed = d.toStringAsFixed(decimals);
+    return fixed.endsWith(".0") ? fixed.substring(0, fixed.length - 2) : fixed;
   }
 
   @override
@@ -134,6 +140,7 @@ class _WorkerInfoPageState extends State<WorkerInfoPage> {
                                 ),
                               ),
                               Row(
+                                mainAxisSize: MainAxisSize.min,
                                 children: [
                                   SvgPicture.asset(
                                     "assets/home/star.svg",
@@ -141,37 +148,43 @@ class _WorkerInfoPageState extends State<WorkerInfoPage> {
                                     height: 18,
                                   ),
                                   SizedBox(width: 4.w),
+
                                   Text(
-                                    getWorkerInfo.avgStar.toString(),
+                                    formatRating(getWorkerInfo.avgStar),
                                     style: TextStyle(
                                       fontSize: 15.sp,
                                       fontWeight: FontWeight.w600,
                                     ),
                                   ),
 
-                                  Flexible(
-                                    child: TextButton(
-                                      onPressed: () {
-                                        context
-                                            .read<GetWorkerReviewsBloc>()
-                                            .add(
-                                              GetWorkerReviewsE(id: widget.id),
-                                            );
-                                        showModalBottomSheet(
-                                          context: context,
-                                          isScrollControlled: true,
-                                          backgroundColor: Colors.transparent,
-                                          builder: (_) => RatingSheetBody(),
-                                        );
-                                      },
-                                      child: Text(
-                                        getWorkerInfo.ratingsCount.toString(),
-                                        style: TextStyle(
-                                          color: Color(0xff1778F2),
-                                          fontSize: 15.sp,
-                                        ),
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
+                                  SizedBox(width: 6.w),
+
+                                  TextButton(
+                                    style: TextButton.styleFrom(
+                                      padding: EdgeInsets.zero,
+                                      minimumSize: const Size(0, 0),
+                                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                    ),
+                                    onPressed: () {
+                                      showModalBottomSheet(
+                                        context: context,
+                                        isScrollControlled: true,
+                                        backgroundColor: Colors.transparent,
+                                        builder: (_) {
+                                          //  faqat shu yerda 1 marta event yuboramiz
+                                          context.read<GetWorkerReviewsBloc>().add(
+                                            GetWorkerReviewsE(id: widget.id),
+                                          );
+                                          return const RatingSheetBody();
+                                        },
+                                      );
+                                    },
+                                    child: Text(
+                                      "sharhlar ${getWorkerInfo.ratingsCount} ta",
+                                      style: TextStyle(
+                                        color: const Color(0xff1778F2),
+                                        fontSize: 15.sp,
+                                        fontWeight: FontWeight.w600,
                                       ),
                                     ),
                                   ),

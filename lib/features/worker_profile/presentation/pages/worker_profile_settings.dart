@@ -4,17 +4,19 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:tez_xizmat/core/routes/route_names.dart';
 import 'package:tez_xizmat/features/auth/presentation/widgets/elevated_button_widget.dart';
 import 'package:tez_xizmat/features/auth/presentation/widgets/text_field_widget.dart';
-import 'package:tez_xizmat/features/customer_home/presentation/widgets/rating_info_widget.dart';
 import 'package:tez_xizmat/features/customer_profile/presentation/widgets/edit_profile_widget.dart';
+import 'package:tez_xizmat/features/worker_profile/presentation/bloc/my_reviews/my_reviews_bloc.dart';
 import 'package:tez_xizmat/features/worker_profile/presentation/bloc/worker_profile/worker_profile_bloc.dart';
 import 'package:tez_xizmat/features/worker_profile/presentation/bloc/worker_profile_event.dart';
+import 'package:tez_xizmat/features/worker_profile/presentation/pages/rating_sheet_body_two.dart';
 import 'package:tez_xizmat/features/worker_profile/presentation/widgets/worker_log_out_widget.dart';
 
 class WorkerProfileSettingsPage extends StatefulWidget {
   const WorkerProfileSettingsPage({super.key});
 
   @override
-  State<WorkerProfileSettingsPage> createState() => _WorkerProfileSettingsPageState();
+  State<WorkerProfileSettingsPage> createState() =>
+      _WorkerProfileSettingsPageState();
 }
 
 class _WorkerProfileSettingsPageState extends State<WorkerProfileSettingsPage> {
@@ -24,9 +26,17 @@ class _WorkerProfileSettingsPageState extends State<WorkerProfileSettingsPage> {
       backgroundColor: Colors.white,
       appBar: AppBar(
         centerTitle: true,
-        leading: IconButton(onPressed: (){Navigator.pop(context);}, icon: Icon (Icons.arrow_back_ios_new_outlined)),
+        leading: IconButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          icon: Icon(Icons.arrow_back_ios_new_outlined),
+        ),
         backgroundColor: Colors.transparent,
-        title: Text("Sozlamalar", style: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.w700)),
+        title: Text(
+          "Sozlamalar",
+          style: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.w700),
+        ),
       ),
       body: Column(
         children: [
@@ -38,7 +48,10 @@ class _WorkerProfileSettingsPageState extends State<WorkerProfileSettingsPage> {
             text: "Profilni tahrirlash",
             icon: Icons.person_outline,
             onTab: () async {
-              final result = await Navigator.pushNamed(context, RouteNames.workerEditProfile);
+              final result = await Navigator.pushNamed(
+                context,
+                RouteNames.workerEditProfile,
+              );
               if (result != null) {
                 context.read<WorkerProfileBloc>().add(WorkerProfileE());
               }
@@ -51,11 +64,22 @@ class _WorkerProfileSettingsPageState extends State<WorkerProfileSettingsPage> {
             text: "Reyting va sharhlar",
             icon: Icons.star_border_outlined,
             onTab: () {
-              RatingSheetBody();
+              showModalBottomSheet(
+                context: context,
+                isScrollControlled: true,
+                backgroundColor: Colors.transparent,
+                builder: (_) {
+                  return BlocProvider.value(
+                    value: context.read<MyReviewsBloc>()..add(MyReviewsE()),
+                    child: const RatingSheetBodyTwo(),
+                  );
+                },
+              );
             },
             icon1: Icons.arrow_forward_ios_outlined,
             textStyle: TextStyle(fontSize: 18.sp),
           ),
+
           EditProfileWidget(
             text: "Tizimda chiqish",
             icon: Icons.exit_to_app_outlined,
@@ -66,7 +90,6 @@ class _WorkerProfileSettingsPageState extends State<WorkerProfileSettingsPage> {
                 barrierDismissible: false,
                 builder: (_) => const WorkerLogOutWidget(),
               );
-
             },
             textStyle: TextStyle(color: Colors.red, fontSize: 18.sp),
           ),
@@ -105,7 +128,10 @@ class _WorkerProfileSettingsPageState extends State<WorkerProfileSettingsPage> {
                     children: [
                       const Text(
                         "Profilni tahrirlash",
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                       IconButton(
                         onPressed: () => Navigator.pop(context),
@@ -114,21 +140,29 @@ class _WorkerProfileSettingsPageState extends State<WorkerProfileSettingsPage> {
                     ],
                   ),
 
-                  Text('Ism', style: TextStyle(fontSize: 16.sp, color: Colors.grey)),
+                  Text(
+                    'Ism',
+                    style: TextStyle(fontSize: 16.sp, color: Colors.grey),
+                  ),
                   SizedBox(height: 2.h),
                   TextFieldWidget(
                     text: "",
                     obscureText: false,
-                    controller: nameController, readOnly: false,
+                    controller: nameController,
+                    readOnly: false,
                   ),
 
                   SizedBox(height: 16.h),
-                  Text('Familiya', style: TextStyle(fontSize: 16.sp, color: Colors.grey)),
+                  Text(
+                    'Familiya',
+                    style: TextStyle(fontSize: 16.sp, color: Colors.grey),
+                  ),
                   SizedBox(height: 2.h),
                   TextFieldWidget(
                     text: "",
                     obscureText: false,
-                    controller: surnameController, readOnly: false,
+                    controller: surnameController,
+                    readOnly: false,
                   ),
 
                   SizedBox(height: 24.h),
@@ -158,9 +192,5 @@ class _WorkerProfileSettingsPageState extends State<WorkerProfileSettingsPage> {
         );
       },
     );
-
   }
-
 }
-
-

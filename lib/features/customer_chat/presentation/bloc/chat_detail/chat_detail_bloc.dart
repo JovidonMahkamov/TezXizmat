@@ -39,7 +39,10 @@ class ChatDetailBloc extends Bloc<ChatEvent, ChatDetailState> {
   }
 
   // ===== OPEN ROOM =====
-  Future<void> _onOpenRoom(ChatOpenRoomE e, Emitter<ChatDetailState> emit) async {
+  Future<void> _onOpenRoom(
+    ChatOpenRoomE e,
+    Emitter<ChatDetailState> emit,
+  ) async {
     emit(const ChatDetailLoading());
 
     try {
@@ -47,11 +50,13 @@ class ChatDetailBloc extends Bloc<ChatEvent, ChatDetailState> {
       final history = await getMessages(roomId: e.roomId);
 
       // 2) UI ready: history ko‘rinadi, socket hali false
-      emit(ChatDetailReady(
-        roomId: e.roomId,
-        socketConnected: false,
-        messages: history,
-      ));
+      emit(
+        ChatDetailReady(
+          roomId: e.roomId,
+          socketConnected: false,
+          messages: history,
+        ),
+      );
     } catch (err) {
       emit(ChatDetailError(err.toString()));
       return;
@@ -64,7 +69,7 @@ class ChatDetailBloc extends Bloc<ChatEvent, ChatDetailState> {
       // 4) stream listen (socketdan keladigan xabarlar)
       await _sub?.cancel();
       _sub = socketStream().listen(
-            (msg) => add(ChatIncomingE(msg)),
+        (msg) => add(ChatIncomingE(msg)),
         onError: (_) => add(ChatSocketDisconnectedE()),
         onDone: () => add(ChatSocketDisconnectedE()),
       );
@@ -76,14 +81,20 @@ class ChatDetailBloc extends Bloc<ChatEvent, ChatDetailState> {
     }
   }
 
-  void _onSocketConnected(ChatSocketConnectedE e, Emitter<ChatDetailState> emit) {
+  void _onSocketConnected(
+    ChatSocketConnectedE e,
+    Emitter<ChatDetailState> emit,
+  ) {
     final s = state;
     if (s is ChatDetailReady) {
       emit(s.copyWith(socketConnected: true));
     }
   }
 
-  void _onSocketDisconnected(ChatSocketDisconnectedE e, Emitter<ChatDetailState> emit) {
+  void _onSocketDisconnected(
+    ChatSocketDisconnectedE e,
+    Emitter<ChatDetailState> emit,
+  ) {
     final s = state;
     if (s is ChatDetailReady) {
       emit(s.copyWith(socketConnected: false));
@@ -95,12 +106,29 @@ class ChatDetailBloc extends Bloc<ChatEvent, ChatDetailState> {
     final s = state;
     if (s is! ChatDetailReady) return;
 
-    // duplicate bo‘lib qolmasin (id bo‘yicha)
-    final exists = s.messages.any((m) => m.id == e.message.id);
+    final incoming = e.message;
+
+    // 1) Agar bu biz yuborgan optimistic xabar bo'lsa -> uni real xabar bilan almashtiramiz
+    final idx = s.messages.lastIndexWhere((m) {
+      final sameSender = m.senderType == incoming.senderType;
+      final sameText = m.text.trim() == incoming.text.trim();
+      final isOptimistic = m.id < 0; // optimistic id manfiy
+      final isRecent = DateTime.now().difference(m.createdAt).inSeconds < 20;
+      return isOptimistic && sameSender && sameText && isRecent;
+    });
+
+    if (idx != -1) {
+      final updated = List<ChatMessageEntity>.from(s.messages);
+      updated[idx] = incoming; // optimistic o'rniga real message
+      emit(s.copyWith(messages: updated));
+      return;
+    }
+
+    // 2) Oddiy duplicate bo'lmasin (real id bo'yicha)
+    final exists = s.messages.any((m) => m.id == incoming.id);
     if (exists) return;
 
-    final updated = List<ChatMessageEntity>.from(s.messages)..add(e.message);
-    emit(s.copyWith(messages: updated));
+    emit(s.copyWith(messages: [...s.messages, incoming]));
   }
 
   Future<void> _onSend(ChatSendE e, Emitter<ChatDetailState> emit) async {
@@ -149,14 +177,19 @@ class ChatDetailBloc extends Bloc<ChatEvent, ChatDetailState> {
       // REST ham yiqildi -> optimisticni olib tashlaymiz
       final now = state;
       if (now is ChatDetailReady) {
-        final cleaned = now.messages.where((m) => m.id != optimistic.id).toList();
+        final cleaned = now.messages
+            .where((m) => m.id != optimistic.id)
+            .toList();
         emit(now.copyWith(messages: cleaned));
       }
     }
   }
 
   // ===== DISCONNECT =====
-  Future<void> _onDisconnect(ChatDisconnectE e, Emitter<ChatDetailState> emit) async {
+  Future<void> _onDisconnect(
+    ChatDisconnectE e,
+    Emitter<ChatDetailState> emit,
+  ) async {
     await _sub?.cancel();
     _sub = null;
     await disconnectSocket();

@@ -6,7 +6,7 @@ import '../bloc/get_worker_reviews/get_worker_reviews_bloc.dart';
 import '../bloc/get_worker_reviews/get_worker_reviews_state.dart';
 
 class ReviewsContent extends StatelessWidget {
-  const ReviewsContent({super.key});
+  const ReviewsContent({super.key, required ScrollController scrollController});
   String formatDateTime(String isoDate) {
     try {
       final dateTime = DateTime.parse(isoDate).toLocal();
@@ -78,7 +78,7 @@ class ReviewsContent extends StatelessWidget {
                         const Icon(Icons.star, color: Colors.amber),
                         const SizedBox(width: 6),
                         Text(
-                          "${r.rating}",
+                          "${r.stars}",
                           style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w700,
@@ -86,7 +86,7 @@ class ReviewsContent extends StatelessWidget {
                         ),
                         const Spacer(),
                         Text(
-                          formatDateTime(r.created_at),
+                          formatDateTime(r.createdAt),
                           style: const TextStyle(
                             fontSize: 12,
                             color: Colors.grey,
@@ -96,7 +96,7 @@ class ReviewsContent extends StatelessWidget {
                     ),
                     const SizedBox(height: 10),
                     Text(
-                      r.comment,
+                      r.text,
                       style: const TextStyle(
                         fontSize: 14,
                         height: 1.35,

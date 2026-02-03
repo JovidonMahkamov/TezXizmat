@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -17,11 +16,7 @@ import 'package:tez_xizmat/features/worker_home/presentation/widgets/worker_orde
 import 'package:tez_xizmat/features/worker_profile/presentation/bloc/worker_profile/worker_profile_bloc.dart';
 import 'package:tez_xizmat/features/worker_profile/presentation/bloc/worker_profile_event.dart';
 
-
-
-
 class WorkerHomePage extends StatefulWidget {
-
   const WorkerHomePage({super.key});
 
   @override
@@ -29,24 +24,16 @@ class WorkerHomePage extends StatefulWidget {
 }
 
 class _WorkerHomePageState extends State<WorkerHomePage> {
-  Timer? _pollTimer;
+
   @override
   void initState() {
     super.initState();
-    _pollTimer = Timer.periodic(Duration(seconds: 8), (_){
-      if(!mounted)return;
+      if (!mounted) return;
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        context.read<GetStaffOrdersBloc>().add( GetStaffOrdersE());
+        context.read<GetStaffOrdersBloc>().add(GetStaffOrdersE());
       });
       context.read<WorkerProfileBloc>().add(WorkerProfileE());
-    });
-  }
-  @override
-  dispose(){
-    _pollTimer?.cancel();
-    _pollTimer = null;
-    super.dispose();
-  }
+    }
 
   Future<void> _reload() async {
     context.read<GetStaffOrdersBloc>().add(const GetStaffOrdersE());
@@ -66,7 +53,8 @@ class _WorkerHomePageState extends State<WorkerHomePage> {
     }
 
     // Ba'zi backendlar status o'zgartirmay, faqat vaqtlarni to'ldiradi
-    if ((o.completedByCustomerAt != null && o.completedByCustomerAt!.isNotEmpty) ||
+    if ((o.completedByCustomerAt != null &&
+            o.completedByCustomerAt!.isNotEmpty) ||
         (o.completedByStaffAt != null && o.completedByStaffAt!.isNotEmpty)) {
       return true;
     }
@@ -85,7 +73,6 @@ class _WorkerHomePageState extends State<WorkerHomePage> {
     return up == 'IN_PROGRESS' || up == 'STARTED';
   }
 
-
   List<PutOrdersStateEntity> _active(List<PutOrdersStateEntity> all) {
     return all.where((o) => !_isCompleted(o) && !_isCanceled(o)).toList();
   }
@@ -98,13 +85,9 @@ class _WorkerHomePageState extends State<WorkerHomePage> {
     return all.where(_isCanceled).toList();
   }
 
-
-  List<PutOrdersStateEntity> _startedOrders(
-      List<PutOrdersStateEntity> all,
-      ) {
+  List<PutOrdersStateEntity> _startedOrders(List<PutOrdersStateEntity> all) {
     return all.where((o) => _isStarted(o.status)).toList();
   }
-
 
   String _formatTime(String? iso) {
     if (iso == null || iso.isEmpty) return "--:--";
@@ -143,6 +126,8 @@ class _WorkerHomePageState extends State<WorkerHomePage> {
 
   Color _statusColor(String status) {
     switch (status.toUpperCase()) {
+      case 'COMPLETED_BY_CUSTOMER':
+        return Colors.green;
       case 'PENDING':
         return Colors.orange;
       case 'ACCEPTED':
@@ -188,13 +173,15 @@ class _WorkerHomePageState extends State<WorkerHomePage> {
             // Worker tarafda bu “customer_name” bo‘lishi kerak,
             // lekin entityda yo‘q bo‘lsa title chiqib qoladi.
             // Agar API customer_name qaytarsa entityga ham qo‘shib olamiz.
-            name: o.customer.firstName, // vaqtinchalik
+            name: o.customer.firstName,
+            // vaqtinchalik
             description: o.problemText,
             time: _formatTime(o.createdAt),
             statusText: _statusText(o.status),
             statusColor: _statusColor(o.status),
             imageUrl: "assets/circular_avatar/profile.png",
-            onViewTap: () async{
+
+            onViewTap: () async {
               await showWorkerOrderActionSheet(context, o);
               _reload();
               // agar orderni dialogga uzatmoqchi bo‘lsang:
@@ -205,7 +192,7 @@ class _WorkerHomePageState extends State<WorkerHomePage> {
                 context,
                 RouteNames.chatWithWorker,
                 arguments: {
-                  "roomId":o.customerId,
+                  "roomId": o.customerId,
                   "name": o.customer.firstName,
                   "urlAsset": o.customer.image,
                   // "assets/circular_avatar/profile.png",
@@ -217,6 +204,7 @@ class _WorkerHomePageState extends State<WorkerHomePage> {
       ),
     );
   }
+
   Widget _buildCompleted(List<PutOrdersStateEntity> list) {
     if (list.isEmpty) return _empty("Yakunlangan buyurtmalar yo‘q.");
 
@@ -232,14 +220,17 @@ class _WorkerHomePageState extends State<WorkerHomePage> {
           return OrderWidgetTwo(
             name: o.customer.firstName,
             description: o.problemText,
-            time: _formatTime(o.completedByCustomerAt ?? o.completedByStaffAt),            statusText: _statusText(o.status),
+            time: _formatTime(o.completedByCustomerAt ?? o.completedByStaffAt),
+            statusText: _statusText(o.status),
             statusColor: _statusColor(o.status),
             imageUrl: "assets/circular_avatar/profile.png",
+
           );
         },
       ),
     );
   }
+
   Widget _buildCanceled(List<PutOrdersStateEntity> list) {
     if (list.isEmpty) return _empty("Bekor qilingan buyurtmalar yo‘q.");
 
@@ -264,6 +255,7 @@ class _WorkerHomePageState extends State<WorkerHomePage> {
       ),
     );
   }
+
   Widget _buildStarted(List<PutOrdersStateEntity> list) {
     if (list.isEmpty) return _empty("");
 
@@ -283,6 +275,7 @@ class _WorkerHomePageState extends State<WorkerHomePage> {
             statusText: _statusText(o.status),
             statusColor: _statusColor(o.status),
             imageUrl: "assets/circular_avatar/profile.png",
+
           );
         },
       ),
@@ -310,7 +303,10 @@ class _WorkerHomePageState extends State<WorkerHomePage> {
                     children: [
                       Text(
                         "Buyurtmalar",
-                        style: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.w700),
+                        style: TextStyle(
+                          fontSize: 20.sp,
+                          fontWeight: FontWeight.w700,
+                        ),
                       ),
                       SizedBox(height: 10.h),
                       PreferredSize(
@@ -322,11 +318,29 @@ class _WorkerHomePageState extends State<WorkerHomePage> {
                           isScrollable: true,
                           labelColor: Colors.blueAccent,
                           unselectedLabelColor: const Color(0xffB8BFE1),
-                          labelStyle: TextStyle(fontSize: 17.sp, fontWeight: FontWeight.w500),
+                          labelStyle: TextStyle(
+                            fontSize: 17.sp,
+                            fontWeight: FontWeight.w500,
+                          ),
                           tabs: const [
-                            Tab(child: Text("Faol", style: TextStyle(fontWeight: FontWeight.w700))),
-                            Tab(child: Text("Yakunlangan", style: TextStyle(fontWeight: FontWeight.w700))),
-                            Tab(child: Text("Bekor qilingan", style: TextStyle(fontWeight: FontWeight.w700))),
+                            Tab(
+                              child: Text(
+                                "Faol",
+                                style: TextStyle(fontWeight: FontWeight.w700),
+                              ),
+                            ),
+                            Tab(
+                              child: Text(
+                                "Yakunlangan",
+                                style: TextStyle(fontWeight: FontWeight.w700),
+                              ),
+                            ),
+                            Tab(
+                              child: Text(
+                                "Bekor qilingan",
+                                style: TextStyle(fontWeight: FontWeight.w700),
+                              ),
+                            ),
                           ],
                         ),
                       ),
@@ -340,7 +354,10 @@ class _WorkerHomePageState extends State<WorkerHomePage> {
                                 itemCount: 6,
                                 itemBuilder: (context, index) {
                                   return Padding(
-                                    padding: const EdgeInsets.only(bottom: 12, top: 20),
+                                    padding: const EdgeInsets.only(
+                                      bottom: 12,
+                                      top: 20,
+                                    ),
                                     child: Shimmer.fromColors(
                                       baseColor: Color(0xffF2F2F2),
                                       highlightColor: Color(0xffFBFBFB),
@@ -349,7 +366,9 @@ class _WorkerHomePageState extends State<WorkerHomePage> {
                                         padding: const EdgeInsets.all(12),
                                         decoration: BoxDecoration(
                                           color: Colors.white,
-                                          borderRadius: BorderRadius.circular(12),
+                                          borderRadius: BorderRadius.circular(
+                                            12,
+                                          ),
                                         ),
                                         child: Row(
                                           children: [
@@ -367,8 +386,10 @@ class _WorkerHomePageState extends State<WorkerHomePage> {
                                             // Text shimmer
                                             Expanded(
                                               child: Column(
-                                                mainAxisAlignment: MainAxisAlignment.center,
-                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.center,
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
                                                 children: [
                                                   Container(
                                                     height: 14,
@@ -397,7 +418,10 @@ class _WorkerHomePageState extends State<WorkerHomePage> {
                                 child: Column(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    Text(state.message, textAlign: TextAlign.center),
+                                    Text(
+                                      state.message,
+                                      textAlign: TextAlign.center,
+                                    ),
                                     SizedBox(height: 12.h),
                                     ElevatedButton(
                                       onPressed: _reload,
@@ -408,7 +432,8 @@ class _WorkerHomePageState extends State<WorkerHomePage> {
                               );
                             }
                             if (state is GetStaffOrdersSuccess) {
-                              final all = state.putOrdersStateEntity; // <- sendeda list nomi shunaqa bo‘lishi kerak
+                              final all = state
+                                  .putOrdersStateEntity; // <- sendeda list nomi shunaqa bo‘lishi kerak
                               final active = _active(all);
                               final started = _startedOrders(all);
                               final completed = _completed(all);

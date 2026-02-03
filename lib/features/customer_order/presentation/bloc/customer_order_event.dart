@@ -26,3 +26,11 @@ class ConfirmCompletionE extends CustomerOrderEvent {
 
   const ConfirmCompletionE({required this.id});
 }
+
+class PostReviewsE extends CustomerOrderEvent {
+  final int orderId;
+  final int stars;
+  final String text;
+
+  const PostReviewsE({required this.orderId, required this.stars, required this.text});
+}

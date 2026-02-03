@@ -11,7 +11,6 @@ import 'package:tez_xizmat/features/worker_home/presentation/bloc/complete_by_st
 import 'package:tez_xizmat/features/worker_home/presentation/bloc/start_order/start_order_bloc.dart';
 import 'package:tez_xizmat/features/worker_home/presentation/bloc/start_order/start_order_state.dart';
 import 'package:tez_xizmat/features/worker_home/presentation/bloc/worker_home_event.dart';
-
 import '../../../customer_order/presentation/bloc/cancel_order/cancel_order_state.dart';
 import '../bloc/get_staff_orders/get_staff_orders_bloc.dart';
 
@@ -145,7 +144,7 @@ class _WorkerOrderActionSheet extends StatelessWidget {
                     );
                   },
                   text: 'Ishni boshlash',
-                  backgroundColor: Colors.green,
+                  backgroundColor: Colors.greenAccent.shade400,
                   textColor: Colors.white,
                 ),
               )
@@ -159,7 +158,7 @@ class _WorkerOrderActionSheet extends StatelessWidget {
                     );
                   },
                   text: 'Ishni tugatish',
-                  backgroundColor: Colors.greenAccent,
+                  backgroundColor: Colors.green,
                   textColor: Colors.white,
                 ),
               )
@@ -169,8 +168,8 @@ class _WorkerOrderActionSheet extends StatelessWidget {
                 child: ElevatedWidget(
                   onPressed: (){},
                   text: 'Mijoz tasdiqlashi qutilmoqda',
-                  backgroundColor: Colors.red,
-                  textColor: Colors.white,
+                  backgroundColor: Colors.pink.shade50,
+                  textColor: Colors.red,
                 ),
               ),
 

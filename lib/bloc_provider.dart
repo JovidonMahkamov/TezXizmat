@@ -26,6 +26,8 @@ import 'package:tez_xizmat/features/worker_profile/presentation/bloc/worker_edit
 import 'package:tez_xizmat/features/worker_profile/presentation/bloc/worker_profile/worker_profile_bloc.dart';
 import 'package:tez_xizmat/features/worker_profile/presentation/bloc/worker_profile_image/worker_profile_image_bloc.dart';
 import 'features/customer_order/presentation/bloc/confirm_completion_order/confirm_completion_bloc.dart';
+import 'features/customer_order/presentation/bloc/post_reviews/post_reviews_bloc.dart';
+import 'features/worker_profile/presentation/bloc/my_reviews/my_reviews_bloc.dart';
 
 class MyBlocProvider extends StatelessWidget {
   const MyBlocProvider({super.key, required this.child});
@@ -61,6 +63,8 @@ class MyBlocProvider extends StatelessWidget {
         BlocProvider<CompleteByStaffBloc>(create: (context) => sl<CompleteByStaffBloc>()),
         BlocProvider<ChatRoomsBloc>(create: (context) => sl<ChatRoomsBloc>(),),
         BlocProvider<ChatDetailBloc>(create: (context) => sl<ChatDetailBloc>(),),
+        BlocProvider<MyReviewsBloc>(create: (context) => sl<MyReviewsBloc>(),),
+        BlocProvider<PostReviewsBloc>(create: (context) => sl<PostReviewsBloc>(),),
       ],
       child: child,
     );

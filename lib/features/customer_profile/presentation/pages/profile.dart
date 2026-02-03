@@ -101,7 +101,7 @@ class _ProfilePageState extends State<ProfilePage> {
                             PageRouteBuilder(
                               opaque: false,
                               pageBuilder: (_, __, ___) =>
-                                  WorkerProfileImageView(imageUrl: imageUrl),
+                                  WorkerProfileImageView(imageUrl: imageUrl,),
                             ),
                           );
                         },

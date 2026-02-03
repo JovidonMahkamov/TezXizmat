@@ -25,21 +25,33 @@ class ChatWithWorkerPage extends StatefulWidget {
 }
 
 class _ChatWithWorkerPageState extends State<ChatWithWorkerPage> {
+  final ScrollController _scrollCtrl = ScrollController();
+  bool _autoScroll = true;
+  int _lastCount = 0;
   final TextEditingController _controller = TextEditingController();
 
   bool _isMeCustomer(ChatMessageEntity m) {
     // CUSTOMER UI: sender_type == "customer" bo‘lsa isMe = true
     return m.senderType == SenderType.customer;
   }
+
   late final ChatDetailBloc _chatBloc;
 
   @override
   void initState() {
     super.initState();
-    _chatBloc = context.read<ChatDetailBloc>(); // 👈 shart
+    _chatBloc = context.read<ChatDetailBloc>();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final token = sl<AuthLocalDataSource>().getAccessToken() ?? '';
       _chatBloc.add(ChatOpenRoomE(roomId: widget.roomId, accessToken: token));
+    });
+    _scrollCtrl.addListener(() {
+      if (!_scrollCtrl.hasClients) return;
+
+      const threshold = 80.0; // pastdan 80px ichida bo‘lsa "bottom" deb olamiz
+      final distanceToBottom =
+          _scrollCtrl.position.maxScrollExtent - _scrollCtrl.offset;
+      _autoScroll = distanceToBottom < threshold;
     });
   }
 
@@ -47,21 +59,45 @@ class _ChatWithWorkerPageState extends State<ChatWithWorkerPage> {
   void dispose() {
     _chatBloc.add(ChatDisconnectE());
     _controller.dispose();
+    _scrollCtrl.dispose();
     super.dispose();
   }
 
   void _send() {
     final text = _controller.text.trim();
     if (text.isEmpty) return;
-    context.read<ChatDetailBloc>().add(ChatSendE(roomId: widget.roomId, text: text, senderType: SenderType.customer));
+    context.read<ChatDetailBloc>().add(
+      ChatSendE(
+        roomId: widget.roomId,
+        text: text,
+        senderType: SenderType.customer,
+      ),
+    );
     _controller.clear();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToBottom());
+  }
+
+  void _scrollToBottom({bool animated = true}) {
+    if (!_scrollCtrl.hasClients) return;
+    final target = _scrollCtrl.position.maxScrollExtent;
+
+    if (animated) {
+      _scrollCtrl.animateTo(
+        target,
+        duration: const Duration(milliseconds: 250),
+        curve: Curves.easeOut,
+      );
+    } else {
+      _scrollCtrl.jumpTo(target);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final avatarProvider = (widget.imageUrl != null)
         ? NetworkImage(widget.imageUrl!)
-        : const AssetImage("assets/circular_avatar/profile.png") as ImageProvider;
+        : const AssetImage("assets/circular_avatar/profile.png")
+              as ImageProvider;
 
     return Scaffold(
       appBar: AppBar(
@@ -74,7 +110,10 @@ class _ChatWithWorkerPageState extends State<ChatWithWorkerPage> {
           children: [
             CircleAvatar(radius: 25, backgroundImage: avatarProvider),
             SizedBox(width: 10.w),
-            Text(widget.name, style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w700)),
+            Text(
+              widget.name,
+              style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w700),
+            ),
           ],
         ),
       ),
@@ -83,18 +122,43 @@ class _ChatWithWorkerPageState extends State<ChatWithWorkerPage> {
         child: Column(
           children: [
             const SizedBox(height: 8),
-            BlocBuilder<ChatDetailBloc, ChatDetailState>(
+            BlocConsumer<ChatDetailBloc, ChatDetailState>(
+              listener: (context, state) {
+                if (state is ChatDetailReady) {
+                  final count = state.messages.length;
+
+                  // Birinchi load bo'lganda ham pastga tushirib qo'yamiz
+                  if (_lastCount == 0 && count > 0) {
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      _scrollToBottom(animated: false);
+                    });
+                  }
+
+                  // Yangi message keldi
+                  if (count > _lastCount) {
+                    final last = state.messages.last;
+                    final isMe = _isMeCustomer(last);
+
+                    // Agar user pastda turgan bo'lsa yoki o'zi yozgan bo'lsa -> auto scroll
+                    if (_autoScroll || isMe) {
+                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                        _scrollToBottom();
+                      });
+                    }
+                  }
+
+                  _lastCount = count;
+                }
+              },
               builder: (context, state) {
                 if (state is ChatDetailLoading || state is ChatDetailInitial) {
-                  return const Expanded(child: Center(child: CircularProgressIndicator()));
+                  return const Expanded(
+                    child: Center(child: CircularProgressIndicator()),
+                  );
                 }
 
                 if (state is ChatDetailError) {
-                  return Expanded(
-                    child: Center(
-                      child: Text(state.message),
-                    ),
-                  );
+                  return Expanded(child: Center(child: Text(state.message)));
                 }
 
                 if (state is ChatDetailReady) {
@@ -104,17 +168,24 @@ class _ChatWithWorkerPageState extends State<ChatWithWorkerPage> {
                     child: Column(
                       children: [
                         Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 8,
+                          ),
                           child: Align(
                             alignment: Alignment.center,
                             child: Text(
                               state.socketConnected ? "Online" : "Ulanish yo‘q",
-                              style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.grey.shade600,
+                              ),
                             ),
                           ),
                         ),
                         Expanded(
                           child: ListView.builder(
+                            controller: _scrollCtrl, //  mana shu kerak edi
                             padding: const EdgeInsets.symmetric(horizontal: 16),
                             itemCount: messages.length,
                             itemBuilder: (context, index) {
@@ -137,6 +208,7 @@ class _ChatWithWorkerPageState extends State<ChatWithWorkerPage> {
                 return const Expanded(child: SizedBox.shrink());
               },
             ),
+
             _buildInput(),
           ],
         ),
@@ -177,7 +249,7 @@ class _ChatWithWorkerPageState extends State<ChatWithWorkerPage> {
               ),
               child: const Icon(Icons.send, color: Colors.white),
             ),
-          )
+          ),
         ],
       ),
     );
@@ -200,11 +272,18 @@ class _ChatBubble extends StatelessWidget {
     return Align(
       alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
       child: Column(
-        crossAxisAlignment: isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+        crossAxisAlignment: isMe
+            ? CrossAxisAlignment.end
+            : CrossAxisAlignment.start,
         children: [
           Container(
             margin: const EdgeInsets.symmetric(vertical: 6),
-            padding: const EdgeInsets.only(left: 20, right: 20, bottom: 20, top: 16),
+            padding: const EdgeInsets.only(
+              left: 20,
+              right: 20,
+              bottom: 20,
+              top: 16,
+            ),
             constraints: const BoxConstraints(maxWidth: 260),
             decoration: BoxDecoration(
               color: isMe ? Colors.blue : Colors.white,
@@ -226,7 +305,7 @@ class _ChatBubble extends StatelessWidget {
           Text(
             _formatTime(createdAt),
             style: TextStyle(fontSize: 11, color: Colors.grey.shade600),
-          )
+          ),
         ],
       ),
     );

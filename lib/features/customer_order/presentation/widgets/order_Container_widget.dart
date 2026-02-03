@@ -47,7 +47,7 @@ class OrderContainerWidget extends StatelessWidget {
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                CircleAvatar(radius: 30, backgroundImage: _avatarProvider()),
+                GestureDetector(child: CircleAvatar(radius: 30, backgroundImage: _avatarProvider())),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Column(

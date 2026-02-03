@@ -6,6 +6,7 @@ import 'package:tez_xizmat/features/customer_order/data/datasource/customer_orde
 import 'package:tez_xizmat/features/customer_order/data/model/cancel_order_model.dart';
 import 'package:tez_xizmat/features/customer_order/data/model/customer_create_order_model.dart';
 import 'package:tez_xizmat/features/customer_order/data/model/get_all_orders_model.dart';
+import 'package:tez_xizmat/features/customer_order/data/model/post_reviews_model.dart';
 
 class CustomerOrderDataSourceImpl implements CustomerOrderDataSource {
   final CustomerDioClient customerDioClient;
@@ -120,6 +121,33 @@ class CustomerOrderDataSourceImpl implements CustomerOrderDataSource {
       throw Exception('confirm completion failed: ${response.statusCode}');
     } catch (e, s) {
       LoggerService.error('Error confirm completion: $e');
+      print(s);
+      rethrow;
+    }
+  }
+
+  @override
+  Future<PostReviewsModel> postReviews({required int orderId, required int stars, required String text}) async{
+    try {
+      final response = await customerDioClient.post(CustomerApiUrls.postReviews,
+        data: {
+          'order_id': orderId,
+          'stars': stars,
+          'text': text,
+        },
+      );
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        LoggerService.info('post reviews successful: ${response.data}');
+        return PostReviewsModel.fromJson(response.data);
+      } else {
+        LoggerService.warning(
+          "post reviews  failed: ${response.statusCode}",
+        );
+        throw Exception('post reviews failed: ${response.statusCode}');
+      }
+    } catch (e, s) {
+      LoggerService.error('Error during post reviews : $e');
+      print(e);
       print(s);
       rethrow;
     }

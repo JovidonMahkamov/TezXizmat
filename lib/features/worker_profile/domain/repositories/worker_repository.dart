@@ -1,3 +1,4 @@
+import 'package:tez_xizmat/features/worker_profile/domain/entities/my_reviews_entity.dart';
 import 'package:tez_xizmat/features/worker_profile/domain/entities/worker_edit_profile_entity.dart';
 import 'package:tez_xizmat/features/worker_profile/domain/entities/worker_profile_entity.dart';
 import 'package:tez_xizmat/features/worker_profile/domain/entities/worker_profile_image_entity.dart';
@@ -17,4 +18,5 @@ abstract class WorkerRepository {
 
   Future<WorkerProfileImageEntity> putImage({required String filePath});
 
+  Future<List<MyReviewsEntity>> getMyReviews();
 }

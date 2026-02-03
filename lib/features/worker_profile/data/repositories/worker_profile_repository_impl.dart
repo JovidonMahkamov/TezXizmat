@@ -1,4 +1,5 @@
 import 'package:tez_xizmat/features/worker_profile/data/datasources/worker_remote_data_source.dart';
+import 'package:tez_xizmat/features/worker_profile/domain/entities/my_reviews_entity.dart';
 import 'package:tez_xizmat/features/worker_profile/domain/entities/worker_edit_profile_entity.dart';
 import 'package:tez_xizmat/features/worker_profile/domain/entities/worker_profile_entity.dart';
 import 'package:tez_xizmat/features/worker_profile/domain/entities/worker_profile_image_entity.dart';
@@ -23,4 +24,10 @@ class  WorkerProfileRepositoryImpl implements WorkerRepository {
   Future<WorkerProfileImageEntity> putImage({required String filePath}) {
     return workerRemoteDataSource.putImage(filePath: filePath);
   }
+
+  @override
+  Future<List<MyReviewsEntity>> getMyReviews() {
+    return workerRemoteDataSource.getMyReviews();
+  }
+
 }

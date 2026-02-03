@@ -16,11 +16,13 @@ class ChatMessageModel extends ChatMessageEntity {
   }
 
   factory ChatMessageModel.fromJson(Map<String, dynamic> json) {
+    final parsed = DateTime.tryParse((json['created_at'] ?? '').toString());
+
     return ChatMessageModel(
       id: (json['id'] ?? 0) as int,
       text: (json['text'] ?? '').toString(),
       senderType: _mapSender(json['sender_type']?.toString()),
-      createdAt: DateTime.tryParse((json['created_at'] ?? '').toString()) ?? DateTime.now(),
+      createdAt: (parsed?.toLocal() ?? DateTime.now()),
     );
   }
 }

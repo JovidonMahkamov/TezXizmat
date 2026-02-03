@@ -2,6 +2,7 @@ import 'package:tez_xizmat/features/customer_order/data/datasource/customer_orde
 import 'package:tez_xizmat/features/customer_order/domain/entities/cancel_order_entity.dart';
 import 'package:tez_xizmat/features/customer_order/domain/entities/customer_create_order_entity.dart';
 import 'package:tez_xizmat/features/customer_order/domain/entities/get_all_orders_entity.dart';
+import 'package:tez_xizmat/features/customer_order/domain/entities/post_reviews_entity.dart';
 import 'package:tez_xizmat/features/customer_order/domain/repository/customer_order_repository.dart';
 
 class CustomerOrderRepositoryImpl implements CustomerOrderRepository{
@@ -27,5 +28,10 @@ class CustomerOrderRepositoryImpl implements CustomerOrderRepository{
   @override
   Future<void> confirmCompletion({required int id}) {
     return customerOrderRemoteDataSource.confirmCompletion(id: id);
+  }
+
+  @override
+  Future<PostReviewsEntity> postReview({required int orderId, required int stars, required String text}) {
+    return customerOrderRemoteDataSource.postReviews(orderId: orderId, stars: stars, text: text);
   }
 }

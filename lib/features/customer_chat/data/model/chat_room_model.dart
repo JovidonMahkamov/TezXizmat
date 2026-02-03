@@ -12,10 +12,11 @@ class ChatRoomModel extends ChatRoomEntity {
   });
 
   factory ChatRoomModel.fromJson(Map<String, dynamic> json) {
+    final parsed = DateTime.tryParse((json['created_at'] ?? '').toString());
     return ChatRoomModel(
       id: (json['id'] ?? 0) as int,
       orderId: (json['order_id'] ?? 0) as int,
-      createdAt: DateTime.tryParse((json['created_at'] ?? '').toString()) ?? DateTime.now(),
+      createdAt: (parsed?.toLocal() ?? DateTime.now()),
       customer: ChatUserEntity(
         id: (json['customer']?['id'] ?? 0) as int,
         firstName: (json['customer']?['first_name'] ?? '').toString(),

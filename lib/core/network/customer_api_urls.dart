@@ -15,10 +15,11 @@ abstract class CustomerApiUrls{
   static const String resetPasswordCustomer = '${customer}reset-password/';
 
   // ORDER
-  static const String createOrder = '/api/orders/';
-  static const String getCusAllOrders = '/api/orders/customer/';
+  static const String createOrder = '/api/orders/create/';
+  static const String getCusAllOrders = '/api/orders/customer-orders/';
   static const String cancelOrder = '/api/orders/';
   static const String confirmCompletion = '/api/orders/';
+  static const String postReviews = '/api/reviews/';
 
   // HOME
   static const String getAllStaff = '/api/staff/';

@@ -25,12 +25,17 @@ class RejectButtonWidget extends StatelessWidget {
         ),
         onPressed:onPressed,
         child:  Row(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            SvgPicture.asset("assets/chat/undov.svg"),
-            SizedBox(width: 40.w,),
+            SvgPicture.asset("assets/chat/undov.svg",
+              width: 24.w,
+              height: 24.w,
+            ),
+            SizedBox(width: 10.w,),
             Text(
               text,
-              style: TextStyle (color: textColor, fontSize: 18),
+              style: TextStyle (color: textColor, fontSize: 18, fontWeight: FontWeight.w500),
             ),
           ],
         ),

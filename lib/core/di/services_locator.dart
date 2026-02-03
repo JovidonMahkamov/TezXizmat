@@ -55,9 +55,11 @@ import 'package:tez_xizmat/features/customer_order/domain/usecase/cancel_order_u
 import 'package:tez_xizmat/features/customer_order/domain/usecase/confirm_completion_use_case.dart';
 import 'package:tez_xizmat/features/customer_order/domain/usecase/customer_create_order_use_case.dart';
 import 'package:tez_xizmat/features/customer_order/domain/usecase/customer_get_all_orders_use_case.dart';
+import 'package:tez_xizmat/features/customer_order/domain/usecase/post_reviews_use_case.dart';
 import 'package:tez_xizmat/features/customer_order/presentation/bloc/cancel_order/cancel_order_bloc.dart';
 import 'package:tez_xizmat/features/customer_order/presentation/bloc/customer_create_order/customer_create_order_bloc.dart';
 import 'package:tez_xizmat/features/customer_order/presentation/bloc/get_customer_all_orders/get_customer_all_orders_bloc.dart';
+import 'package:tez_xizmat/features/customer_order/presentation/bloc/post_reviews/post_reviews_bloc.dart';
 import 'package:tez_xizmat/features/customer_profile/data/datasource/customer_profile_data_source.dart';
 import 'package:tez_xizmat/features/customer_profile/data/datasource/customer_profile_data_source_impl.dart';
 import 'package:tez_xizmat/features/customer_profile/data/repository/customer_profile_repository_impl.dart';
@@ -83,7 +85,9 @@ import 'package:tez_xizmat/features/worker_profile/data/datasources/worker_remot
 import 'package:tez_xizmat/features/worker_profile/data/datasources/worker_remote_data_source_impl.dart';
 import 'package:tez_xizmat/features/worker_profile/data/repositories/worker_profile_repository_impl.dart';
 import 'package:tez_xizmat/features/worker_profile/domain/repositories/worker_repository.dart';
+import 'package:tez_xizmat/features/worker_profile/domain/usecases/my_reviews_use_case.dart';
 import 'package:tez_xizmat/features/worker_profile/domain/usecases/worker_edit_profile_use_case.dart';
+import 'package:tez_xizmat/features/worker_profile/presentation/bloc/my_reviews/my_reviews_bloc.dart';
 import '../../features/customer_order/presentation/bloc/confirm_completion_order/confirm_completion_bloc.dart';
 import '../../features/worker_home/domain/usecase/get_staff_orders_use_case.dart';
 import '../../features/worker_profile/domain/usecases/worker_profile_image_use_case.dart';
@@ -205,6 +209,7 @@ Future<void> setup() async {
   sl.registerLazySingleton(()=>AcceptOrderUseCase(sl()));
   sl.registerLazySingleton(()=>StartOrderUseCase(sl()));
   sl.registerLazySingleton(()=>CompleteByStaffUseCase(sl()));
+  sl.registerLazySingleton(()=>PostReviewsUseCase(sl()));
   ///* Customer Home
   sl.registerLazySingleton(()=>CustomerGetAllStaffUseCase(sl()));
 
@@ -218,6 +223,7 @@ Future<void> setup() async {
   sl.registerLazySingleton(()=>WorkerProfileUseCase(sl()));
   sl.registerLazySingleton(()=>WorkerEditProfileUseCase(sl()));
   sl.registerLazySingleton(()=>WorkerProfileImageUseCase(sl()));
+  sl.registerLazySingleton(()=>MyReviewsUseCase(sl()));
   ///* CHAT
   sl.registerLazySingleton(() => GetChatRoomsUseCase(sl()));
   sl.registerLazySingleton(() => GetRoomMessagesUseCase(sl()));
@@ -248,6 +254,7 @@ Future<void> setup() async {
   sl.registerFactory(() => AcceptOrderBloc(sl()));
   sl.registerFactory(() => CompleteByStaffBloc(sl()));
   sl.registerFactory(() => StartOrderBloc(sl()));
+  sl.registerFactory(() => PostReviewsBloc(sl()));
 
   ///* Customer Home
   sl.registerFactory(() => CustomerGetAllStaffBloc(sl()));
@@ -261,6 +268,7 @@ Future<void> setup() async {
   sl.registerFactory(() => WorkerProfileBloc(sl()));
   sl.registerFactory(() => WorkerEditProfileBloc(sl()));
   sl.registerFactory(() => WorkerProfileImageBloc(sl()));
+  sl.registerFactory(() => MyReviewsBloc(sl()));
   ///* CHAT
   sl.registerFactory(() => ChatRoomsBloc(getRooms: sl()));
   sl.registerFactory(

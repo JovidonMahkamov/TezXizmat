@@ -16,9 +16,9 @@ class ChatSocketDataSourceImpl implements ChatSocketDataSource {
 
   @override
   Future<void> connect({required int roomId, required String token}) async {
-    print("🔑 token(raw)='${token}'");
-    print("🔑 token(trim)='${token.trim()}'");
-    print("🔑 token endsWith# = ${token.trim().endsWith('#')}");
+    print(" token(raw)='${token}'");
+    print(" token(trim)='${token.trim()}'");
+    print(" token endsWith# = ${token.trim().endsWith('#')}");
 
     final wsUrl = ChatApiUrls.wsChat(
       baseUrl: baseUrl,
@@ -26,7 +26,7 @@ class ChatSocketDataSourceImpl implements ChatSocketDataSource {
       token: token,
     );
 
-    final wsUri = Uri.parse(wsUrl);
+    final wsUri = Uri.parse(wsUrl).replace(fragment: '');
     print("✅ WS URI = $wsUri");
 
     try {
