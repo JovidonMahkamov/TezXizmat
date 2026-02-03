@@ -8,8 +8,8 @@ import 'package:tez_xizmat/features/auth/presentation/bloc/customer_auth_event.d
 import 'package:tez_xizmat/features/auth/presentation/bloc/customer_register/customer_register_bloc.dart';
 import 'package:tez_xizmat/features/auth/presentation/bloc/customer_register/customer_register_state.dart';
 import 'package:tez_xizmat/features/auth/presentation/widgets/text_field_widget.dart';
+import 'package:tez_xizmat/features/auth/presentation/widgets/text_field_wodget_3.dart';
 
-import '../../widgets/text_field_wodget_3.dart';
 
 class CustomerRegisterInfoPage extends StatefulWidget {
   final String email;
@@ -17,8 +17,7 @@ class CustomerRegisterInfoPage extends StatefulWidget {
   const CustomerRegisterInfoPage({super.key, required this.email});
 
   @override
-  State<CustomerRegisterInfoPage> createState() =>
-      _CustomerRegisterInfoPageState();
+  State<CustomerRegisterInfoPage> createState() => _CustomerRegisterInfoPageState();
 }
 
 class _CustomerRegisterInfoPageState extends State<CustomerRegisterInfoPage> {
@@ -29,9 +28,17 @@ class _CustomerRegisterInfoPageState extends State<CustomerRegisterInfoPage> {
   final _confirmPasswordController = TextEditingController();
 
   String? _passwordError;
+  String? _confirmPasswordError;
   String? _emailError;
+
   bool eye = true;
   bool eye1 = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _emailController.text = widget.email;
+  }
 
   @override
   void dispose() {
@@ -43,14 +50,6 @@ class _CustomerRegisterInfoPageState extends State<CustomerRegisterInfoPage> {
     super.dispose();
   }
 
-  void _validatePassword(String value) {
-    if (value.length < 8) {
-      _passwordError = "Parol kamida 8 ta belgidan iborat bo‘lishi kerak";
-    } else {
-      _passwordError = null;
-    }
-  }
-
   void _validateEmail(String value) {
     if (value.isEmpty) {
       _emailError = "Emailni kiriting";
@@ -60,17 +59,44 @@ class _CustomerRegisterInfoPageState extends State<CustomerRegisterInfoPage> {
       _emailError = null;
     }
   }
-@override
-  void initState() {
-    super.initState();
-    _emailController.text = widget.email;
+
+  ///  Password rules:
+  /// - >=8
+  /// - has letter
+  /// - has digit
+  String? _passwordRuleError(String value) {
+    final v = value.trim();
+
+    if (v.isEmpty) return "Parol yarating";
+    if (v.length < 8) return "Parol kamida 8 ta belgidan iborat bo‘lishi kerak";
+
+    final hasDigit = RegExp(r'\d').hasMatch(v);
+    final hasLetter = RegExp(r'[A-Za-z]').hasMatch(v);
+
+    // faqat raqam bo‘lsa
+    if (hasDigit && !hasLetter) return "Harf ham qo‘shing (masalan: a, b, A...)";
+
+    // faqat harf bo‘lsa
+    if (hasLetter && !hasDigit) return "Raqam ham qo‘shing (masalan: 1,2,3...)";
+
+    // ikkalasi ham bor — ok
+    return null;
   }
+
+  void _validatePassword(String value) {
+    _passwordError = _passwordRuleError(value);
+  }
+
+  void _validateConfirmPassword(String value) {
+    _confirmPasswordError = _passwordRuleError(value);
+  }
+
   void _submit() {
     FocusManager.instance.primaryFocus?.unfocus();
 
-    if (_nameController.text.isEmpty ||
-        _surnameController.text.isEmpty ||
-        _emailController.text.isEmpty ||
+    if (_nameController.text.trim().isEmpty ||
+        _surnameController.text.trim().isEmpty ||
+        _emailController.text.trim().isEmpty ||
         _passwordController.text.isEmpty ||
         _confirmPasswordController.text.isEmpty) {
       _showSnack("Iltimos, barcha maydonlarni to‘ldiring");
@@ -79,17 +105,18 @@ class _CustomerRegisterInfoPageState extends State<CustomerRegisterInfoPage> {
 
     _validateEmail(_emailController.text);
     _validatePassword(_passwordController.text);
+    _validateConfirmPassword(_confirmPasswordController.text);
 
     setState(() {});
 
-    if (_emailError != null || _passwordError != null) return;
+    if (_emailError != null || _passwordError != null || _confirmPasswordError != null) return;
 
     if (_passwordController.text != _confirmPasswordController.text) {
       _showSnack("Parollar bir xil emas");
       return;
     }
 
-    BlocProvider.of<CustomerRegisterBloc>(context).add(
+    context.read<CustomerRegisterBloc>().add(
       CustomerRegister(
         email: _emailController.text.trim(),
         password: _passwordController.text.trim(),
@@ -133,7 +160,8 @@ class _CustomerRegisterInfoPageState extends State<CustomerRegisterInfoPage> {
                   TextFieldWidget(
                     controller: _nameController,
                     text: "Ismingizni kiriting",
-                    obscureText: false, readOnly: false,
+                    obscureText: false,
+                    readOnly: false,
                   ),
 
                   SizedBox(height: 25.h),
@@ -142,16 +170,16 @@ class _CustomerRegisterInfoPageState extends State<CustomerRegisterInfoPage> {
                   TextFieldWidget(
                     controller: _surnameController,
                     text: "Familiyangizni kiriting",
-                    obscureText: false, readOnly: false,
+                    obscureText: false,
+                    readOnly: false,
                   ),
 
                   SizedBox(height: 25.h),
 
-                  ///  EMAIL FIELD (NOMER O‘RNIGA)
                   _label("Emailingiz"),
                   TextFieldWidget(
                     controller: _emailController,
-                    text: "${widget.email}",
+                    text: widget.email,
                     obscureText: false,
                     errorText: _emailError,
                     readOnly: true,
@@ -165,13 +193,18 @@ class _CustomerRegisterInfoPageState extends State<CustomerRegisterInfoPage> {
                     text: "********",
                     obscureText: eye,
                     errorText: _passwordError,
-                    keyboardType: TextInputType.emailAddress,
-                    textCapitalization: TextCapitalization.none,                    suffixIcon: IconButton(
+                    keyboardType: TextInputType.visiblePassword,
+                    textCapitalization: TextCapitalization.none,
+                    onChanged: (v) {
+                      setState(() {
+                        _validatePassword(v);
+                      });
+                    },
+                    suffixIcon: IconButton(
                       icon: Icon(eye ? IconlyLight.hide : IconlyLight.show),
-                      onPressed: () {
-                        setState(() => eye = !eye);
-                      },
-                    ), readOnly: false,
+                      onPressed: () => setState(() => eye = !eye),
+                    ),
+                    readOnly: false,
                   ),
 
                   SizedBox(height: 25.h),
@@ -181,22 +214,27 @@ class _CustomerRegisterInfoPageState extends State<CustomerRegisterInfoPage> {
                     controller: _confirmPasswordController,
                     text: "********",
                     obscureText: eye1,
-                    keyboardType: TextInputType.emailAddress,
+                    errorText: _confirmPasswordError,
+                    keyboardType: TextInputType.visiblePassword,
                     textCapitalization: TextCapitalization.none,
+                    onChanged: (v) {
+                      setState(() {
+                        _validateConfirmPassword(v);
+                      });
+                    },
                     suffixIcon: IconButton(
                       icon: Icon(eye1 ? IconlyLight.hide : IconlyLight.show),
-                      onPressed: () {
-                        setState(() => eye1 = !eye1);
-                      },
-                    ), readOnly: false,
+                      onPressed: () => setState(() => eye1 = !eye1),
+                    ),
+                    readOnly: false,
                   ),
 
                   SizedBox(height: 30.h),
 
                   Text(
                     "Ro‘yxatdan o‘tish orqali siz "
-                    "Foydalanish shartlari va "
-                    "Maxfiylik siyosatimizga rozilik bildirasiz.",
+                        "Foydalanish shartlari va "
+                        "Maxfiylik siyosatimizga rozilik bildirasiz.",
                     textAlign: TextAlign.center,
                     style: TextStyle(color: Colors.grey, fontSize: 14.sp),
                   ),
@@ -209,56 +247,55 @@ class _CustomerRegisterInfoPageState extends State<CustomerRegisterInfoPage> {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                             backgroundColor: Colors.red,
-                            content: Text(state.message, style: TextStyle()),
+                            content: Text(state.message),
                           ),
                         );
                       }
                     },
-                    child:
-                        BlocConsumer<CustomerRegisterBloc, CustomerRegisterState>(
-                          listener: (context, state) {
-                            if (state is CustomerRegisterSuccess) {
-                              Navigator.pushNamedAndRemoveUntil(
-                                context,
-                                RouteNames.customerLogin,
+                    child: BlocConsumer<CustomerRegisterBloc, CustomerRegisterState>(
+                      listener: (context, state) {
+                        if (state is CustomerRegisterSuccess) {
+                          Navigator.pushNamedAndRemoveUntil(
+                            context,
+                            RouteNames.customerLogin,
                                 (route) => false,
-                              );
-                            }
-                          },
-                          builder: (context, state) {
-                            if (state is CustomerRegisterLoading) {
-                              return const Center(
-                                child: SizedBox(
-                                  width: 60,
-                                  height: 60,
-                                  child: LoadingIndicator(
-                                    indicatorType: Indicator.ballSpinFadeLoader,
-                                    colors: [Colors.blueAccent],
-                                    strokeWidth: 2,
-                                  ),
-                                ),
-                              );
-                            } else {
-                              return SizedBox(
-                                width: double.infinity,
-                                height: 47.h,
-                                child: ElevatedButton(
-                                  onPressed: _submit,
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.blueAccent,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(10),
-                                    ),
-                                  ),
-                                  child: const Text(
-                                    "Ro'yxatdan o'tish",
-                                    style: TextStyle(color: Colors.white),
-                                  ),
-                                ),
-                              );
-                            }
-                          },
-                        ),
+                          );
+                        }
+                      },
+                      builder: (context, state) {
+                        if (state is CustomerRegisterLoading) {
+                          return const Center(
+                            child: SizedBox(
+                              width: 60,
+                              height: 60,
+                              child: LoadingIndicator(
+                                indicatorType: Indicator.ballSpinFadeLoader,
+                                colors: [Colors.blueAccent],
+                                strokeWidth: 2,
+                              ),
+                            ),
+                          );
+                        }
+
+                        return SizedBox(
+                          width: double.infinity,
+                          height: 47.h,
+                          child: ElevatedButton(
+                            onPressed: _submit,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.blueAccent,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                            ),
+                            child: const Text(
+                              "Ro'yxatdan o'tish",
+                              style: TextStyle(color: Colors.white),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
                   ),
 
                   SizedBox(height: 30.h),

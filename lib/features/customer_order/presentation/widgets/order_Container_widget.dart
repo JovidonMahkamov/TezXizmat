@@ -27,7 +27,7 @@ class OrderContainerWidget extends StatelessWidget {
 
   ImageProvider _avatarProvider() {
     if (imageUrl == null || imageUrl!.trim().isEmpty || imageUrl == 'null') {
-      return const AssetImage("assets/circular_avatar/profile.png");
+      return const AssetImage("assets/profile/per.png");
     }
     return NetworkImage(imageUrl!);
   }

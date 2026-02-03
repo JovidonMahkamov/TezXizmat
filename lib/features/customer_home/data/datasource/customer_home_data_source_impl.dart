@@ -14,9 +14,12 @@ class CustomerHomeDataSourceImpl implements CustomerHomeDataSource {
   CustomerHomeDataSourceImpl(this.staffDioClient, this.customerDioClient);
 
   @override
-  Future<List<CustomerGetAllStaffModel>> getAllStaff() async {
+  Future<List<CustomerGetAllStaffModel>> getAllStaff({required String search}) async {
     try {
-      final response = await customerDioClient.get(CustomerApiUrls.getAllStaff);
+      final q = search.trim();
+      final response = await customerDioClient.get(CustomerApiUrls.getAllStaff,
+        queryParams: q.isEmpty ? null : {"search": q},
+      );
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         LoggerService.info('customer get all staff successful: ${response.data}');

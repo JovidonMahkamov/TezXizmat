@@ -6,7 +6,6 @@ class GetWorkerReviewsEntity {
   final String createdAt;
   final int customerId;
   final int staffId;
-
   final Map<String, dynamic>? customer;
   final Map<String, dynamic>? staff;
 

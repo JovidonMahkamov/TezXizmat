@@ -15,7 +15,7 @@ class CustomerGetAllStaffBloc extends Bloc<CustomerHomeEvent, CustomerGetAllStaf
   Future<void> onLogInUser(event, emit) async {
     emit(CustomerGetAllStaffLoading());
     try {
-      final result = await customerGetAllStaffUseCase();
+      final result = await customerGetAllStaffUseCase(search: event.search);
       emit(CustomerGetAllStaffSuccess(customerGetAllStaffEntity: result));
     } on DioException catch (e) {
       String errorMessage = _mapDioErrorToMessage(e);

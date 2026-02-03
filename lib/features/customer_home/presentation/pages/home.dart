@@ -82,7 +82,15 @@ class _HomePageState extends State<HomePage> {
                       scrollDirection: Axis.horizontal,
                       child: Row(
                         children: [
-                          HomeCircularAvatarWidget(
+                          HomeCircularAvatarWidget(onTap: (){
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text("Ushbu xizmat hali mavjud emas!"),
+                                duration: Duration(seconds: 3),
+                              ),
+                            );
+
+                          },
                             iconAvatar: SvgPicture.asset(
                               "assets/circular_avatar/elektirik.svg",
                             ),
@@ -91,6 +99,15 @@ class _HomePageState extends State<HomePage> {
                           ),
                           SizedBox(width: 18.w),
                           HomeCircularAvatarWidget(
+                            onTap: (){
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text("Ushbu xizmat hali mavjud emas!"),
+                                  duration: Duration(seconds: 3),
+                                ),
+                              );
+
+                            },
                             iconAvatar: SvgPicture.asset(
                               "assets/circular_avatar/santexnik.svg",
                             ),
@@ -99,6 +116,15 @@ class _HomePageState extends State<HomePage> {
                           ),
                           SizedBox(width: 18.w),
                           HomeCircularAvatarWidget(
+                            onTap: (){
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text("Ushbu xizmat hali mavjud emas!"),
+                                  duration: Duration(seconds: 3),
+                                ),
+                              );
+
+                            },
                             iconAvatar: SvgPicture.asset(
                               "assets/circular_avatar/culler.svg",
                             ),
@@ -107,6 +133,15 @@ class _HomePageState extends State<HomePage> {
                           ),
                           SizedBox(width: 18.w),
                           HomeCircularAvatarWidget(
+                            onTap: (){
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text("Ushbu xizmat hali mavjud emas!"),
+                                  duration: Duration(seconds: 3),
+                                ),
+                              );
+
+                            },
                             iconAvatar: SvgPicture.asset(
                               "assets/circular_avatar/cleaner.svg",
                             ),
@@ -251,7 +286,7 @@ class _HomePageState extends State<HomePage> {
                                   },
                                   circularImage: imageUrl != null
                                       ? NetworkImage(imageUrl)
-                                      : const AssetImage("assets/circular_avatar/profile.png") as ImageProvider,
+                                      : const AssetImage("assets/profile/per.png") as ImageProvider,
 
                                   nameText: "${staff.first_name} ${staff.last_name}",
                                   profession: staff.profession,

@@ -58,7 +58,6 @@ class _WorkerInfoPageState extends State<WorkerInfoPage> {
           if (state is GetWorkerInfoLoading) {
             return const Center(child: CircularProgressIndicator());
           }
-
           // 2) ERROR
           if (state is GetWorkerInfoError) {
             return Center(
@@ -96,7 +95,8 @@ class _WorkerInfoPageState extends State<WorkerInfoPage> {
               } else if (raw.startsWith('https://')) {
                 imageUrl = raw;
               } else {
-                imageUrl = 'https://tezxizmatlar.uz${raw.startsWith('/') ? '' : '/'}$raw';
+                imageUrl =
+                    'https://tezxizmatlar.uz${raw.startsWith('/') ? '' : '/'}$raw';
               }
             }
             return SingleChildScrollView(
@@ -163,7 +163,8 @@ class _WorkerInfoPageState extends State<WorkerInfoPage> {
                                     style: TextButton.styleFrom(
                                       padding: EdgeInsets.zero,
                                       minimumSize: const Size(0, 0),
-                                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                      tapTargetSize:
+                                          MaterialTapTargetSize.shrinkWrap,
                                     ),
                                     onPressed: () {
                                       showModalBottomSheet(
@@ -172,9 +173,13 @@ class _WorkerInfoPageState extends State<WorkerInfoPage> {
                                         backgroundColor: Colors.transparent,
                                         builder: (_) {
                                           //  faqat shu yerda 1 marta event yuboramiz
-                                          context.read<GetWorkerReviewsBloc>().add(
-                                            GetWorkerReviewsE(id: widget.id),
-                                          );
+                                          context
+                                              .read<GetWorkerReviewsBloc>()
+                                              .add(
+                                                GetWorkerReviewsE(
+                                                  id: widget.id,
+                                                ),
+                                              );
                                           return const RatingSheetBody();
                                         },
                                       );
@@ -240,10 +245,12 @@ class _WorkerInfoPageState extends State<WorkerInfoPage> {
                           .split(',')
                           .map((e) => e.trim())
                           .where((e) => e.isNotEmpty)
-                          .map((skill) => Padding(
-                        padding: EdgeInsets.only(bottom: 6.h),
-                        child: serviceWidget(text: skill),
-                      ))
+                          .map(
+                            (skill) => Padding(
+                              padding: EdgeInsets.only(bottom: 6.h),
+                              child: serviceWidget(text: skill),
+                            ),
+                          )
                           .toList(),
                     ),
                     SizedBox(child: Divider()),
@@ -286,7 +293,7 @@ class _WorkerInfoPageState extends State<WorkerInfoPage> {
                           context: context,
                           barrierDismissible: false,
                           builder: (_) =>
-                              CreateOrderDialog(staffId: getWorkerInfo.id,),
+                              CreateOrderDialog(staffId: getWorkerInfo.id),
                         );
                       },
                       text: "Bog'lanish",

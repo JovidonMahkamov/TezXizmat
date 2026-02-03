@@ -57,6 +57,8 @@ class _CustomerForgotPasswordPageState
     super.dispose();
   }
 
+
+
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
@@ -83,8 +85,8 @@ class _CustomerForgotPasswordPageState
                 Text(
                   "Parolni unutdingizmi?",
                   style: TextStyle(
-                    fontSize: 30.sp,
-                    fontWeight: FontWeight.w700,
+                    fontSize: 25.sp,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
                 SizedBox(height: 8.h),
@@ -103,10 +105,12 @@ class _CustomerForgotPasswordPageState
 
                 /// EMAIL INPUT
                 TextFieldWidget(
+                  textCapitalization: TextCapitalization.none,
                   controller: emailController,
                   text: 'example@gmail.com',
                   obscureText: false,
                   readOnly: false,
+                  keyboardType: TextInputType.emailAddress,
                 ),
 
                 /// ERROR MESSAGE
@@ -133,10 +137,9 @@ class _CustomerForgotPasswordPageState
                   child: BlocConsumer<CustomerResendEmailBloc, CustomerResendEmailState>(
                         listener: (context, state) {
                           if (state is CustomerResendEmailSuccess) {
-                            Navigator.pushNamedAndRemoveUntil(
+                            Navigator.pushNamed(
                               context,
                               RouteNames.customerForgotPasswordOtp,
-                              (route) => false,
                               arguments: {
                                 "email": emailController.text.trim(),
                                 "expires_at":

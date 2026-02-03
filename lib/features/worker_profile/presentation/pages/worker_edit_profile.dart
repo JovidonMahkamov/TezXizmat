@@ -215,9 +215,7 @@ class _WorkerEditProfilePageState extends State<WorkerEditProfilePage> {
                                     sub.cancel();
                                   }
                                 });
-
                                 bloc.add(WorkerProfileImage(filePath: filePath));
-
                                 return completer.future;
                               },
                             );

@@ -1,4 +1,3 @@
-
 class GetWorkerInfoEntity{
   final String firstName;
   final String lastName;

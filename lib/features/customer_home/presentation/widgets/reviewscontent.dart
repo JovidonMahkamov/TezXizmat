@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+import 'package:tez_xizmat/features/customer_home/presentation/bloc/get_worker_reviews/get_worker_reviews_bloc.dart';
+import 'package:tez_xizmat/features/customer_home/presentation/bloc/get_worker_reviews/get_worker_reviews_state.dart';
 
-import '../bloc/get_worker_reviews/get_worker_reviews_bloc.dart';
-import '../bloc/get_worker_reviews/get_worker_reviews_state.dart';
 
 class ReviewsContent extends StatelessWidget {
   const ReviewsContent({super.key, required ScrollController scrollController});

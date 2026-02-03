@@ -12,7 +12,8 @@ import '../../widgets/text_field_wodget_3.dart';
 
 class CustomerNewPasswordPage extends StatefulWidget {
   final String email;
-  const CustomerNewPasswordPage({super.key,required this.email});
+
+  const CustomerNewPasswordPage({super.key, required this.email});
 
   @override
   State<CustomerNewPasswordPage> createState() =>
@@ -24,6 +25,7 @@ class _CustomerNewPasswordPageState extends State<CustomerNewPasswordPage> {
   final _confirmPasswordController = TextEditingController();
 
   String? _passwordError;
+  String? _confirmPasswordError;
   bool eye = true;
   bool eye1 = true;
 
@@ -34,18 +36,32 @@ class _CustomerNewPasswordPageState extends State<CustomerNewPasswordPage> {
     super.dispose();
   }
 
-  void _validatePassword(String value) {
-    if (value.length < 8) {
-      _passwordError = "Parol kamida 8 ta belgidan iborat bo‘lishi kerak";
-    } else {
-      _passwordError = null;
-    }
+  String? _passwordRuleError(String value) {
+    final v = value.trim();
+
+    if (v.isEmpty) return "Parol yarating";
+    if (v.length < 8) return "Parol kamida 8 ta belgidan iborat bo‘lishi kerak";
+
+    final hasDigit = RegExp(r'\d').hasMatch(v);
+    final hasLetter = RegExp(r'[A-Za-z]').hasMatch(v);
+
+    // faqat raqam bo‘lsa
+    if (hasDigit && !hasLetter)
+      return "Harf ham qo‘shing (masalan: a, b, A...)";
+
+    // faqat harf bo‘lsa
+    if (hasLetter && !hasDigit) return "Raqam ham qo‘shing (masalan: 1,2,3...)";
+
+    // ikkalasi ham bor — ok
+    return null;
   }
 
-  String formatPhoneNumber(String raw) {
-    final cleaned = raw.replaceAll(RegExp(r'[^0-9]'), '');
-    if (cleaned.length != 9) return "";
-    return "+998$cleaned";
+  void validatePassword(String value) {
+    _passwordError = _passwordRuleError(value);
+  }
+
+  void validateConfirmPassword(String value) {
+    _confirmPasswordError = _passwordRuleError(value);
   }
 
   void _submit() {
@@ -56,12 +72,9 @@ class _CustomerNewPasswordPageState extends State<CustomerNewPasswordPage> {
       _showSnack("Iltimos, barcha maydonlarni to‘ldiring");
       return;
     }
-
-    _validatePassword(_passwordController.text);
-    if (_passwordError != null) {
-      setState(() {});
-      return;
-    }
+    validatePassword(_passwordController.text);
+    validateConfirmPassword(_confirmPasswordController.text);
+    if (_passwordError != null || _confirmPasswordError != null) return;
 
     if (_passwordController.text != _confirmPasswordController.text) {
       _showSnack("Parollar bir xil emas");
@@ -112,6 +125,11 @@ class _CustomerNewPasswordPageState extends State<CustomerNewPasswordPage> {
                     errorText: _passwordError,
                     keyboardType: TextInputType.emailAddress,
                     textCapitalization: TextCapitalization.none,
+                    onChanged: (v) {
+                      setState(() {
+                        validatePassword(v);
+                      });
+                    },
                     suffixIcon: IconButton(
                       icon: Icon(eye ? IconlyLight.hide : IconlyLight.show),
                       onPressed: () {
@@ -125,11 +143,17 @@ class _CustomerNewPasswordPageState extends State<CustomerNewPasswordPage> {
 
                   _label("Parolni takrorlang"),
                   TextFieldWidgetBoard(
+                    errorText: _confirmPasswordError,
                     controller: _confirmPasswordController,
                     text: "********",
                     obscureText: eye1,
                     keyboardType: TextInputType.emailAddress,
                     textCapitalization: TextCapitalization.none,
+                    onChanged: (v){
+                      setState(() {
+                        validateConfirmPassword(v);
+                      });
+                    },
                     suffixIcon: IconButton(
                       icon: Icon(eye1 ? IconlyLight.hide : IconlyLight.show),
                       onPressed: () {

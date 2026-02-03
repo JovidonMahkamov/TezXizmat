@@ -137,9 +137,9 @@ class _CustomerRegisterPageState extends State<CustomerRegisterPage> {
                   child: BlocConsumer<CustomerSendEmailBloc, CustomerSendEmailState>(
                     listener: (context, state) {
                       if (state is CustomerSendEmailSuccess) {
-                        Navigator.pushNamedAndRemoveUntil(
+                        Navigator.pushNamed(
                           context,
-                          RouteNames.verificationOtp,(route) => false,
+                          RouteNames.verificationOtp,
                             arguments: {"email":state.customerSendEmailEntity.email, "expires_at":state.customerSendEmailEntity.expires_in}
                         );
                       }

@@ -35,7 +35,7 @@ class _TextFieldWidgetState extends State<TextFieldWidgetTwo> {
       onChanged: widget.onChanged,
       keyboardType: widget.keyboardType,
       controller: widget.controller,
-      textCapitalization: TextCapitalization.words,
+      textCapitalization: TextCapitalization.sentences,
       obscureText: widget.obscureText,
       decoration: InputDecoration(
         errorText: widget.errorText,

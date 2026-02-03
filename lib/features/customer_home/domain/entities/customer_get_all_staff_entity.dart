@@ -3,7 +3,6 @@ class CustomerGetAllStaffEntity{
   final String last_name;
   final String? image;
   final String profession;
-
   final int id;
 
   const CustomerGetAllStaffEntity({

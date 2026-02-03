@@ -36,7 +36,7 @@ class _SelectPageState extends State<SelectPage> {
               SvgPicture.asset("assets/auth/avatar_logo.svg"),
               SizedBox(height: 35.h),
               Text(
-                "Lorem ipsum",
+                "Tez Xizmat",
                 style: TextStyle(
                   fontSize: 30.sp,
                   fontWeight: FontWeight.w700,
@@ -44,15 +44,31 @@ class _SelectPageState extends State<SelectPage> {
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.only(left: 50, right: 50),
+                padding: const EdgeInsets.only(left: 20, right: 20),
                 child: Text(
-                  "Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
+                  "1. Agar sizga ishchi kerak bo'lsa (Mijoz) bo'lib ro'yxatdan o'ting.",
                   textAlign: TextAlign.center,
-                  maxLines: 3,
+                  maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     fontSize: 14.sp,
                     fontWeight: FontWeight.w400,
+                    color: Colors.white54
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(left: 20, right: 20),
+                child: Text(
+                  "2. Agar sizga ish kerak bo'lsa (Ijrochi) bo'lib ro'yxatdan o'ting.",
+                  textAlign: TextAlign.center,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 14.sp,
+                    fontWeight: FontWeight.w400,
+                      color: Colors.white54
+
                   ),
                 ),
               ),

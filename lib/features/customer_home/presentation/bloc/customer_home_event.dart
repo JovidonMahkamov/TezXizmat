@@ -3,7 +3,9 @@ abstract class CustomerHomeEvent {
 }
 
 class CustomerGetAllStaff extends CustomerHomeEvent {
-  const CustomerGetAllStaff();
+
+  final String search;
+  const CustomerGetAllStaff({this.search = ''});
 }
 
 class GetWorkerInfoE extends CustomerHomeEvent {

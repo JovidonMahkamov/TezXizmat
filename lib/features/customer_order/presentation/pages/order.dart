@@ -304,7 +304,7 @@ class _OrderPageState extends State<OrderPage> {
                                         arguments: {
                                           "name": name,
                                           "urlAsset": imageUrl ?? "assets/circular_avatar/profile.png",
-                                          "roomId": o.staffId,
+                                          "roomId": o.id,
                                         },
                                       );
                                     },

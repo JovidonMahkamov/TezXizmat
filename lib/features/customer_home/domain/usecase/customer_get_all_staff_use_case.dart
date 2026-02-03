@@ -6,7 +6,7 @@ class CustomerGetAllStaffUseCase {
 
   CustomerGetAllStaffUseCase(this.customerHomeRepository);
 
-  Future<List<CustomerGetAllStaffEntity>> call() async {
-    return await customerHomeRepository.getAllStaff();
+  Future<List<CustomerGetAllStaffEntity>> call({required String search}) async {
+    return await customerHomeRepository.getAllStaff(search: search);
   }
 }

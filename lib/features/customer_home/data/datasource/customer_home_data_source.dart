@@ -3,7 +3,7 @@ import 'package:tez_xizmat/features/customer_home/data/model/get_worker_info_mod
 import 'package:tez_xizmat/features/customer_home/data/model/get_worker_reviews_model.dart';
 
 abstract class CustomerHomeDataSource {
-  Future<List<CustomerGetAllStaffModel>> getAllStaff();
+  Future<List<CustomerGetAllStaffModel>> getAllStaff({required String search});
   Future<GetWorkerInfoModel> getWorkerInfo({required int id});
   Future<List<GetWorkerReviewsModel>> getWorkerReviews({required int id});
 }

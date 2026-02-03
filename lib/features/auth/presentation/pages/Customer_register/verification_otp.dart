@@ -6,13 +6,13 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 import 'package:pinput/pinput.dart';
 import 'package:tez_xizmat/core/routes/route_names.dart';
+import 'package:tez_xizmat/features/auth/domain/entities/verify_purpose.dart';
 import 'package:tez_xizmat/features/auth/presentation/bloc/customer_auth_event.dart';
 import 'package:tez_xizmat/features/auth/presentation/bloc/customer_send_email/customer_send_email_bloc.dart';
 import 'package:tez_xizmat/features/auth/presentation/bloc/customer_send_email/customer_send_email_state.dart';
 import 'package:tez_xizmat/features/auth/presentation/bloc/customer_verify_email/customer_verify_email_bloc.dart';
 import 'package:tez_xizmat/features/auth/presentation/bloc/customer_verify_email/customer_verify_email_state.dart';
 
-import '../../../domain/entities/verify_purpose.dart';
 
 class VerificationPage extends StatefulWidget {
   final String email;
@@ -107,7 +107,7 @@ class _VerificationPageState extends State<VerificationPage> {
       onWillPop: () async => false,
       child: Scaffold(
         backgroundColor: Colors.white,
-        appBar: AppBar(backgroundColor: Colors.white, elevation: 0),
+        appBar: AppBar(backgroundColor: Colors.transparent, leading: IconButton(onPressed: (){Navigator.pop(context);}, icon: Icon(Icons.arrow_back_ios_new_outlined)),),
         body: SafeArea(
           child: SingleChildScrollView(
             padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 32.h),

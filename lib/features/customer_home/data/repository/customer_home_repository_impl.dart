@@ -11,8 +11,8 @@ class CustomerHomeRepositoryImpl implements CustomerHomeRepository {
   CustomerHomeRepositoryImpl({required this.customerHomeDataSource});
 
   @override
-  Future<List<CustomerGetAllStaffEntity>> getAllStaff() {
-    return customerHomeDataSource.getAllStaff();
+  Future<List<CustomerGetAllStaffEntity>> getAllStaff({required String search}) {
+    return customerHomeDataSource.getAllStaff(search: search);
   }
 
   @override

@@ -106,7 +106,7 @@ class _CustomerForgotPasswordOtPageState extends State<CustomerForgotPasswordOtP
       onWillPop: () async => false,
       child: Scaffold(
         backgroundColor: Colors.white,
-        appBar: AppBar(backgroundColor: Colors.white, elevation: 0),
+        appBar: AppBar(backgroundColor: Colors.white, leading: IconButton(onPressed: (){Navigator.pop(context);}, icon: Icon(Icons.arrow_back_ios_new_outlined)),),
         body: SafeArea(
           child: SingleChildScrollView(
             padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 32.h),

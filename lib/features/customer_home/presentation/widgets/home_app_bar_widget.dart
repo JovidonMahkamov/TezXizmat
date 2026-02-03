@@ -96,7 +96,14 @@ class _HomeAppBarWidgetState extends State<HomeAppBarWidget> {
         }, icon: SvgPicture.asset("assets/home/search.svg")),
         SizedBox(width: 10.w),
         IconButton(onPressed:(){
-          Navigator.pushNamed(context, RouteNames.notification);
+
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text("Ushbu xizmat hali mavjud emas!"),
+                duration: Duration(seconds: 3),
+              ));
+
+          // Navigator.pushNamed(context, RouteNames.notification);
         }, icon: SvgPicture.asset("assets/home/notification.svg")),
         SizedBox(width: 15.w),
       ],

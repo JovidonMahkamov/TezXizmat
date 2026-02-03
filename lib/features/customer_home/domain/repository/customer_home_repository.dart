@@ -3,7 +3,7 @@ import 'package:tez_xizmat/features/customer_home/domain/entities/get_worker_inf
 import 'package:tez_xizmat/features/customer_home/domain/entities/get_worker_reviews_entity.dart';
 
 abstract class CustomerHomeRepository {
-  Future<List<CustomerGetAllStaffEntity>> getAllStaff();
+  Future<List<CustomerGetAllStaffEntity>> getAllStaff({required String search});
 
   Future<GetWorkerInfoEntity>getWorkerInfo({required int id});
   Future<List<GetWorkerReviewsEntity>>getWorkerReviews({required int id});

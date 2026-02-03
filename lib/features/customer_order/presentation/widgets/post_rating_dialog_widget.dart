@@ -100,103 +100,107 @@ class RatingDialogState extends State<PostRatingDialogWidget> {
       child: Dialog(
         backgroundColor: Colors.white,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Text(
-                "Ushbu xodim ko‘rsatgan xizmatdan \n umumiy tajribangizni qanday \n baholaysiz?",
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-              ),
-              const SizedBox(height: 16),
-
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: List.generate(5, (index) {
-                  final i = index + 1;
-                  return IconButton(
-                    onPressed: () {
-                      setState(() => _rating = _rating == i ? 0 : i);
-                    },
-                    icon: Icon(
-                      _rating >= i ? Icons.star : Icons.star_border,
-                      color: Colors.orangeAccent,
-                      size: 40,
-                    ),
-                  );
-                }),
-              ),
-
-              const SizedBox(height: 8),
-              const Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  "Xodim haqida fikringizni yozib qoldiring",
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w400),
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text(
+                  "Ushbu xodim ko‘rsatgan xizmatdan umumiy tajribangizni qanday baholaysiz?",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
                 ),
-              ),
-              const SizedBox(height: 16),
-
-              TextField(
-                controller: _controller,
-                maxLines: 3,
-                decoration: InputDecoration(
-                  hintText: "Fikr bildiring ...",
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
+                const SizedBox(height: 16),
+          
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: List.generate(5, (index) {
+                    final i = index + 1;
+                    return Expanded(
+                      child: IconButton(
+                        onPressed: () {
+                          setState(() => _rating = _rating == i ? 0 : i);
+                        },
+                        icon: Icon(
+                          _rating >= i ? Icons.star : Icons.star_border,
+                          color: Colors.orangeAccent,
+                          size: 40,
+                        ),
+                      ),
+                    );
+                  }),
+                ),
+          
+                const SizedBox(height: 8),
+                const Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    "Xodim haqida fikringizni yozib qoldiring",
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w400),
                   ),
                 ),
-              ),
-
-              const SizedBox(height: 12),
-              const Text(
-                "Agar ish to‘liq bajarilgan bo‘lsa, tasdiqlang. Tasdiqlashdan so‘ng buyurtma yopiladi.",
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 16, color: Colors.black, fontWeight: FontWeight.w400),
-              ),
-
-              const SizedBox(height: 16),
-
-              Builder(
-                builder: (context) {
-                  final confirmLoading =
-                  context.watch<ConfirmCompletionBloc>().state is ConfirmCompletionLoading;
-                  final reviewLoading =
-                  context.watch<PostReviewsBloc>().state is PostReviewsLoading;
-
-                  final isLoading = confirmLoading || reviewLoading;
-
-                  return SizedBox(
-                    width: double.infinity,
-                    height: 48,
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blue,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      onPressed: isLoading ? null : _submit,
-                      child: isLoading
-                          ? const SizedBox(
-                        width: 22,
-                        height: 22,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: Colors.white,
-                        ),
-                      )
-                          : const Text(
-                        "Ha, yakunlandi",
-                        style: TextStyle(fontSize: 16, color: Colors.white),
-                      ),
+                const SizedBox(height: 16),
+          
+                TextField(
+                  controller: _controller,
+                  maxLines: 3,
+                  decoration: InputDecoration(
+                    hintText: "Fikr bildiring ...",
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
                     ),
-                  );
-                },
-              ),
-            ],
+                  ),
+                ),
+          
+                const SizedBox(height: 12),
+                const Text(
+                  "Agar ish to‘liq bajarilgan bo‘lsa, tasdiqlang. Tasdiqlashdan so‘ng buyurtma yopiladi.",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 16, color: Colors.black, fontWeight: FontWeight.w400),
+                ),
+          
+                const SizedBox(height: 16),
+          
+                Builder(
+                  builder: (context) {
+                    final confirmLoading =
+                    context.watch<ConfirmCompletionBloc>().state is ConfirmCompletionLoading;
+                    final reviewLoading =
+                    context.watch<PostReviewsBloc>().state is PostReviewsLoading;
+          
+                    final isLoading = confirmLoading || reviewLoading;
+          
+                    return SizedBox(
+                      width: double.infinity,
+                      height: 48,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.blue,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        onPressed: isLoading ? null : _submit,
+                        child: isLoading
+                            ? const SizedBox(
+                          width: 22,
+                          height: 22,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
+                        )
+                            : const Text(
+                          "Ha, yakunlandi",
+                          style: TextStyle(fontSize: 16, color: Colors.white),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ],
+            ),
           ),
         ),
       ),
