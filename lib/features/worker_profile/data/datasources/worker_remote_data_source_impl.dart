@@ -35,10 +35,8 @@ class WorkerRemoteDataSourceImpl implements WorkerRemoteDataSource {
         );
         throw Exception('get worker profile failed: ${response.statusCode}');
       }
-    } catch (e, s) {
+    } catch (e) {
       LoggerService.error('Error during get worker profile: $e');
-      print(e);
-      print(s);
       rethrow;
     }
   }

@@ -7,6 +7,8 @@ class ChatRoomEntity {
   final DateTime createdAt;
   final ChatUserEntity customer;
   final ChatStaffEntity staff;
+  final String lastMessage;
+  final String unreadedMessageCount;
 
   const ChatRoomEntity({
     required this.id,
@@ -14,6 +16,8 @@ class ChatRoomEntity {
     required this.createdAt,
     required this.customer,
     required this.staff,
+    required this.lastMessage,
+    required this.unreadedMessageCount,
   });
 }
 

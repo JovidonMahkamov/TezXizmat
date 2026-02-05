@@ -12,6 +12,7 @@ class OrderWidget extends StatelessWidget {
   final String imageUrl;
   final VoidCallback onViewTap;
   final VoidCallback onChatTap;
+  final ImageProvider backgroundImage;
 
   const OrderWidget({
     super.key,
@@ -22,7 +23,7 @@ class OrderWidget extends StatelessWidget {
     required this.statusColor,
     required this.imageUrl,
     required this.onViewTap,
-    required this.onChatTap,
+    required this.onChatTap, required this.backgroundImage,
   });
 
   @override
@@ -40,7 +41,7 @@ class OrderWidget extends StatelessWidget {
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                CircleAvatar(radius: 30, backgroundImage: AssetImage(imageUrl)),
+                CircleAvatar(radius: 30, backgroundImage: backgroundImage),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Column(

@@ -4,8 +4,10 @@ import 'package:tez_xizmat/features/auth/data/datasource/local/auth_local_data_s
 import 'package:tez_xizmat/features/customer_chat/data/datasource/chat_remote_data_source.dart';
 import 'package:tez_xizmat/features/customer_chat/data/datasource/chat_socket_data_source.dart';
 import 'package:tez_xizmat/features/customer_chat/data/model/chat_message_model.dart';
+import 'package:tez_xizmat/features/customer_chat/domain/entities/chat_delete_entity.dart';
 import 'package:tez_xizmat/features/customer_chat/domain/entities/chat_message_entity.dart';
 import 'package:tez_xizmat/features/customer_chat/domain/entities/chat_room_entity.dart';
+import 'package:tez_xizmat/features/customer_chat/domain/entities/find_chat_entity.dart';
 import 'package:tez_xizmat/features/customer_chat/domain/repositories/chat_repository.dart';
 
 
@@ -90,5 +92,15 @@ class ChatRepositoryImpl implements ChatRepository {
     // Backendchi misolida: {"text":"..."} yuboriladi
     final payload = jsonEncode({"text": text});
     await socket.sendRaw(payload);
+  }
+
+  @override
+  Future<FindChatEntity> findChat({required int staff_id, required int customer_id, required int order_id})async {
+    return await remote.findChat(staff_id: staff_id, customer_id: customer_id, order_id: order_id);
+  }
+
+  @override
+  Future<ChatDeleteEntity> deleteChat({required int roomId}) async{
+    return await remote.deleteChat(roomId: roomId);
   }
 }

@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:tez_xizmat/core/network/customer_api_urls.dart';
 import 'package:tez_xizmat/core/network/customer_dio_client.dart';
 import 'package:tez_xizmat/core/untils/logger.dart';
@@ -5,6 +6,7 @@ import 'package:tez_xizmat/features/auth/data/datasource/local/auth_local_data_s
 import 'package:tez_xizmat/features/customer_order/data/datasource/customer_order_data_source.dart';
 import 'package:tez_xizmat/features/customer_order/data/model/cancel_order_model.dart';
 import 'package:tez_xizmat/features/customer_order/data/model/customer_create_order_model.dart';
+import 'package:tez_xizmat/features/customer_order/data/model/delete_order_model.dart';
 import 'package:tez_xizmat/features/customer_order/data/model/get_all_orders_model.dart';
 import 'package:tez_xizmat/features/customer_order/data/model/post_reviews_model.dart';
 
@@ -153,4 +155,34 @@ class CustomerOrderDataSourceImpl implements CustomerOrderDataSource {
     }
   }
 
+
+  @override
+  Future<DeleteOrderModel> deleteOrder({required int id}) async {
+    try {
+      final response = await customerDioClient.delete('${CustomerApiUrls.deleteOrder}$id/delete/');
+      final code = response.statusCode ?? 0;
+      if (code == 200) {
+        final data = response.data;
+
+        if (data is Map<String, dynamic>) {
+          return DeleteOrderModel.fromJson(data);
+        }
+        if (data is Map) {
+          return DeleteOrderModel.fromJson(Map<String, dynamic>.from(data));
+        }
+
+        return DeleteOrderModel.fromJson({'message': data?.toString() ?? 'Deleted'});
+      }
+
+      if (code == 204) {
+        return const DeleteOrderModel(data: {'message': 'Deleted'});
+      }
+
+      throw Exception('delete order failed: $code');
+    } on DioException catch (e) {
+      throw Exception(e.response?.data?.toString() ?? e.message);
+    } catch (e) {
+      rethrow;
+    }
+  }
 }

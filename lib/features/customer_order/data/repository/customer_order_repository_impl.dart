@@ -1,6 +1,7 @@
 import 'package:tez_xizmat/features/customer_order/data/datasource/customer_order_data_source.dart';
 import 'package:tez_xizmat/features/customer_order/domain/entities/cancel_order_entity.dart';
 import 'package:tez_xizmat/features/customer_order/domain/entities/customer_create_order_entity.dart';
+import 'package:tez_xizmat/features/customer_order/domain/entities/delete_order_entity.dart';
 import 'package:tez_xizmat/features/customer_order/domain/entities/get_all_orders_entity.dart';
 import 'package:tez_xizmat/features/customer_order/domain/entities/post_reviews_entity.dart';
 import 'package:tez_xizmat/features/customer_order/domain/repository/customer_order_repository.dart';
@@ -33,5 +34,10 @@ class CustomerOrderRepositoryImpl implements CustomerOrderRepository{
   @override
   Future<PostReviewsEntity> postReview({required int orderId, required int stars, required String text}) {
     return customerOrderRemoteDataSource.postReviews(orderId: orderId, stars: stars, text: text);
+  }
+
+  @override
+  Future<DeleteOrderEntity> deleteOrder({required int id}) {
+    return customerOrderRemoteDataSource.deleteOrder(id: id);
   }
 }

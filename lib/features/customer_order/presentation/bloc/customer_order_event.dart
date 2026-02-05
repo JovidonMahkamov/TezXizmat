@@ -34,3 +34,14 @@ class PostReviewsE extends CustomerOrderEvent {
 
   const PostReviewsE({required this.orderId, required this.stars, required this.text});
 }
+
+class DeleteOrderE extends CustomerOrderEvent {
+  final int id;
+
+  const DeleteOrderE({required this.id});
+}
+
+class DeleteOrdersE extends CustomerOrderEvent {
+  final List<int> ids;
+  const DeleteOrdersE({required this.ids});
+}

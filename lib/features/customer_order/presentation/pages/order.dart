@@ -2,13 +2,24 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:tez_xizmat/features/auth/presentation/widgets/elevated_button_widget.dart';
+
+import 'package:tez_xizmat/features/customer_chat/presentation/bloc/find_chat/find_chat_bloc.dart';
+import 'package:tez_xizmat/features/customer_chat/presentation/bloc/find_chat/find_chat_state.dart';
+import 'package:tez_xizmat/features/customer_chat/presentation/bloc/chat_event.dart';
+
 import 'package:tez_xizmat/features/customer_order/domain/entities/get_all_orders_entity.dart';
 import 'package:tez_xizmat/features/customer_order/presentation/bloc/customer_order_event.dart';
 import 'package:tez_xizmat/features/customer_order/presentation/bloc/get_customer_all_orders/get_customer_all_orders_bloc.dart';
 import 'package:tez_xizmat/features/customer_order/presentation/bloc/get_customer_all_orders/get_customer_all_orders_state.dart';
+
+import 'package:tez_xizmat/features/customer_order/presentation/bloc/delete_order/delete_order_bloc.dart';
+import 'package:tez_xizmat/features/customer_order/presentation/bloc/delete_order/delete_order_state.dart';
+
 import 'package:tez_xizmat/features/customer_home/presentation/bloc/customer_get_all_staff/customer_get_all_staff_bloc.dart';
 import 'package:tez_xizmat/features/customer_home/presentation/bloc/customer_get_all_staff/customer_get_all_staff_state.dart';
 import 'package:tez_xizmat/features/customer_home/presentation/bloc/customer_home_event.dart';
+
 import '../../../../core/routes/route_names.dart';
 import '../widgets/order_Container_widget.dart';
 import '../widgets/order_Container_widgetTwo.dart';
@@ -20,33 +31,146 @@ class OrderPage extends StatefulWidget {
   State<OrderPage> createState() => _OrderPageState();
 }
 
-class _OrderPageState extends State<OrderPage> {
+class _OrderPageState extends State<OrderPage> with SingleTickerProviderStateMixin {
+  Map<String, dynamic>? _pendingChatArgs;
+
+  // ✅ tab indexni boshqarish uchun
+  late final TabController _tabController;
+  int _tabIndex = 0; // 0=Faol, 1=Yakunlangan, 2=Bekor qilingan
+
+  // ✅ faqat canceled tabda selection
+  bool isSelectionMode = false;
+  final Set<int> selectedIndexes = {};
+  List<GetAllOrdersEntity> _canceledCache = [];
+
+  bool _loadingDialogOpen = false;
+
   @override
   void initState() {
     super.initState();
+
+    _tabController = TabController(length: 3, vsync: this);
+    _tabController.addListener(() {
+      if (_tabIndex != _tabController.index) {
+        setState(() {
+          _tabIndex = _tabController.index;
+
+          // ✅ canceled tabdan chiqsa selection tozalansin
+          if (_tabIndex != 2) {
+            isSelectionMode = false;
+            selectedIndexes.clear();
+          }
+        });
+      }
+    });
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _reload();
       context.read<CustomerGetAllStaffBloc>().add(CustomerGetAllStaff());
     });
   }
 
-  // ---------- Helpers ----------
-  String? _normalizeImage(String? raw) {
-    if (raw == null) return null;
-    final v = raw.trim();
-    if (v.isEmpty || v == 'null') return null;
-
-    if (v.startsWith('http://')) return v.replaceFirst('http://', 'https://');
-    if (v.startsWith('https://')) return v;
-    return 'https://tezxizmatlar.uz${v.startsWith('/') ? '' : '/'}$v';
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
   }
 
+  void toggleSelection(int index) {
+    setState(() {
+      if (selectedIndexes.contains(index)) {
+        selectedIndexes.remove(index);
+      } else {
+        selectedIndexes.add(index);
+      }
+      if (selectedIndexes.isEmpty) isSelectionMode = false;
+    });
+  }
+
+  void _showLoading() {
+    if (_loadingDialogOpen) return;
+    _loadingDialogOpen = true;
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => const Center(child: CircularProgressIndicator()),
+    );
+  }
+
+  void _hideLoading() {
+    if (!_loadingDialogOpen) return;
+    _loadingDialogOpen = false;
+    if (Navigator.canPop(context)) Navigator.pop(context);
+  }
+
+  void _clearSelection() {
+    setState(() {
+      selectedIndexes.clear();
+      isSelectionMode = false;
+    });
+  }
+
+  Future<void> _reload() async {
+    context.read<GetCustomerAllOrdersBloc>().add(const GetCustomerAllOrdersE());
+  }
+
+  // ✅ faqat canceled order delete
+  Future<void> deleteSelectedOrders() async {
+    if (_tabIndex != 2) return; // faqat bekor qilingan tab
+    if (_canceledCache.isEmpty || selectedIndexes.isEmpty) return;
+
+    final ids = selectedIndexes
+        .where((i) => i >= 0 && i < _canceledCache.length)
+        .map((i) => _canceledCache[i].id)
+        .toList();
+
+    if (ids.isEmpty) return;
+
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        backgroundColor: Colors.white,
+        title: const Text("Buyurtmani o‘chirish", style: TextStyle(fontWeight: FontWeight.w500),),
+        content: Text("${ids.length} ta bekor qilingan buyurtmani o‘chirmoqchimisiz?", style: TextStyle(fontWeight: FontWeight.w500, fontSize: 18),),
+        actions: [
+          Row(
+            children: [
+              Expanded(
+                child: ElevatedWidget(
+                  onPressed: () => Navigator.pop(context, false),
+                  text: 'Bekor qilish',
+                  backgroundColor: Colors.blue,
+                  textColor: Colors.white,
+                ),
+              ),
+              SizedBox(width: 10,),
+              Expanded(
+                child: ElevatedWidget(
+                  onPressed: () => Navigator.pop(context, true),
+                  text: 'O‘chirish',
+                  backgroundColor: Colors.red,
+                  textColor: Colors.white,
+                ),
+              ),
+            ],
+
+          ),
+        ],
+      ),
+    );
+
+    if (ok != true) return;
+
+    // Multi delete event (bloc ichida for bilan birma-bir delete)
+    context.read<DeleteOrderBloc>().add(DeleteOrdersE(ids: ids));
+  }
+
+  // ====== STATUS HELPERS (seniki) ======
   bool _isCanceled(String s) {
     final up = s.toUpperCase();
     return up == 'CANCELED' || up == 'CANCELLED';
   }
 
-  ///  Final yakunlangan (customer tasdiqlaganidan keyin)
   bool _isFinalCompleted(String s) {
     final up = s.toUpperCase();
     return up == 'COMPLETED' ||
@@ -55,12 +179,9 @@ class _OrderPageState extends State<OrderPage> {
         up == 'CONFIRMED';
   }
 
-  ///  Staff yakunlagan, customer tasdiqlashi kerak
   bool _needsCustomerConfirm(String s) => s.toUpperCase() == 'COMPLETED_BY_STAFF';
 
   List<GetAllOrdersEntity> _active(List<GetAllOrdersEntity> all) {
-    // Active = Canceled ham emas, Final completed ham emas
-    //  COMPLETED_BY_STAFF ham shu yerga tushadi
     return all.where((o) => !_isFinalCompleted(o.status) && !_isCanceled(o.status)).toList();
   }
 
@@ -72,16 +193,11 @@ class _OrderPageState extends State<OrderPage> {
     return all.where((o) => _isCanceled(o.status)).toList();
   }
 
-  String _formatTime(String? iso) {
-    if (iso == null || iso.isEmpty) return "--:--";
-    try {
-      final dt = DateTime.parse(iso).toLocal();
-      final hh = dt.hour.toString().padLeft(2, '0');
-      final mm = dt.minute.toString().padLeft(2, '0');
-      return "$hh:$mm";
-    } catch (_) {
-      return "--:--";
-    }
+  String _formatDt(DateTime dt) {
+    final local = dt.toLocal();
+    final hh = local.hour.toString().padLeft(2, '0');
+    final mm = local.minute.toString().padLeft(2, '0');
+    return "$hh:$mm";
   }
 
   String _statusText(String status) {
@@ -119,7 +235,7 @@ class _OrderPageState extends State<OrderPage> {
       case 'STARTED':
         return Colors.blueAccent;
       case 'COMPLETED_BY_STAFF':
-        return Colors.purple; // ko‘zga ajralib tursin
+        return Colors.purple;
       case 'COMPLETED':
       case 'COMPLETED_BY_CUSTOMER':
       case 'CONFIRMED_BY_CUSTOMER':
@@ -131,10 +247,6 @@ class _OrderPageState extends State<OrderPage> {
       default:
         return Colors.grey;
     }
-  }
-
-  Future<void> _reload() async {
-    context.read<GetCustomerAllOrdersBloc>().add(const GetCustomerAllOrdersE());
   }
 
   Widget _empty(String text) {
@@ -152,8 +264,54 @@ class _OrderPageState extends State<OrderPage> {
 
   @override
   Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: 3,
+    return MultiBlocListener(
+      listeners: [
+        // ✅ OLDINGI listener — buzilmadi
+        BlocListener<FindChatBloc, FindChatState>(
+          listener: (context, state) {
+            if (state is FindChatSuccess) {
+              final args = _pendingChatArgs ?? {};
+              Navigator.pushNamed(
+                context,
+                RouteNames.chatWithWorker,
+                arguments: {
+                  "roomId": state.findChatEntity.id,
+                  "name": args["name"] ?? "",
+                  "imageUrl": args["imageUrl"],
+                },
+              );
+            }
+            if (state is FindChatError) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text(state.message), backgroundColor: Colors.red),
+              );
+            }
+          },
+        ),
+
+        // ✅ Delete order listener
+        BlocListener<DeleteOrderBloc, DeleteOrderState>(
+          listener: (context, state) {
+            if (state is DeleteOrderLoading) _showLoading();
+
+            if (state is DeleteOrderSuccess) {
+              _hideLoading();
+              _clearSelection();
+              _reload();
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text("Bekor qilingan buyurtma(lar) o‘chirildi")),
+              );
+            }
+
+            if (state is DeleteOrderError) {
+              _hideLoading();
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text(state.message), backgroundColor: Colors.red),
+              );
+            }
+          },
+        ),
+      ],
       child: Scaffold(
         appBar: AppBar(
           automaticallyImplyLeading: false,
@@ -162,6 +320,20 @@ class _OrderPageState extends State<OrderPage> {
             style: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.w700),
           ),
           centerTitle: true,
+
+          // ✅ faqat Bekor qilingan tabda delete icon
+          actions: [
+            if (_tabIndex == 2 && !isSelectionMode)
+              IconButton(
+                icon: const Icon(Icons.delete_outline, color: Colors.grey),
+                onPressed: () => setState(() => isSelectionMode = true),
+              ),
+            if (_tabIndex == 2 && isSelectionMode)
+              IconButton(
+                icon: const Icon(Icons.delete, color: Colors.red),
+                onPressed: selectedIndexes.isEmpty ? null : () => deleteSelectedOrders(),
+              ),
+          ],
         ),
         body: SafeArea(
           child: Padding(
@@ -171,16 +343,14 @@ class _OrderPageState extends State<OrderPage> {
                 PreferredSize(
                   preferredSize: const Size.fromHeight(70),
                   child: TabBar(
+                    controller: _tabController,
                     indicatorColor: Colors.blueAccent,
                     tabAlignment: TabAlignment.center,
                     dividerColor: Colors.transparent,
                     isScrollable: true,
                     labelColor: Colors.blueAccent,
                     unselectedLabelColor: const Color(0xffB8BFE1),
-                    labelStyle: TextStyle(
-                      fontSize: 17.sp,
-                      fontWeight: FontWeight.w500,
-                    ),
+                    labelStyle: TextStyle(fontSize: 17.sp, fontWeight: FontWeight.w500),
                     tabs: const [
                       Tab(child: Padding(padding: EdgeInsets.symmetric(horizontal: 6), child: Text("Faol", style: TextStyle(fontWeight: FontWeight.w700)))),
                       Tab(child: Padding(padding: EdgeInsets.symmetric(horizontal: 6), child: Text("Yakunlangan", style: TextStyle(fontWeight: FontWeight.w700)))),
@@ -188,6 +358,7 @@ class _OrderPageState extends State<OrderPage> {
                     ],
                   ),
                 ),
+
                 Expanded(
                   child: BlocBuilder<GetCustomerAllOrdersBloc, GetCustomerAllOrdersState>(
                     builder: (context, state) {
@@ -211,7 +382,14 @@ class _OrderPageState extends State<OrderPage> {
                                   ),
                                   child: Row(
                                     children: [
-                                      Container(width: 56, height: 56, decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle)),
+                                      Container(
+                                        width: 56,
+                                        height: 56,
+                                        decoration: const BoxDecoration(
+                                          color: Colors.white,
+                                          shape: BoxShape.circle,
+                                        ),
+                                      ),
                                       const SizedBox(width: 12),
                                       Expanded(
                                         child: Column(
@@ -255,6 +433,9 @@ class _OrderPageState extends State<OrderPage> {
                         final completed = _completed(all);
                         final canceled = _canceled(all);
 
+                        // ✅ canceled cache — delete uchun
+                        _canceledCache = canceled;
+
                         final staffState = context.watch<CustomerGetAllStaffBloc>().state;
                         final staffMap = <int, dynamic>{};
 
@@ -264,7 +445,11 @@ class _OrderPageState extends State<OrderPage> {
                           }
                         }
 
-                        Widget buildList(List<GetAllOrdersEntity> list, {required bool withActions}) {
+                        Widget buildList(
+                            List<GetAllOrdersEntity> list, {
+                              required bool withActions,
+                              required bool isCanceledTab,
+                            }) {
                           if (list.isEmpty) return _empty("Hozircha buyurtmalar yo‘q.");
 
                           return RefreshIndicator(
@@ -276,42 +461,51 @@ class _OrderPageState extends State<OrderPage> {
                               separatorBuilder: (_, __) => SizedBox(height: 10.h),
                               itemBuilder: (context, index) {
                                 final o = list[index];
-                                final staff = staffMap[o.staffId];
+                                final staff = staffMap[o.staff.id];
 
                                 final name = staff != null
-                                    ? "${staff.first_name} ${staff.last_name} (${(staff.profession as String).isEmpty ? 'Usta' : staff.profession})"
-                                    : "Usta #${o.staffId}";
+                                    ? "${staff.first_name} ${staff.last_name}"
+                                    : "Usta #${o.staff.id}";
 
-                                final imageUrl = staff != null ? _normalizeImage(staff.image as String?) : null;
-                                final time = _formatTime(o.createdAt);
+                                final raw0 = o.staff.image.trim();
+                                final raw = (raw0.isEmpty || raw0 == 'null') ? null : raw0;
 
-                                if (withActions) {
-                                  return OrderContainerWidget(
-                                    name: name,
-                                    description: o.problemText,
-                                    time: time,
-                                    statusText: _statusText(o.status),
-                                    statusColor: _statusColor(o.status),
-                                    imageUrl: imageUrl,
-                                    onViewTap: () async {
-                                      await Navigator.pushNamed(context, RouteNames.orderView, arguments: o);
-                                      _reload(); //  qaytganda refresh
-                                    },
-                                    onChatTap: () {
-                                      Navigator.pushNamed(
-                                        context,
-                                        RouteNames.chatWithWorker,
-                                        arguments: {
-                                          "name": name,
-                                          "urlAsset": imageUrl ?? "assets/circular_avatar/profile.png",
-                                          "roomId": o.id,
-                                        },
-                                      );
-                                    },
-                                  );
+                                String? imageUrl;
+                                if (raw != null) {
+                                  if (raw.startsWith('http://')) {
+                                    imageUrl = raw.replaceFirst('http://', 'https://');
+                                  } else if (raw.startsWith('https://')) {
+                                    imageUrl = raw;
+                                  } else {
+                                    imageUrl = 'https://tezxizmatlar.uz${raw.startsWith('/') ? '' : '/'}$raw';
+                                  }
                                 }
 
-                                return OrderContainerWidgetTwo(
+                                final time = _formatDt(o.createdAt);
+
+                                final widgetCard = withActions
+                                    ? OrderContainerWidget(
+                                  name: name,
+                                  description: o.problemText,
+                                  time: time,
+                                  statusText: _statusText(o.status),
+                                  statusColor: _statusColor(o.status),
+                                  imageUrl: imageUrl,
+                                  onViewTap: () async {
+                                    await Navigator.pushNamed(context, RouteNames.orderView, arguments: o);
+                                    _reload();
+                                  },
+                                  onChatTap: () {
+                                    _pendingChatArgs = {"name": name, "imageUrl": imageUrl};
+                                    context.read<FindChatBloc>().add(
+                                      FindChatCustomerE(
+                                        staffId: o.staff.id,
+                                        orderId: o.id,
+                                      ),
+                                    );
+                                  },
+                                )
+                                    : OrderContainerWidgetTwo(
                                   name: name,
                                   description: o.problemText,
                                   time: time,
@@ -319,23 +513,61 @@ class _OrderPageState extends State<OrderPage> {
                                   statusColor: _statusColor(o.status),
                                   imageUrl: imageUrl,
                                 );
+
+                                // ✅ faqat canceled tabda selection UI
+                                if (!isCanceledTab) return widgetCard;
+
+                                final isSelected = selectedIndexes.contains(index);
+
+                                return InkWell(
+                                  onLongPress: () {
+                                    setState(() {
+                                      isSelectionMode = true;
+                                      selectedIndexes.add(index);
+                                    });
+                                  },
+                                  onTap: () {
+                                    if (!isSelectionMode) return;
+                                    toggleSelection(index);
+                                  },
+                                  child: Row(
+                                    children: [
+                                      if (isSelectionMode)
+                                        Padding(
+                                          padding: const EdgeInsets.only(right: 10),
+                                          child: CircleAvatar(
+                                            radius: 12,
+                                            backgroundColor: isSelected ? Colors.blue : Colors.grey[300],
+                                            child: isSelected
+                                                ? const Icon(Icons.check, size: 14, color: Colors.white)
+                                                : null,
+                                          ),
+                                        ),
+                                      Expanded(child: widgetCard),
+                                    ],
+                                  ),
+                                );
                               },
                             ),
                           );
                         }
 
                         return TabBarView(
+                          controller: _tabController,
                           children: [
-                            buildList(active, withActions: true),
-                            buildList(completed, withActions: true),
-                            buildList(canceled, withActions: false),
+                            buildList(active, withActions: true, isCanceledTab: false),
+                            buildList(completed, withActions: true, isCanceledTab: false),
+                            buildList(canceled, withActions: false, isCanceledTab: true),
                           ],
                         );
                       }
 
                       return RefreshIndicator(
                         onRefresh: _reload,
-                        child: ListView(physics: const AlwaysScrollableScrollPhysics(), children: const [SizedBox(height: 200)]),
+                        child: ListView(
+                          physics: const AlwaysScrollableScrollPhysics(),
+                          children: const [SizedBox(height: 200)],
+                        ),
                       );
                     },
                   ),

@@ -28,15 +28,19 @@ import 'package:tez_xizmat/features/customer_chat/data/datasource/chat_socket_da
 import 'package:tez_xizmat/features/customer_chat/data/datasource/chat_socket_data_source_impl.dart';
 import 'package:tez_xizmat/features/customer_chat/data/repositories/chat_repository_impl.dart';
 import 'package:tez_xizmat/features/customer_chat/domain/repositories/chat_repository.dart';
+import 'package:tez_xizmat/features/customer_chat/domain/usecase/chat_delete_use_case.dart';
 import 'package:tez_xizmat/features/customer_chat/domain/usecase/connect_chat_socket_use_case.dart';
 import 'package:tez_xizmat/features/customer_chat/domain/usecase/disconnect_chat_socket_use_case.dart';
+import 'package:tez_xizmat/features/customer_chat/domain/usecase/find_chat_use_case.dart';
 import 'package:tez_xizmat/features/customer_chat/domain/usecase/get_chat_rooms_use_case.dart';
 import 'package:tez_xizmat/features/customer_chat/domain/usecase/get_room_messages_use_case.dart';
 import 'package:tez_xizmat/features/customer_chat/domain/usecase/send_message_rest_use_case.dart';
 import 'package:tez_xizmat/features/customer_chat/domain/usecase/send_message_socket_use_case.dart';
 import 'package:tez_xizmat/features/customer_chat/domain/usecase/socket_messages_use_case.dart';
+import 'package:tez_xizmat/features/customer_chat/presentation/bloc/chat_delete/chat_delete_bloc.dart';
 import 'package:tez_xizmat/features/customer_chat/presentation/bloc/chat_detail/chat_detail_bloc.dart';
 import 'package:tez_xizmat/features/customer_chat/presentation/bloc/chat_rooms/chat_rooms_bloc.dart';
+import 'package:tez_xizmat/features/customer_chat/presentation/bloc/find_chat/find_chat_bloc.dart';
 import 'package:tez_xizmat/features/customer_home/data/datasource/customer_home_data_source.dart';
 import 'package:tez_xizmat/features/customer_home/data/datasource/customer_home_data_source_impl.dart';
 import 'package:tez_xizmat/features/customer_home/data/repository/customer_home_repository_impl.dart';
@@ -55,9 +59,11 @@ import 'package:tez_xizmat/features/customer_order/domain/usecase/cancel_order_u
 import 'package:tez_xizmat/features/customer_order/domain/usecase/confirm_completion_use_case.dart';
 import 'package:tez_xizmat/features/customer_order/domain/usecase/customer_create_order_use_case.dart';
 import 'package:tez_xizmat/features/customer_order/domain/usecase/customer_get_all_orders_use_case.dart';
+import 'package:tez_xizmat/features/customer_order/domain/usecase/delete_order_use_case.dart';
 import 'package:tez_xizmat/features/customer_order/domain/usecase/post_reviews_use_case.dart';
 import 'package:tez_xizmat/features/customer_order/presentation/bloc/cancel_order/cancel_order_bloc.dart';
 import 'package:tez_xizmat/features/customer_order/presentation/bloc/customer_create_order/customer_create_order_bloc.dart';
+import 'package:tez_xizmat/features/customer_order/presentation/bloc/delete_order/delete_order_bloc.dart';
 import 'package:tez_xizmat/features/customer_order/presentation/bloc/get_customer_all_orders/get_customer_all_orders_bloc.dart';
 import 'package:tez_xizmat/features/customer_order/presentation/bloc/post_reviews/post_reviews_bloc.dart';
 import 'package:tez_xizmat/features/customer_profile/data/datasource/customer_profile_data_source.dart';
@@ -210,6 +216,7 @@ Future<void> setup() async {
   sl.registerLazySingleton(()=>StartOrderUseCase(sl()));
   sl.registerLazySingleton(()=>CompleteByStaffUseCase(sl()));
   sl.registerLazySingleton(()=>PostReviewsUseCase(sl()));
+  sl.registerLazySingleton(()=>OrderDeleteUseCase(sl()));
   ///* Customer Home
   sl.registerLazySingleton(()=>CustomerGetAllStaffUseCase(sl()));
 
@@ -232,6 +239,8 @@ Future<void> setup() async {
   sl.registerLazySingleton(() => DisconnectChatSocketUseCase(sl()));
   sl.registerLazySingleton(() => SendMessageSocketUseCase(sl()));
   sl.registerLazySingleton(() => SocketMessagesUseCase(sl()));
+  sl.registerLazySingleton(() => FindChatUseCase(sl()));
+  sl.registerLazySingleton(() => ChatDeleteUseCase(sl()));
 
   ///! Bloc
   ///* Auth
@@ -255,6 +264,7 @@ Future<void> setup() async {
   sl.registerFactory(() => CompleteByStaffBloc(sl()));
   sl.registerFactory(() => StartOrderBloc(sl()));
   sl.registerFactory(() => PostReviewsBloc(sl()));
+  sl.registerFactory(() => DeleteOrderBloc(sl()));
 
   ///* Customer Home
   sl.registerFactory(() => CustomerGetAllStaffBloc(sl()));
@@ -271,6 +281,8 @@ Future<void> setup() async {
   sl.registerFactory(() => MyReviewsBloc(sl()));
   ///* CHAT
   sl.registerFactory(() => ChatRoomsBloc(getRooms: sl()));
+  sl.registerFactory(() => FindChatBloc(  findChatUseCase: sl(),));
+  sl.registerFactory(() => ChatDeleteBloc(sl(),));
   sl.registerFactory(
         () => ChatDetailBloc(
       getMessages: sl(),

@@ -38,3 +38,31 @@ class ChatIncomingE extends ChatEvent {
 class ChatSocketConnectedE extends ChatEvent {}
 
 class ChatSocketDisconnectedE extends ChatEvent {}
+
+class FindChatCustomerE extends ChatEvent {
+  final int staffId;
+  final int? orderId;
+
+  const FindChatCustomerE({
+    required this.staffId,
+    this.orderId,
+  }); }
+class FindChatStaffE extends ChatEvent {
+  final int customerId;
+  final int? orderId; // hozir backend 0 qilyapti, keyin kerak bo‘lishi mumkin
+
+  const FindChatStaffE({
+    required this.customerId,
+    this.orderId,
+  });}
+
+class DeleteChatE extends ChatEvent {
+  final int roomId;
+  const DeleteChatE({required this.roomId});
+}
+
+class DeleteChatsE extends ChatEvent {
+  final List<int> roomIds;
+  const DeleteChatsE({required this.roomIds});
+}
+

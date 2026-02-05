@@ -7,13 +7,16 @@ import 'package:tez_xizmat/features/auth/presentation/bloc/customer_resend_email
 import 'package:tez_xizmat/features/auth/presentation/bloc/customer_reset_password/customer_reset_password_bloc.dart';
 import 'package:tez_xizmat/features/auth/presentation/bloc/customer_send_email/customer_send_email_bloc.dart';
 import 'package:tez_xizmat/features/auth/presentation/bloc/customer_verify_email/customer_verify_email_bloc.dart';
+import 'package:tez_xizmat/features/customer_chat/presentation/bloc/chat_delete/chat_delete_bloc.dart';
 import 'package:tez_xizmat/features/customer_chat/presentation/bloc/chat_detail/chat_detail_bloc.dart';
 import 'package:tez_xizmat/features/customer_chat/presentation/bloc/chat_rooms/chat_rooms_bloc.dart';
+import 'package:tez_xizmat/features/customer_chat/presentation/bloc/find_chat/find_chat_bloc.dart';
 import 'package:tez_xizmat/features/customer_home/presentation/bloc/customer_get_all_staff/customer_get_all_staff_bloc.dart';
 import 'package:tez_xizmat/features/customer_home/presentation/bloc/get_worker_info/get_worker_info_bloc.dart';
 import 'package:tez_xizmat/features/customer_home/presentation/bloc/get_worker_reviews/get_worker_reviews_bloc.dart';
 import 'package:tez_xizmat/features/customer_order/presentation/bloc/cancel_order/cancel_order_bloc.dart';
 import 'package:tez_xizmat/features/customer_order/presentation/bloc/customer_create_order/customer_create_order_bloc.dart';
+import 'package:tez_xizmat/features/customer_order/presentation/bloc/delete_order/delete_order_bloc.dart';
 import 'package:tez_xizmat/features/customer_order/presentation/bloc/get_customer_all_orders/get_customer_all_orders_bloc.dart';
 import 'package:tez_xizmat/features/customer_profile/presentation/bloc/customer_profile_image/customer_profile_image_bloc.dart';
 import 'package:tez_xizmat/features/customer_profile/presentation/bloc/profile_bloc/customer_profile_bloc.dart';
@@ -65,6 +68,9 @@ class MyBlocProvider extends StatelessWidget {
         BlocProvider<ChatDetailBloc>(create: (context) => sl<ChatDetailBloc>(),),
         BlocProvider<MyReviewsBloc>(create: (context) => sl<MyReviewsBloc>(),),
         BlocProvider<PostReviewsBloc>(create: (context) => sl<PostReviewsBloc>(),),
+        BlocProvider<FindChatBloc>(create: (context) => sl<FindChatBloc>(),),
+        BlocProvider<ChatDeleteBloc>(create: (context) => sl<ChatDeleteBloc>(),),
+        BlocProvider<DeleteOrderBloc>(create: (context) => sl<DeleteOrderBloc>(),),
       ],
       child: child,
     );

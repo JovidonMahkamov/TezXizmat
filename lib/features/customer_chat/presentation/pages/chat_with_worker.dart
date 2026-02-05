@@ -94,25 +94,33 @@ class _ChatWithWorkerPageState extends State<ChatWithWorkerPage> {
 
   @override
   Widget build(BuildContext context) {
-    final avatarProvider = (widget.imageUrl != null)
-        ? NetworkImage(widget.imageUrl!)
-        : const AssetImage("assets/circular_avatar/profile.png")
-              as ImageProvider;
+    final url = widget.imageUrl?.trim();
+    final avatarProvider = (url != null && url.isNotEmpty && url != 'null')
+        ? NetworkImage(url)
+        : const AssetImage("assets/profile/per.png") as ImageProvider;
+
 
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
         leading: IconButton(
-          onPressed: () => Navigator.pop(context),
+          onPressed: () => Navigator.pop(context, true),
           icon: const Icon(Icons.arrow_back_ios),
         ),
         title: Row(
           children: [
             CircleAvatar(radius: 25, backgroundImage: avatarProvider),
             SizedBox(width: 10.w),
-            Text(
-              widget.name,
-              style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w700),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.only(right: 20),
+                child: Text(
+                  widget.name,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w700),
+                ),
+              ),
             ),
           ],
         ),

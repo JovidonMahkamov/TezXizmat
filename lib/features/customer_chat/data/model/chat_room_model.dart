@@ -9,6 +9,8 @@ class ChatRoomModel extends ChatRoomEntity {
     required super.createdAt,
     required super.customer,
     required super.staff,
+    required super.lastMessage,
+    required super.unreadedMessageCount,
   });
 
   factory ChatRoomModel.fromJson(Map<String, dynamic> json) {
@@ -16,6 +18,8 @@ class ChatRoomModel extends ChatRoomEntity {
     return ChatRoomModel(
       id: (json['id'] ?? 0) as int,
       orderId: (json['order_id'] ?? 0) as int,
+      lastMessage: (json['last_message'] ?? '').toString(),
+      unreadedMessageCount: (json['unreaded_message_count'] ?? '').toString(),
       createdAt: (parsed?.toLocal() ?? DateTime.now()),
       customer: ChatUserEntity(
         id: (json['customer']?['id'] ?? 0) as int,

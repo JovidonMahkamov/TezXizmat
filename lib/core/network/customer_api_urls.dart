@@ -20,6 +20,7 @@ abstract class CustomerApiUrls{
   static const String cancelOrder = '/api/orders/';
   static const String confirmCompletion = '/api/orders/';
   static const String postReviews = '/api/reviews/';
+  static const String deleteOrder = '/api/orders/';
 
   // HOME
   static const String getAllStaff = '/api/staff/';
@@ -36,4 +37,8 @@ abstract class CustomerApiUrls{
   static const String updateImage = '${customer}profile/image/';
   static const String getProfile = '${customer}profile/';
   static const String updateProfile = '${customer}profile/';
+
+  //CHAT
+  static const String findChat = '/api/chat/rooms/find/';
+  static const String deleteChat = '/api/chat/';
 }
