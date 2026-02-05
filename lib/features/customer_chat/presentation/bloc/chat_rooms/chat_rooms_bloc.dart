@@ -12,10 +12,15 @@ class ChatRoomsBloc extends Bloc<ChatEvent, ChatRoomsState> {
   }
 
   Future<void> _onGetRooms(GetChatRoomsE event, Emitter<ChatRoomsState> emit) async {
-    emit(const ChatRoomsLoading());
+    if (!event.silent) {
+      emit(const ChatRoomsLoading());
+    }
+
     try {
-      final room = await getRooms();
-      emit(ChatRoomsSuccess(room.cast<ChatRoomEntity>()));
+      final rooms = await getRooms();
+      final list = List<ChatRoomEntity>.from(rooms);
+
+      emit(ChatRoomsSuccess(list));
     } catch (e) {
       emit(ChatRoomsError(e.toString()));
     }

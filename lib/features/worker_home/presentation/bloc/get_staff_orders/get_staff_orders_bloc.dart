@@ -9,26 +9,33 @@ import '../worker_home_event.dart';
 class GetStaffOrdersBloc extends Bloc<WorkerHomeEvent, GetStaffOrdersState> {
   final GetStaffOrdersUseCase getStaffOrdersUseCase;
 
-  GetStaffOrdersBloc(this.getStaffOrdersUseCase) : super(GetStaffOrdersInitial()) {
+  GetStaffOrdersBloc(this.getStaffOrdersUseCase)
+      : super(GetStaffOrdersInitial()) {
     on<GetStaffOrdersE>(onLogInUser);
   }
 
-  Future<void> onLogInUser(event, emit) async {
-    emit(GetStaffOrdersLoading());
+  Future<void> onLogInUser(GetStaffOrdersE event, Emitter<GetStaffOrdersState> emit) async {
+    if (!event.silent) {
+      emit(GetStaffOrdersLoading());
+    }
+
     try {
       final result = await getStaffOrdersUseCase();
       emit(GetStaffOrdersSuccess(putOrdersStateEntity: result));
     } on DioException catch (e) {
-      String errorMessage = _mapDioErrorToMessage(e);
-      emit(GetStaffOrdersError( message: errorMessage));
+      final errorMessage = _mapDioErrorToMessage(e);
+      if (!event.silent) {
+        emit(GetStaffOrdersError(message: errorMessage));
+      }
     } catch (e) {
-      emit(GetStaffOrdersError(message: "Noma’lum xato yuz berdi"));
+      if (!event.silent) {
+        emit(GetStaffOrdersError(message: "Noma’lum xato yuz berdi"));
+      }
     }
   }
 
   String _mapDioErrorToMessage(DioException error) {
-    if (error.type == DioExceptionType.unknown &&
-        error.error is SocketException) {
+    if (error.type == DioExceptionType.unknown && error.error is SocketException) {
       return "Internet ulanmagan. Iltimos, tarmoqni tekshiring.";
     } else if (error.response?.statusCode == 400) {
       return "Kiritilgan kod xato";
@@ -40,4 +47,5 @@ class GetStaffOrdersBloc extends Bloc<WorkerHomeEvent, GetStaffOrdersState> {
     }
 
     return "Noma’lum xato yuz berdi. Iltimos, qayta urinib ko‘ring.";
-  }}
+  }
+}

@@ -8,6 +8,9 @@ import 'package:tez_xizmat/features/customer_home/presentation/bloc/customer_get
 import 'package:tez_xizmat/features/customer_home/presentation/bloc/customer_get_all_staff/customer_get_all_staff_state.dart';
 import 'package:tez_xizmat/features/customer_home/presentation/widgets/home_container_widget.dart';
 import 'package:tez_xizmat/features/customer_home/presentation/bloc/customer_home_event.dart';
+import 'package:tez_xizmat/features/worker_home/presentation/pages/worker_profile_image_view.dart';
+
+import '../../../worker_home/presentation/widgets/order_image_view.dart';
 
 class SearchPage extends StatefulWidget {
   const SearchPage({super.key});
@@ -160,12 +163,18 @@ class _SearchPageState extends State<SearchPage> {
                             imageUrl = 'https://tezxizmatlar.uz${raw.startsWith('/') ? '' : '/'}$raw';
                           }
                         }
+                        final heroTag = 'staff-image-$id';
+
+                        final ImageProvider imgProvider = imageUrl != null
+                            ? NetworkImage(imageUrl)
+                            : const AssetImage("assets/profile/per.png") as ImageProvider;
+
                         return HomeContainerWidget(
-                          circularImage: imageUrl != null
-                              ? NetworkImage(imageUrl)
-                              : const AssetImage("assets/profile/per.png") as ImageProvider,
+                          heroTag: heroTag,
+                          circularImage: imgProvider,
                           nameText: name.isEmpty ? "Nomsiz" : name,
                           profession: profession,
+
                           onTap: () {
                             Navigator.pushNamed(
                               context,
@@ -173,7 +182,21 @@ class _SearchPageState extends State<SearchPage> {
                               arguments: {"id": id},
                             );
                           },
+
+                          onImageTap: () {
+                            Navigator.push(
+                              context,
+                              PageRouteBuilder(
+                                opaque: false,
+                                pageBuilder: (_, __, ___) => OrderImageView(
+                                  heroTag: heroTag,
+                                  image: imgProvider,
+                                ),
+                              ),
+                            );
+                          },
                         );
+
                       },
                     );
                   }

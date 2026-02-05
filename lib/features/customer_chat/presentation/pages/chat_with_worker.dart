@@ -6,7 +6,8 @@ import 'package:tez_xizmat/features/auth/data/datasource/local/auth_local_data_s
 import 'package:tez_xizmat/features/customer_chat/domain/entities/chat_message_entity.dart';
 import 'package:tez_xizmat/features/customer_chat/presentation/bloc/chat_detail/chat_detail_bloc.dart';
 import 'package:tez_xizmat/features/customer_chat/presentation/bloc/chat_detail/chat_detail_state.dart';
-import 'package:tez_xizmat/features/customer_chat/presentation/bloc/chat_event.dart';
+import '../../../worker_home/presentation/pages/worker_profile_image_view.dart';
+import '../bloc/chat_event.dart';
 
 class ChatWithWorkerPage extends StatefulWidget {
   final int roomId;
@@ -109,7 +110,27 @@ class _ChatWithWorkerPageState extends State<ChatWithWorkerPage> {
         ),
         title: Row(
           children: [
-            CircleAvatar(radius: 25, backgroundImage: avatarProvider),
+            GestureDetector(
+              onTap: () {
+                final url = widget.imageUrl?.trim();
+                if (url == null || url.isEmpty || url == 'null') return;
+
+                Navigator.push(
+                  context,
+                  PageRouteBuilder(
+                    opaque: false,
+                    pageBuilder: (_, __, ___) => WorkerProfileImageView(imageUrl: url),
+                  ),
+                );
+              },
+              child: Hero(
+                tag: profileHeroTag,
+                child: CircleAvatar(
+                  radius: 25,
+                  backgroundImage: avatarProvider,
+                ),
+              ),
+            ),
             SizedBox(width: 10.w),
             Expanded(
               child: Padding(

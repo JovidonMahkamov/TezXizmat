@@ -1,14 +1,29 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
-    <uses-permission android:name="android.permission.INTERNET"/>
-    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES"/>
-    <!-- Android 9 (SDK 28) uchun -->
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <!-- ✅ Android 13+ (API 33+) rasmlar uchun -->
+    <uses-permission
+            android:name="android.permission.READ_MEDIA_IMAGES"
+            android:required="false" />
+
+    <!-- ✅ Android 12 va past (API 32-) -->
+    <uses-permission
+            android:name="android.permission.READ_EXTERNAL_STORAGE"
+            android:maxSdkVersion="32" />
+
+    <!-- ✅ WRITE_EXTERNAL_STORAGE faqat Android 9 (API 28) va pastda ishlaydi -->
+    <uses-permission
+            android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+            android:maxSdkVersion="28" />
+
+    <!-- ✅ Android 13+ notification permission -->
+    <uses-permission
+            android:name="android.permission.POST_NOTIFICATIONS"
+            android:required="false" />
 
 
     <application
-        android:label="tez_xizmat"
+        android:label="TezXizmat"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher"
         android:usesCleartextTraffic="true">

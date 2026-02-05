@@ -104,7 +104,9 @@ class _HomeAppBarWidgetState extends State<HomeAppBarWidget> {
               ));
 
           // Navigator.pushNamed(context, RouteNames.notification);
-        }, icon: SvgPicture.asset("assets/home/notification.svg")),
+        },
+
+            icon: SvgPicture.asset("assets/home/notification.svg")),
         SizedBox(width: 15.w),
       ],
     );

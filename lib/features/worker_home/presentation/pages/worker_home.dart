@@ -34,7 +34,6 @@ class WorkerHomePage extends StatefulWidget {
 class _WorkerHomePageState extends State<WorkerHomePage> with SingleTickerProviderStateMixin {
   Map<String, dynamic>? pendingChatArgs;
 
-  //  tab indexni bilish uchun
   late final TabController _tabController;
   int _tabIndex = 0; // 0=Faol,1=Yakunlangan,2=Bekor qilingan
 
@@ -42,8 +41,26 @@ class _WorkerHomePageState extends State<WorkerHomePage> with SingleTickerProvid
   bool isSelectionMode = false;
   final Set<int> selectedIndexes = {};
   List<PutOrdersStateEntity> _canceledCache = [];
-
+  Timer? _pollTimer;
   bool _loadingDialogOpen = false;
+
+  ImageProvider _customerAvatar(String raw0) {
+    final raw = raw0.trim();
+    if (raw.isEmpty || raw == 'null') {
+      return const AssetImage("assets/profile/per.png");
+    }
+
+    String url;
+    if (raw.startsWith('http://')) {
+      url = raw.replaceFirst('http://', 'https://');
+    } else if (raw.startsWith('https://')) {
+      url = raw;
+    } else {
+      url = 'https://tezxizmatlar.uz${raw.startsWith('/') ? '' : '/'}$raw';
+    }
+
+    return NetworkImage(url);
+  }
 
   @override
   void initState() {
@@ -69,10 +86,28 @@ class _WorkerHomePageState extends State<WorkerHomePage> with SingleTickerProvid
       context.read<GetStaffOrdersBloc>().add(const GetStaffOrdersE());
       context.read<WorkerProfileBloc>().add(WorkerProfileE());
     });
+    _startPollingOrders();
+  }
+
+  void _startPollingOrders() {
+    _pollTimer?.cancel();
+    _pollTimer = Timer.periodic(const Duration(seconds: 15), (_) {
+      if (!mounted) return;
+
+      if (isSelectionMode) return;
+
+      context.read<GetStaffOrdersBloc>().add(const GetStaffOrdersE(silent: true));
+    });
+  }
+
+  void _stopPollingOrders() {
+    _pollTimer?.cancel();
+    _pollTimer = null;
   }
 
   @override
   void dispose() {
+    _stopPollingOrders();
     _tabController.dispose();
     super.dispose();
   }
@@ -330,6 +365,7 @@ class _WorkerHomePageState extends State<WorkerHomePage> with SingleTickerProvid
             time: _formatTime(o.createdAt),
             statusText: _statusText(o.status),
             statusColor: _statusColor(o.status),
+            orderId: o.id,
             imageUrl: "assets/profile/per.png",
             onViewTap: () async {
               await showWorkerOrderActionSheet(context, o);
@@ -380,13 +416,25 @@ class _WorkerHomePageState extends State<WorkerHomePage> with SingleTickerProvid
         separatorBuilder: (_, __) => SizedBox(height: 10.h),
         itemBuilder: (context, index) {
           final o = list[index];
+
+          final completedTime =
+          o.completedByCustomerAt?.isNotEmpty == true
+              ? o.completedByCustomerAt
+              : (o.completedByStaffAt?.isNotEmpty == true
+              ? o.completedByStaffAt
+              : o.createdAt);
+
+          final avatar = _customerAvatar(o.customer.image);
+
           return OrderWidgetTwo(
             name: o.customer.firstName,
             description: o.problemText,
-            time: _formatTime(o.completedByCustomerAt ?? o.completedByStaffAt),
+            time: _formatTime(completedTime),
             statusText: _statusText(o.status),
             statusColor: _statusColor(o.status),
-            imageUrl: "assets/circular_avatar/profile.png",
+            orderId: o.id,
+            imageUrl: "assets/profile/per.png",
+            backgroundImage: avatar,
           );
         },
       ),
@@ -394,7 +442,6 @@ class _WorkerHomePageState extends State<WorkerHomePage> with SingleTickerProvid
   }
 
   Widget _buildCanceled(List<PutOrdersStateEntity> list) {
-    //  cache update — delete uchun
     _canceledCache = list;
 
     if (list.isEmpty) {
@@ -420,17 +467,26 @@ class _WorkerHomePageState extends State<WorkerHomePage> with SingleTickerProvid
         itemBuilder: (context, index) {
           final o = list[index];
           final isSelected = selectedIndexes.contains(index);
+          final canceledTime =
+          o.completedByCustomerAt?.isNotEmpty == true
+              ? o.completedByCustomerAt
+              : (o.completedByStaffAt?.isNotEmpty == true
+              ? o.completedByStaffAt
+              : o.createdAt);
+
+          final avatar = _customerAvatar(o.customer.image);
 
           final card = OrderWidgetTwo(
             name: o.customer.firstName,
             description: o.problemText,
-            time: _formatTime(o.canceledAt),
+            time: _formatTime(canceledTime),
             statusText: _statusText(o.status),
             statusColor: _statusColor(o.status),
-            imageUrl: "assets/circular_avatar/profile.png",
+            orderId: o.id,
+            imageUrl: "assets/profile/per.png",
+            backgroundImage: avatar,
           );
 
-          // selection UI only for canceled tab
           return InkWell(
             onLongPress: () {
               setState(() {
@@ -449,8 +505,11 @@ class _WorkerHomePageState extends State<WorkerHomePage> with SingleTickerProvid
                     padding: const EdgeInsets.only(right: 10),
                     child: CircleAvatar(
                       radius: 12,
-                      backgroundColor: isSelected ? Colors.blue : Colors.grey[300],
-                      child: isSelected ? const Icon(Icons.check, size: 14, color: Colors.white) : null,
+                      backgroundColor:
+                      isSelected ? Colors.blue : Colors.grey[300],
+                      child: isSelected
+                          ? const Icon(Icons.check, size: 14, color: Colors.white)
+                          : null,
                     ),
                   ),
                 Expanded(child: card),
@@ -473,7 +532,7 @@ class _WorkerHomePageState extends State<WorkerHomePage> with SingleTickerProvid
               final args = pendingChatArgs ?? {};
               Navigator.pushNamed(
                 context,
-                RouteNames.chatWithCustomer, // worker route
+                RouteNames.chatWithCustomer,
                 arguments: {
                   "roomId": state.findChatEntity.id,
                   "name": args["name"] ?? "",
@@ -490,7 +549,6 @@ class _WorkerHomePageState extends State<WorkerHomePage> with SingleTickerProvid
           },
         ),
 
-        //  DeleteOrder listener
         BlocListener<DeleteOrderBloc, DeleteOrderState>(
           listener: (context, state) async {
             if (state is DeleteOrderLoading) _showLoading();
@@ -518,13 +576,19 @@ class _WorkerHomePageState extends State<WorkerHomePage> with SingleTickerProvid
         child: Scaffold(
           backgroundColor: Colors.white,
 
-          //  AppBar: HomeWorkerAppBarWidget saqlanadi, lekin actions qo‘shamiz
           appBar: HomeWorkerAppBarWidget(
             tabIndex: _tabIndex,
             isSelectionMode: isSelectionMode,
             isDeleteEnabled: selectedIndexes.isNotEmpty,
-            onEnterSelection: () => setState(() => isSelectionMode = true),
+            onToggleSelection: () {
+              if (isSelectionMode) {
+                _clearSelection(); // ❗ oddiy holatga qaytadi
+              } else {
+                setState(() => isSelectionMode = true);
+              }
+            },
             onDelete: () => deleteSelectedOrders(),
+
           ),
 
           body: SafeArea(
@@ -643,7 +707,6 @@ class _WorkerHomePageState extends State<WorkerHomePage> with SingleTickerProvid
                       final completed = _completed(all);
                       final canceled = _canceled(all);
 
-                      // canceled cache update
                       _canceledCache = canceled;
 
                       return TabBarView(

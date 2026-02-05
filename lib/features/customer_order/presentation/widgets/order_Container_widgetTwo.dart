@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
+import '../../../worker_home/presentation/widgets/order_image_view.dart';
+
 class OrderContainerWidgetTwo extends StatelessWidget {
   final String name;
   final String description;
@@ -8,6 +10,8 @@ class OrderContainerWidgetTwo extends StatelessWidget {
   final String statusText;
   final Color statusColor;
   final String? imageUrl;
+  final String heroTag;
+
 
   const OrderContainerWidgetTwo({
     super.key,
@@ -17,6 +21,8 @@ class OrderContainerWidgetTwo extends StatelessWidget {
     required this.statusText,
     required this.statusColor,
     required this.imageUrl,
+    required this.heroTag,
+
   });
 
   ImageProvider _avatarProvider() {
@@ -39,7 +45,29 @@ class OrderContainerWidgetTwo extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            CircleAvatar(radius: 30, backgroundImage: _avatarProvider()),
+            GestureDetector(
+              onTap: () {
+                final img = _avatarProvider();
+
+                Navigator.push(
+                  context,
+                  PageRouteBuilder(
+                    opaque: false,
+                    pageBuilder: (_, __, ___) => OrderImageView(
+                      heroTag: heroTag,
+                      image: img,
+                    ),
+                  ),
+                );
+              },
+              child: Hero(
+                tag: heroTag,
+                child: CircleAvatar(
+                  radius: 30,
+                  backgroundImage: _avatarProvider(),
+                ),
+              ),
+            ),
             const SizedBox(width: 12),
             Expanded(
               child: Column(
@@ -53,7 +81,7 @@ class OrderContainerWidgetTwo extends StatelessWidget {
                     children: [
                       const Icon(Icons.access_time, size: 14, color: Colors.grey),
                       const SizedBox(width: 4),
-                      Text(time, style: TextStyle(fontSize: 12.sp, color: Colors.grey)),
+                      Text(time, style: TextStyle(fontSize: 14.sp, color: Colors.grey)),
                       const Spacer(),
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),

@@ -3,6 +3,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:tez_xizmat/features/auth/presentation/widgets/elevated_button_widget.dart';
 
+import 'order_image_view.dart';
+
 class OrderWidget extends StatelessWidget {
   final String name;
   final String description;
@@ -13,6 +15,8 @@ class OrderWidget extends StatelessWidget {
   final VoidCallback onViewTap;
   final VoidCallback onChatTap;
   final ImageProvider backgroundImage;
+  final int orderId;
+
 
   const OrderWidget({
     super.key,
@@ -23,11 +27,15 @@ class OrderWidget extends StatelessWidget {
     required this.statusColor,
     required this.imageUrl,
     required this.onViewTap,
-    required this.onChatTap, required this.backgroundImage,
+    required this.onChatTap,
+    required this.backgroundImage,
+    required this.orderId,
   });
 
   @override
   Widget build(BuildContext context) {
+    final heroTag = 'order-avatar-${orderId}';
+
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Container(
@@ -41,8 +49,27 @@ class OrderWidget extends StatelessWidget {
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                CircleAvatar(radius: 30, backgroundImage: backgroundImage),
-                const SizedBox(width: 12),
+                GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      PageRouteBuilder(
+                        opaque: false,
+                        pageBuilder: (_, __, ___) => OrderImageView(
+                          heroTag: heroTag,
+                          image: backgroundImage,
+                        ),
+                      ),
+                    );
+                  },
+                  child: Hero(
+                    tag: heroTag,
+                    child: CircleAvatar(
+                      radius: 30,
+                      backgroundImage: backgroundImage,
+                    ),
+                  ),
+                ),                const SizedBox(width: 12),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,

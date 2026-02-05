@@ -3,8 +3,10 @@ abstract class WorkerHomeEvent {
 }
 
 class GetStaffOrdersE extends WorkerHomeEvent {
-  const GetStaffOrdersE();
+  final bool silent;
+  const GetStaffOrdersE({this.silent = false});
 }
+
 class AcceptStaffOrderE extends WorkerHomeEvent {
   final int id;
   AcceptStaffOrderE(this.id);

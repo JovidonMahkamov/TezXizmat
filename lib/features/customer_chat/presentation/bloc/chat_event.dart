@@ -5,8 +5,10 @@ abstract class ChatEvent {
 }
 
 class GetChatRoomsE extends ChatEvent {
-  const GetChatRoomsE();
+  final bool silent;
+  const GetChatRoomsE({this.silent = false});
 }
+
 class ChatOpenRoomE extends ChatEvent {
   final int roomId;
   final String accessToken; // ws uchun kerak

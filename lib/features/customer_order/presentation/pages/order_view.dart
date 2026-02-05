@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:tez_xizmat/features/auth/presentation/widgets/elevated_button_widget.dart';
 
 import 'package:tez_xizmat/features/customer_order/domain/entities/get_all_orders_entity.dart';
 import 'package:tez_xizmat/features/customer_order/presentation/bloc/cancel_order/cancel_order_bloc.dart';
@@ -235,21 +237,36 @@ class _OrderViewPageState extends State<OrderViewPage> {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
+        backgroundColor: Colors.white,
         title: const Text("Bekor qilasizmi?"),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text("Yo‘q"),
+          Row(
+            children: [
+              Expanded(
+                child: ElevatedWidget(
+                  onPressed: () => Navigator.pop(context),
+                  text: 'Yo‘q',
+                  backgroundColor: Colors.blue,
+                  textColor: Colors.white,
+                ),
+              ),
+              SizedBox(width: 10.w,),
+              Expanded(
+                child: ElevatedWidget(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    context.read<CancelOrderBloc>().add(
+                      CancelOrderE(id: id, reason: "Customer canceled"),
+                    );
+                  },
+                  text: 'Ha',
+                  backgroundColor: Colors.red,
+                  textColor: Colors.white,
+                ),
+              ),
+            ],
           ),
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-              context.read<CancelOrderBloc>().add(
-                CancelOrderE(id: id, reason: "Customer canceled"),
-              );
-            },
-            child: const Text("Ha"),
-          ),
+
         ],
       ),
     );

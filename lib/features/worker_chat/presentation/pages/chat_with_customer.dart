@@ -41,7 +41,6 @@ class _ChatWithCustomerPageState extends State<ChatWithCustomerPage> {
   void initState() {
     super.initState();
 
-    // 1) Blocni oldindan olib qo'yamiz
     _chatBloc = context.read<ChatDetailBloc>();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -51,7 +50,7 @@ class _ChatWithCustomerPageState extends State<ChatWithCustomerPage> {
     _scrollCtrl.addListener(() {
       if (!_scrollCtrl.hasClients) return;
 
-      const threshold = 80.0; // pastdan 80px ichida bo‘lsa "bottom" deb olamiz
+      const threshold = 80.0;
       final distanceToBottom =
           _scrollCtrl.position.maxScrollExtent - _scrollCtrl.offset;
       _autoScroll = distanceToBottom < threshold;
@@ -60,7 +59,6 @@ class _ChatWithCustomerPageState extends State<ChatWithCustomerPage> {
 
   @override
   void dispose() {
-    // 2) endi context.read ishlatmaymiz
     _chatBloc.add(ChatDisconnectE());
     _controller.dispose();
     _scrollCtrl.dispose();

@@ -1,6 +1,9 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:tez_xizmat/core/routes/route_names.dart';
 import 'package:tez_xizmat/features/auth/presentation/widgets/elevated_button_widget.dart';
 import 'package:tez_xizmat/features/customer_chat/domain/entities/chat_room_entity.dart';
@@ -21,12 +24,59 @@ class _ChatPageState extends State<ChatPage> {
   bool isSelectionMode = false;
   final Set<int> selectedIndexes = {};
   List<ChatRoomEntity> _roomsCache = [];
+  bool _loadingDialogOpen = false;
+  Timer? _pollTimer;
+
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<ChatRoomsBloc>().add(const GetChatRoomsE());
+    });
+    _startPolling();
+  }
+
+  @override
+  void dispose() {
+    _stopPolling();
+    super.dispose();
+  }
+
+  void _startPolling() {
+    _pollTimer?.cancel();
+    _pollTimer = Timer.periodic(const Duration(seconds: 3), (_) {
+      if (!mounted) return;
+      if (isSelectionMode) return;
+      context.read<ChatRoomsBloc>().add(const GetChatRoomsE(silent: true));
+    });
+  }
+
+  void _stopPolling() {
+    _pollTimer?.cancel();
+    _pollTimer = null;
+  }
+
+  void showLoading() {
+    if (_loadingDialogOpen) return;
+    _loadingDialogOpen = true;
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => const Center(child: CircularProgressIndicator()),
+    );
+  }
+
+  void hideLoading() {
+    if (!_loadingDialogOpen) return;
+    _loadingDialogOpen = false;
+    if (Navigator.canPop(context)) Navigator.pop(context);
+  }
+
+  void clearSelection() {
+    setState(() {
+      selectedIndexes.clear();
+      isSelectionMode = false;
     });
   }
 
@@ -37,9 +87,7 @@ class _ChatPageState extends State<ChatPage> {
       } else {
         selectedIndexes.add(index);
       }
-      if (selectedIndexes.isEmpty) {
-        isSelectionMode = false;
-      }
+      if (selectedIndexes.isEmpty) isSelectionMode = false;
     });
   }
 
@@ -138,12 +186,9 @@ class _ChatPageState extends State<ChatPage> {
         BlocListener<ChatDeleteBloc, ChatDeleteState>(
           listener: (context, state) {
             if (state is ChatDeleteLoading) {
-              showDialog(
-                context: context,
-                barrierDismissible: false,
-                builder: (_) =>
-                    const Center(child: CircularProgressIndicator()),
-              );
+              showLoading();
+            } else {
+              hideLoading();
             }
 
             if (state is ChatDeleteSuccess) {
@@ -176,7 +221,7 @@ class _ChatPageState extends State<ChatPage> {
         ),
       ],
       child: Scaffold(
-        backgroundColor: Colors.grey[100],
+        backgroundColor: Colors.white30,
         appBar: AppBar(
           backgroundColor: Colors.white,
           automaticallyImplyLeading: false,
@@ -186,83 +231,96 @@ class _ChatPageState extends State<ChatPage> {
             style: const TextStyle(fontWeight: FontWeight.w700),
           ),
           actions: [
-            if (!isSelectionMode)
-              IconButton(
-                icon: const Icon(Icons.delete_outline, color: Colors.grey),
-                onPressed: () => setState(() => isSelectionMode = true),
-              ),
-            if (isSelectionMode)
-              IconButton(
-                icon: const Icon(Icons.delete, color: Colors.red),
-                onPressed: selectedIndexes.isEmpty ? null : deleteSelected,
-              ),
-          ],
-        ),
-        body: Container(
-          margin: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: BlocBuilder<ChatRoomsBloc, ChatRoomsState>(
-            builder: (context, state) {
-              if (state is ChatRoomsLoading) {
-                return const Center(child: CircularProgressIndicator());
-              }
-              if (state is ChatRoomsError) {
-                return Center(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(state.message),
-                      const SizedBox(height: 10),
-                      ElevatedButton(
-                        onPressed: () => context.read<ChatRoomsBloc>().add(
-                          const GetChatRoomsE(),
-                        ),
-                        child: const Text("Qayta urinish"),
-                      ),
-                    ],
+            Padding(
+              padding: const EdgeInsets.only(right: 20),
+              child: IconButton(
+                onPressed: () {
+                  if (!isSelectionMode) {
+                    setState(() => isSelectionMode = true);
+                    return;
+                  }
+
+                  if (selectedIndexes.isEmpty) {
+                    clearSelection(); // selectiondan chiqish
+                  } else {
+                    deleteSelected(); // o‘chirish
+                  }
+                },
+                icon: SvgPicture.asset(
+                  "assets/home/delete.svg",
+                  width: 30,
+                  height: 30,
+                  colorFilter: ColorFilter.mode(
+                    isSelectionMode ? Colors.red : Colors.black,
+                    BlendMode.srcIn,
                   ),
-                );
+                ),
+                tooltip: !isSelectionMode
+                    ? "Tanlash"
+                    : (selectedIndexes.isEmpty ? "Bekor qilish" : "O‘chirish"),
+              ),
+            ),
+          ],
+
+        ),
+        body: BlocBuilder<ChatRoomsBloc, ChatRoomsState>(
+          builder: (context, state) {
+            if (state is ChatRoomsLoading) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            if (state is ChatRoomsError) {
+              return Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(state.message),
+                    const SizedBox(height: 10),
+                    ElevatedButton(
+                      onPressed: () => context.read<ChatRoomsBloc>().add(
+                        const GetChatRoomsE(),
+                      ),
+                      child: const Text("Qayta urinish"),
+                    ),
+                  ],
+                ),
+              );
+            }
+            if (state is ChatRoomsSuccess) {
+              final rooms = state.rooms;
+              _roomsCache = rooms;
+              if (rooms.isEmpty) {
+                return const Center(child: Text("Hozircha chatlar yo‘q"));
               }
-              if (state is ChatRoomsSuccess) {
-                final rooms = state.rooms;
-                _roomsCache = rooms;
-                if (rooms.isEmpty) {
-                  return const Center(child: Text("Hozircha chatlar yo‘q"));
-                }
 
-                return ListView.separated(
-                  padding: const EdgeInsets.all(16),
-                  itemCount: rooms.length,
-                  separatorBuilder: (_, __) => const Divider(height: 24),
-                  itemBuilder: (context, index) {
-                    final room = rooms[index];
+              return ListView.separated(
+                padding: const EdgeInsets.all(16),
+                itemCount: rooms.length,
+                separatorBuilder: (_, __) => const Divider(height: 24),
+                itemBuilder: (context, index) {
+                  final room = rooms[index];
 
-                    // CUSTOMER uchun: chat qilayotgan odam - STAFF
-                    final peerName =
-                        "${room.staff.firstName} ${room.staff.lastName}";
-                    final peerImage = _normalizeImage(room.staff.image);
-                    final lastText = onlyTextFromLastMessage(room.lastMessage);
+                  // CUSTOMER uchun: chat qilayotgan odam - STAFF
+                  final peerName =
+                      "${room.staff.firstName} ${room.staff.lastName}";
+                  final peerImage = _normalizeImage(room.staff.image);
+                  final lastText = onlyTextFromLastMessage(room.lastMessage);
 
-                    return _chatItem(
-                      context: context,
-                      room: room,
-                      index: index,
-                      title: peerName,
-                      imageUrl: peerImage,
-                      lastMessage: lastText.isEmpty ? "_" : lastText,
-                      time: _formatTime(room.createdAt),
-                      unread: _safeUnread(room.unreadedMessageCount),
-                    );
-                  },
-                );
-              }
+                  return _chatItem(
+                    context: context,
+                    room: room,
+                    index: index,
+                    title: peerName,
+                    imageUrl: peerImage,
+                    lastMessage: lastText.isEmpty ? "_" : lastText,
+                    time: _formatTime(room.createdAt),
+                    unread: _safeUnread(room.unreadedMessageCount),
+                  );
+                },
+              );
+            }
 
-              return const SizedBox.shrink();
-            },
-          ),
+            return const SizedBox.shrink();
+          },
         ),
       ),
     );
@@ -326,7 +384,7 @@ class _ChatPageState extends State<ChatPage> {
                 radius: 28,
                 backgroundImage: (imageUrl != null)
                     ? NetworkImage(imageUrl)
-                    : const AssetImage("assets/circular_avatar/profile.png")
+                    : const AssetImage("assets/profile/per.png")
                           as ImageProvider,
               ),
               const SizedBox(width: 12),
@@ -381,7 +439,6 @@ class _ChatPageState extends State<ChatPage> {
               ),
             ],
           ),
-          SizedBox(child: Divider()),
         ],
       ),
     );

@@ -6,6 +6,8 @@ class HomeContainerWidget extends StatefulWidget {
   final String nameText;
   final String profession;
   final VoidCallback? onTap;
+  final String heroTag;
+  final VoidCallback? onImageTap;
 
   const HomeContainerWidget({
     super.key,
@@ -13,6 +15,9 @@ class HomeContainerWidget extends StatefulWidget {
     required this.nameText,
     required this.profession,
     this.onTap,
+    required this.heroTag,
+    this.onImageTap,
+
   });
 
   @override
@@ -34,13 +39,17 @@ class _HomeContainerWidgetState extends State<HomeContainerWidget> {
         ),
         child: Row(
           children: [
-            CircleAvatar(
+          GestureDetector(
+          onTap: widget.onImageTap,
+          child: Hero(
+            tag: widget.heroTag,
+            child: CircleAvatar(
               radius: 40,
               backgroundImage: widget.circularImage,
             ),
+          ),
+        ),
             SizedBox(width: 12.w),
-
-
             Expanded(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -68,7 +77,6 @@ class _HomeContainerWidgetState extends State<HomeContainerWidget> {
                 ],
               ),
             ),
-
             Icon(Icons.arrow_forward_ios_outlined),
           ],
         ),

@@ -1,6 +1,9 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:tez_xizmat/features/auth/presentation/widgets/elevated_button_widget.dart';
 
@@ -34,47 +37,61 @@ class OrderPage extends StatefulWidget {
 class _OrderPageState extends State<OrderPage> with SingleTickerProviderStateMixin {
   Map<String, dynamic>? _pendingChatArgs;
 
-  // ✅ tab indexni boshqarish uchun
   late final TabController _tabController;
   int _tabIndex = 0; // 0=Faol, 1=Yakunlangan, 2=Bekor qilingan
 
-  // ✅ faqat canceled tabda selection
   bool isSelectionMode = false;
   final Set<int> selectedIndexes = {};
   List<GetAllOrdersEntity> _canceledCache = [];
-
+  Timer? _pollTimer;
   bool _loadingDialogOpen = false;
 
   @override
   void initState() {
     super.initState();
-
+    _startPolling();
     _tabController = TabController(length: 3, vsync: this);
     _tabController.addListener(() {
       if (_tabIndex != _tabController.index) {
         setState(() {
           _tabIndex = _tabController.index;
 
-          // ✅ canceled tabdan chiqsa selection tozalansin
           if (_tabIndex != 2) {
             isSelectionMode = false;
             selectedIndexes.clear();
           }
         });
       }
-    });
+    }
+
+    );
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _reload();
       context.read<CustomerGetAllStaffBloc>().add(CustomerGetAllStaff());
+      context.read<GetCustomerAllOrdersBloc>().add(const GetCustomerAllOrdersE(silent: true));
+
     });
   }
 
   @override
   void dispose() {
+    _pollTimer?.cancel();
     _tabController.dispose();
     super.dispose();
   }
+
+  void _startPolling() {
+    _pollTimer?.cancel();
+
+    _pollTimer = Timer.periodic(const Duration(seconds: 20), (_) {
+      if (!mounted) return;
+      if (isSelectionMode) return;
+
+      context.read<GetCustomerAllOrdersBloc>().add(const GetCustomerAllOrdersE(silent: true));
+    });
+  }
+
 
   void toggleSelection(int index) {
     setState(() {
@@ -114,7 +131,6 @@ class _OrderPageState extends State<OrderPage> with SingleTickerProviderStateMix
     context.read<GetCustomerAllOrdersBloc>().add(const GetCustomerAllOrdersE());
   }
 
-  // ✅ faqat canceled order delete
   Future<void> deleteSelectedOrders() async {
     if (_tabIndex != 2) return; // faqat bekor qilingan tab
     if (_canceledCache.isEmpty || selectedIndexes.isEmpty) return;
@@ -178,6 +194,7 @@ class _OrderPageState extends State<OrderPage> with SingleTickerProviderStateMix
         up == 'CONFIRMED_BY_CUSTOMER' ||
         up == 'CONFIRMED';
   }
+
 
   bool _needsCustomerConfirm(String s) => s.toUpperCase() == 'COMPLETED_BY_STAFF';
 
@@ -266,7 +283,6 @@ class _OrderPageState extends State<OrderPage> with SingleTickerProviderStateMix
   Widget build(BuildContext context) {
     return MultiBlocListener(
       listeners: [
-        // ✅ OLDINGI listener — buzilmadi
         BlocListener<FindChatBloc, FindChatState>(
           listener: (context, state) {
             if (state is FindChatSuccess) {
@@ -289,7 +305,6 @@ class _OrderPageState extends State<OrderPage> with SingleTickerProviderStateMix
           },
         ),
 
-        // ✅ Delete order listener
         BlocListener<DeleteOrderBloc, DeleteOrderState>(
           listener: (context, state) {
             if (state is DeleteOrderLoading) _showLoading();
@@ -321,19 +336,54 @@ class _OrderPageState extends State<OrderPage> with SingleTickerProviderStateMix
           ),
           centerTitle: true,
 
-          // ✅ faqat Bekor qilingan tabda delete icon
           actions: [
-            if (_tabIndex == 2 && !isSelectionMode)
-              IconButton(
-                icon: const Icon(Icons.delete_outline, color: Colors.grey),
-                onPressed: () => setState(() => isSelectionMode = true),
-              ),
-            if (_tabIndex == 2 && isSelectionMode)
-              IconButton(
-                icon: const Icon(Icons.delete, color: Colors.red),
-                onPressed: selectedIndexes.isEmpty ? null : () => deleteSelectedOrders(),
-              ),
+            Padding(
+              padding: const EdgeInsets.only(right: 20),
+              child: IconButton(onPressed:(){
+
+                ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text("Ushbu xizmat hali mavjud emas!"),
+                      duration: Duration(seconds: 3),
+                    ));
+              },
+
+                  icon: SvgPicture.asset("assets/home/delete.svg")),
+            ),
+            // if (_tabIndex == 2)
+            //   Padding(
+            //     padding: const EdgeInsets.only(right: 20),
+            //     child: IconButton(
+            //       onPressed: () {
+            //         if (!isSelectionMode) {
+            //           setState(() => isSelectionMode = true);
+            //           return;
+            //         }
+            //
+            //         if (selectedIndexes.isEmpty) {
+            //           _clearSelection(); // cancel selection
+            //         } else {
+            //           deleteSelectedOrders(); // delete
+            //         }
+            //       },
+            //       icon: SvgPicture.asset(
+            //         "assets/home/delete.svg",
+            //         width: 30,
+            //         height: 30,
+            //         colorFilter: ColorFilter.mode(
+            //           isSelectionMode ? Colors.red : Colors.black,
+            //           BlendMode.srcIn,
+            //         ),
+            //       ),
+            //       tooltip: !isSelectionMode
+            //           ? "Tanlash"
+            //           : (selectedIndexes.isEmpty ? "Bekor qilish" : "O‘chirish"),
+            //     ),
+            //   ),
           ],
+
+
+
         ),
         body: SafeArea(
           child: Padding(
@@ -433,7 +483,6 @@ class _OrderPageState extends State<OrderPage> with SingleTickerProviderStateMix
                         final completed = _completed(all);
                         final canceled = _canceled(all);
 
-                        // ✅ canceled cache — delete uchun
                         _canceledCache = canceled;
 
                         final staffState = context.watch<CustomerGetAllStaffBloc>().state;
@@ -449,6 +498,7 @@ class _OrderPageState extends State<OrderPage> with SingleTickerProviderStateMix
                             List<GetAllOrdersEntity> list, {
                               required bool withActions,
                               required bool isCanceledTab,
+                              bool withChat = true,
                             }) {
                           if (list.isEmpty) return _empty("Hozircha buyurtmalar yo‘q.");
 
@@ -485,6 +535,7 @@ class _OrderPageState extends State<OrderPage> with SingleTickerProviderStateMix
 
                                 final widgetCard = withActions
                                     ? OrderContainerWidget(
+                                  heroTag: "order-avatar-${o.id}",
                                   name: name,
                                   description: o.problemText,
                                   time: time,
@@ -495,7 +546,8 @@ class _OrderPageState extends State<OrderPage> with SingleTickerProviderStateMix
                                     await Navigator.pushNamed(context, RouteNames.orderView, arguments: o);
                                     _reload();
                                   },
-                                  onChatTap: () {
+                                  onChatTap: withChat
+                                      ? () {
                                     _pendingChatArgs = {"name": name, "imageUrl": imageUrl};
                                     context.read<FindChatBloc>().add(
                                       FindChatCustomerE(
@@ -503,9 +555,11 @@ class _OrderPageState extends State<OrderPage> with SingleTickerProviderStateMix
                                         orderId: o.id,
                                       ),
                                     );
-                                  },
+                                  }
+                                      : null,
                                 )
                                     : OrderContainerWidgetTwo(
+                                  heroTag: "order-avatar-${o.id}",
                                   name: name,
                                   description: o.problemText,
                                   time: time,
@@ -514,7 +568,6 @@ class _OrderPageState extends State<OrderPage> with SingleTickerProviderStateMix
                                   imageUrl: imageUrl,
                                 );
 
-                                // ✅ faqat canceled tabda selection UI
                                 if (!isCanceledTab) return widgetCard;
 
                                 final isSelected = selectedIndexes.contains(index);
@@ -556,7 +609,7 @@ class _OrderPageState extends State<OrderPage> with SingleTickerProviderStateMix
                           controller: _tabController,
                           children: [
                             buildList(active, withActions: true, isCanceledTab: false),
-                            buildList(completed, withActions: true, isCanceledTab: false),
+                            buildList(completed, withActions: true, isCanceledTab: false, withChat: false),
                             buildList(canceled, withActions: false, isCanceledTab: true),
                           ],
                         );

@@ -32,13 +32,27 @@ class _WorkerImagePickerWidgetState extends State<WorkerImagePickerWidget> {
   }
 
   Future<bool> _ensureGalleryPermission() async {
-    // Android 9 uchun: storage permission
-    // Android 13+ bo‘lsa: photos. Lekin siz Android 9 ekansiz.
-    final status = await Permission.storage.request();
+    PermissionStatus status;
+
+    if (Platform.isAndroid) {
+      // Android 13+ (SDK 33) -> Photos permission
+      // Android 12 va past -> Storage permission
+      status = await (await Permission.photos.isDenied || await Permission.photos.isRestricted
+          ? Permission.photos.request()
+          : Permission.photos.status);
+
+      // Agar photos support bo'lmasa yoki denied bo'lsa (ba'zi qurilmalarda),
+      // storage fallback qilib yuboramiz:
+      if (!status.isGranted) {
+        status = await Permission.storage.request();
+      }
+    } else {
+      // iOS uchun
+      status = await Permission.photos.request();
+    }
 
     if (status.isGranted) return true;
 
-    // user butunlay rad qilgan bo‘lsa
     if (status.isPermanentlyDenied) {
       if (!mounted) return false;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -50,7 +64,7 @@ class _WorkerImagePickerWidgetState extends State<WorkerImagePickerWidget> {
 
     if (!mounted) return false;
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text("Rasm tanlash uchun storage ruxsatini bering.")),
+      const SnackBar(content: Text("Rasm tanlash uchun ruxsat bering.")),
     );
     return false;
   }

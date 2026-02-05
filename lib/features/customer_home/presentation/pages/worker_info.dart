@@ -12,6 +12,8 @@ import 'package:tez_xizmat/features/customer_home/presentation/widgets/pop_up_wi
 import 'package:tez_xizmat/features/customer_home/presentation/widgets/rating_info_widget.dart';
 import 'package:tez_xizmat/features/customer_home/presentation/widgets/service_widget.dart';
 
+import '../../../worker_home/presentation/widgets/order_image_view.dart';
+
 class WorkerInfoPage extends StatefulWidget {
   final int id;
 
@@ -99,6 +101,12 @@ class _WorkerInfoPageState extends State<WorkerInfoPage> {
                     'https://tezxizmatlar.uz${raw.startsWith('/') ? '' : '/'}$raw';
               }
             }
+            final heroTag = 'worker-info-image-${getWorkerInfo.id}';
+
+            final ImageProvider imgProvider = imageUrl != null
+                ? NetworkImage(imageUrl)
+                : const AssetImage("assets/profile/per.png") as ImageProvider;
+
             return SingleChildScrollView(
               child: Padding(
                 padding: const EdgeInsets.only(left: 24, right: 24, top: 20),
@@ -108,15 +116,28 @@ class _WorkerInfoPageState extends State<WorkerInfoPage> {
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        CircleAvatar(
-                          radius: 50,
-                          backgroundImage: imageUrl != null
-                              ? NetworkImage(imageUrl)
-                              : const AssetImage(
-                                      "assets/circular_avatar/profile.png",
-                                    )
-                                    as ImageProvider,
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              PageRouteBuilder(
+                                opaque: false,
+                                pageBuilder: (_, __, ___) => OrderImageView(
+                                  heroTag: heroTag,
+                                  image: imgProvider,
+                                ),
+                              ),
+                            );
+                          },
+                          child: Hero(
+                            tag: heroTag,
+                            child: CircleAvatar(
+                              radius: 50,
+                              backgroundImage: imgProvider,
+                            ),
+                          ),
                         ),
+
 
                         SizedBox(width: 14.w),
                         Expanded(
@@ -131,69 +152,76 @@ class _WorkerInfoPageState extends State<WorkerInfoPage> {
                                 ),
                               ),
                               SizedBox(height: 6.h),
-                              Text(
-                                getWorkerInfo.profession,
-                                style: TextStyle(
-                                  fontSize: 16.sp,
-                                  fontWeight: FontWeight.w600,
-                                  color: Color(0XFF4D4D4D),
+                              Padding(
+                                padding: const EdgeInsets.only(left: 2),
+                                child: Text(
+                                  getWorkerInfo.profession,
+                                  style: TextStyle(
+                                    fontSize: 16.sp,
+                                    fontWeight: FontWeight.w600,
+                                    color: Color(0XFF4D4D4D),
+                                  ),
                                 ),
                               ),
-                              Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  SvgPicture.asset(
-                                    "assets/home/star.svg",
-                                    width: 18,
-                                    height: 18,
-                                  ),
-                                  SizedBox(width: 4.w),
-
-                                  Text(
-                                    formatRating(getWorkerInfo.avgStar),
-                                    style: TextStyle(
-                                      fontSize: 15.sp,
-                                      fontWeight: FontWeight.w600,
+                              SizedBox(height: 5.h,),
+                              Padding(
+                                padding: const EdgeInsets.only(left: 3),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    SvgPicture.asset(
+                                      "assets/home/star.svg",
+                                      width: 18,
+                                      height: 18,
                                     ),
-                                  ),
+                                    SizedBox(width: 4.w),
 
-                                  SizedBox(width: 6.w),
-
-                                  TextButton(
-                                    style: TextButton.styleFrom(
-                                      padding: EdgeInsets.zero,
-                                      minimumSize: const Size(0, 0),
-                                      tapTargetSize:
-                                          MaterialTapTargetSize.shrinkWrap,
-                                    ),
-                                    onPressed: () {
-                                      showModalBottomSheet(
-                                        context: context,
-                                        isScrollControlled: true,
-                                        backgroundColor: Colors.transparent,
-                                        builder: (_) {
-                                          //  faqat shu yerda 1 marta event yuboramiz
-                                          context
-                                              .read<GetWorkerReviewsBloc>()
-                                              .add(
-                                                GetWorkerReviewsE(
-                                                  id: widget.id,
-                                                ),
-                                              );
-                                          return const RatingSheetBody();
-                                        },
-                                      );
-                                    },
-                                    child: Text(
-                                      "sharhlar ${getWorkerInfo.ratingsCount} ta",
+                                    Text(
+                                      formatRating(getWorkerInfo.avgStar),
                                       style: TextStyle(
-                                        color: const Color(0xff1778F2),
                                         fontSize: 15.sp,
                                         fontWeight: FontWeight.w600,
                                       ),
                                     ),
-                                  ),
-                                ],
+
+                                    SizedBox(width: 6.w),
+
+                                    TextButton(
+                                      style: TextButton.styleFrom(
+                                        padding: EdgeInsets.zero,
+                                        minimumSize: const Size(0, 0),
+                                        tapTargetSize:
+                                            MaterialTapTargetSize.shrinkWrap,
+                                      ),
+                                      onPressed: () {
+                                        showModalBottomSheet(
+                                          context: context,
+                                          isScrollControlled: true,
+                                          backgroundColor: Colors.transparent,
+                                          builder: (_) {
+                                            //  faqat shu yerda 1 marta event yuboramiz
+                                            context
+                                                .read<GetWorkerReviewsBloc>()
+                                                .add(
+                                                  GetWorkerReviewsE(
+                                                    id: widget.id,
+                                                  ),
+                                                );
+                                            return const RatingSheetBody();
+                                          },
+                                        );
+                                      },
+                                      child: Text(
+                                        "sharhlar ${getWorkerInfo.ratingsCount} ta",
+                                        style: TextStyle(
+                                          color: const Color(0xff1778F2),
+                                          fontSize: 15.sp,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ],
                           ),

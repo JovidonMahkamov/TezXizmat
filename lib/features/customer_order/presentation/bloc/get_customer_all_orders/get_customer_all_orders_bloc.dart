@@ -5,31 +5,38 @@ import 'package:tez_xizmat/features/customer_order/domain/usecase/customer_get_a
 import 'package:tez_xizmat/features/customer_order/presentation/bloc/customer_order_event.dart';
 import 'package:tez_xizmat/features/customer_order/presentation/bloc/get_customer_all_orders/get_customer_all_orders_state.dart';
 
-class GetCustomerAllOrdersBloc extends Bloc<CustomerOrderEvent, GetCustomerAllOrdersState> {
+class GetCustomerAllOrdersBloc
+    extends Bloc<CustomerOrderEvent, GetCustomerAllOrdersState> {
   final CustomerGetAllOrdersUseCase getAllOrdersUseCase;
 
-  GetCustomerAllOrdersBloc(this.getAllOrdersUseCase) : super(GetCustomerAllOrdersInitial()) {
+  GetCustomerAllOrdersBloc(this.getAllOrdersUseCase)
+      : super(GetCustomerAllOrdersInitial()) {
     on<GetCustomerAllOrdersE>(onLogInUser);
   }
 
-  Future<void> onLogInUser(event, emit) async {
-    emit(GetCustomerAllOrdersLoading());
+  Future<void> onLogInUser(
+      GetCustomerAllOrdersE event,
+      Emitter<GetCustomerAllOrdersState> emit,
+      ) async {
+    if (!event.silent) {
+      emit(GetCustomerAllOrdersLoading());
+    }
+
     try {
       final result = await getAllOrdersUseCase();
       emit(GetCustomerAllOrdersSuccess(getAllOrdersEntity: result));
     } on DioException catch (e) {
       String errorMessage = _mapDioErrorToMessage(e);
-      emit(GetCustomerAllOrdersError( message: errorMessage));
+      emit(GetCustomerAllOrdersError(message: errorMessage));
     } catch (e) {
       emit(GetCustomerAllOrdersError(message: "Noma’lum xato yuz berdi"));
     }
   }
 
   String _mapDioErrorToMessage(DioException error) {
-    if (error.type == DioExceptionType.unknown &&
-        error.error is SocketException) {
+    if (error.type == DioExceptionType.unknown && error.error is SocketException) {
       return "Internet ulanmagan. Iltimos, tarmoqni tekshiring.";
-    } else if (error.response?.statusCode == 401 || error.response?.statusCode ==404) {
+    } else if (error.response?.statusCode == 401 || error.response?.statusCode == 404) {
       return "Login yoki parol noto‘g‘ri.";
     } else if (error.type == DioExceptionType.connectionTimeout ||
         error.type == DioExceptionType.receiveTimeout) {
@@ -39,4 +46,5 @@ class GetCustomerAllOrdersBloc extends Bloc<CustomerOrderEvent, GetCustomerAllOr
     }
 
     return "Noma’lum xato yuz berdi. Iltimos, qayta urinib ko‘ring.";
-  }}
+  }
+}

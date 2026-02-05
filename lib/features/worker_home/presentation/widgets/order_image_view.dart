@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
-const String profileHeroTag = "worker-profile-image";
+class OrderImageView extends StatelessWidget {
+  final String heroTag;
+  final ImageProvider image;
 
-class WorkerProfileImageView extends StatelessWidget {
-  final String imageUrl;
-
-  const WorkerProfileImageView({
+  const OrderImageView({
     super.key,
-    required this.imageUrl,
+    required this.heroTag,
+    required this.image,
   });
 
   @override
@@ -16,18 +16,16 @@ class WorkerProfileImageView extends StatelessWidget {
       backgroundColor: Colors.black.withOpacity(0.9),
       body: GestureDetector(
         behavior: HitTestBehavior.opaque,
-        onTap: () {
-          Navigator.pop(context);
-        },
+        onTap: () => Navigator.pop(context),
         child: Center(
           child: GestureDetector(
             onTap: () {},
             child: Hero(
-              tag: profileHeroTag,
+              tag: heroTag,
               child: CircleAvatar(
                 radius: 140,
                 backgroundColor: Colors.grey.shade800,
-                backgroundImage: NetworkImage(imageUrl),
+                backgroundImage: image,
               ),
             ),
           ),

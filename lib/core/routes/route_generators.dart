@@ -65,7 +65,8 @@ class AppRoute {
       case RouteNames.search:
         return MaterialPageRoute(builder: (_) => const SearchPage());
       case RouteNames.workerInfo:
-        final id = routeSettings.arguments as int;
+        final args = routeSettings.arguments as Map<String, dynamic>;
+        final id = args["id"] as int;
         return MaterialPageRoute(builder: (_) => WorkerInfoPage(id: id));
       case RouteNames.chatWithWorker:
         final args = (routeSettings.arguments as Map?) ?? {};

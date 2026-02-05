@@ -15,6 +15,8 @@ import 'package:tez_xizmat/features/customer_home/presentation/widgets/home_cont
 import 'package:tez_xizmat/features/customer_profile/presentation/bloc/customer_profile_event.dart';
 import 'package:tez_xizmat/features/customer_profile/presentation/bloc/profile_bloc/customer_profile_bloc.dart';
 
+import '../../../worker_home/presentation/widgets/order_image_view.dart';
+
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
@@ -276,21 +278,40 @@ class _HomePageState extends State<HomePage> {
                                     imageUrl = 'https://tezxizmatlar.uz${raw.startsWith('/') ? '' : '/'}$raw';
                                   }
                                 }
+                                final heroTag = 'staff-image-${staff.id}';
+
+                                final imgProvider = imageUrl != null
+                                    ? NetworkImage(imageUrl)
+                                    : const AssetImage("assets/profile/per.png") as ImageProvider;
+
                                 return HomeContainerWidget(
+                                  heroTag: heroTag,
+                                  circularImage: imgProvider,
+                                  nameText: "${staff.first_name} ${staff.last_name}",
+                                  profession: staff.profession,
+
                                   onTap: () {
                                     Navigator.pushNamed(
                                       context,
                                       RouteNames.workerInfo,
-                                      arguments: staff.id,
+                                      arguments: {"id": staff.id},
                                     );
                                   },
-                                  circularImage: imageUrl != null
-                                      ? NetworkImage(imageUrl)
-                                      : const AssetImage("assets/profile/per.png") as ImageProvider,
 
-                                  nameText: "${staff.first_name} ${staff.last_name}",
-                                  profession: staff.profession,
+                                  onImageTap: () {
+                                    Navigator.push(
+                                      context,
+                                      PageRouteBuilder(
+                                        opaque: false,
+                                        pageBuilder: (_, __, ___) => OrderImageView(
+                                          heroTag: heroTag,
+                                          image: imgProvider,
+                                        ),
+                                      ),
+                                    );
+                                  },
                                 );
+
                               },
                             ),
                           );

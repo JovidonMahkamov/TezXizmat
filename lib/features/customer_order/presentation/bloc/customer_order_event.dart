@@ -11,8 +11,10 @@ class CustomerCreateOrder extends CustomerOrderEvent {
 }
 
 class GetCustomerAllOrdersE extends CustomerOrderEvent {
-  const GetCustomerAllOrdersE();
+  final bool silent;
+  const GetCustomerAllOrdersE({this.silent = false});
 }
+
 
 class CancelOrderE extends CustomerOrderEvent {
   final int id;

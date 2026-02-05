@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
+import 'order_image_view.dart';
+
 
 class OrderWidgetTwo extends StatelessWidget {
   final String name;
@@ -9,6 +11,10 @@ class OrderWidgetTwo extends StatelessWidget {
   final String statusText;
   final Color statusColor;
   final String imageUrl;
+  final ImageProvider backgroundImage;
+  final int orderId;
+
+
 
   const OrderWidgetTwo({
     super.key,
@@ -18,10 +24,14 @@ class OrderWidgetTwo extends StatelessWidget {
     required this.statusText,
     required this.statusColor,
     required this.imageUrl,
+    required this.backgroundImage,
+    required this.orderId,
   });
 
   @override
   Widget build(BuildContext context) {
+    final heroTag = 'order-avatar-${orderId}';
+
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Container(
@@ -35,8 +45,27 @@ class OrderWidgetTwo extends StatelessWidget {
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                CircleAvatar(radius: 30, backgroundImage: AssetImage(imageUrl)),
-                const SizedBox(width: 12),
+                GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      PageRouteBuilder(
+                        opaque: false,
+                        pageBuilder: (_, __, ___) => OrderImageView(
+                          heroTag: heroTag,
+                          image: backgroundImage,
+                        ),
+                      ),
+                    );
+                  },
+                  child: Hero(
+                    tag: heroTag,
+                    child: CircleAvatar(
+                      radius: 30,
+                      backgroundImage: backgroundImage,
+                    ),
+                  ),
+                ),                const SizedBox(width: 12),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -67,7 +96,7 @@ class OrderWidgetTwo extends StatelessWidget {
                             color: Colors.grey,
                           ),
                           const SizedBox(width: 4),
-                          Text(time, style: const TextStyle(fontSize: 12)),
+                          Text(time, style: const TextStyle(fontSize: 14)),
                           const Spacer(),
                         ],
                       ),
