@@ -6,9 +6,13 @@ Widget serviceWidget({ required String text}) {
     children: [
       Icon(Icons.check),
       SizedBox(width: 6.w),
-      Text(
-        text,
-        style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w500,color: Color(0xff4D4D4D)),
+      Expanded(
+        child: Text(
+          text,
+          softWrap: true,
+          overflow: TextOverflow.visible,
+          style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w500,color: Color(0xff4D4D4D)),
+        ),
       ),
     ],
   );

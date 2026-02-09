@@ -157,12 +157,27 @@ class _SplashPageState extends State<SplashPage> {
         SystemNavigator.pop();
         return false;
       },
-      child: const Scaffold(
-        backgroundColor: Colors.white,
-        body: Center(child: LogoWidget()),
+      child: Scaffold(
+        body: Stack(
+          children: [
+            Positioned.fill(
+              child: Image.asset(
+                "assets/splash/bg.png",
+                fit: BoxFit.cover,
+              ),
+            ),
+
+            const SafeArea(
+              child: Center(
+                child: LogoWidget(),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
+
 }
 
 class LogoWidget extends StatelessWidget {
@@ -170,28 +185,12 @@ class LogoWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
-
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        SizedBox(height: size.height * 0.38),
-        SvgPicture.asset(
-          'assets/splash/logo.svg',
-          height: 70.h,
-          width: 170.w,
-        ),
-        const Spacer(),
-        SizedBox(
-          width: double.infinity,
-          height: 261.h,
-          child: SvgPicture.asset(
-            'assets/splash/ellipse.svg',
-            fit: BoxFit.cover,
-          ),
-        ),
-      ],
+    return SvgPicture.asset(
+      'assets/splash/logo.svg',
+      height: 70.h,
+      width: 170.w,
     );
   }
+
 }
 

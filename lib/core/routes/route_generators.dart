@@ -110,9 +110,12 @@ class AppRoute {
       case RouteNames.workerProfile:
         return MaterialPageRoute(builder: (_) => const WorkerProfilePage());
       case RouteNames.workerEditProfile:
-        return MaterialPageRoute(builder: (_) => const WorkerEditProfilePage());
-      case RouteNames.workerSettings:
-        return MaterialPageRoute(builder: (_) => const WorkerProfileSettingsPage());
+        final args = (routeSettings.arguments as Map?)?.cast<String, dynamic>();
+        final forceComplete = args?["forceComplete"] == true;
+        return MaterialPageRoute(
+          builder: (_) => WorkerEditProfilePage(forceComplete: forceComplete),
+        );      case RouteNames.workerSettings:
+        return MaterialPageRoute(builder: (_) =>  WorkerProfileSettingsPage());
 
       default:
         return _errorRoute();

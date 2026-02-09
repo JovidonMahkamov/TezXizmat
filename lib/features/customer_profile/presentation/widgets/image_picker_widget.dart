@@ -8,7 +8,7 @@ class ImagePickerWidget extends StatefulWidget {
   const ImagePickerWidget({
     super.key,
     this.radius = 60,
-    this.placeholderAsset = 'assets/circular_avatar/profile.png',
+    this.placeholderAsset = 'assets/profile/per.png',
     this.onPicked, // agar xohlasangiz tanlangan file qaytarib beradi
   });
 

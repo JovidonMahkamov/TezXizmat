@@ -45,6 +45,7 @@ class _SelectPageState extends State<SelectPage> {
                     color: Colors.white,
                   ),
                 ),
+                SizedBox(height: 10.h,),
                 Padding(
                   padding: const EdgeInsets.only(left: 20, right: 20),
                   child: Text(
