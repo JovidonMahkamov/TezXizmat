@@ -3,6 +3,9 @@ import 'package:dio/dio.dart';
 import 'package:tez_xizmat/core/network/staff_api_urls.dart';
 import 'package:tez_xizmat/features/auth/data/datasource/local/auth_local_data_source.dart';
 
+import '../navigation/app_navigator.dart';
+import '../routes/route_names.dart';
+
 class StaffDioClient {
   final Dio _dio;
   final AuthLocalDataSource local;
@@ -51,22 +54,23 @@ class StaffDioClient {
           }
 
           // 401 yoki ba'zan 403 ham bo'lishi mumkin
-          if (e.response?.statusCode == 401 || e.response?.statusCode == 403) {
+          if (_looksLikeTokenError(e)) {
             try {
               final newAccess = await _refreshTokenSafely();
-              if (newAccess != null) {
+
+              if (newAccess != null && newAccess.isNotEmpty) {
                 final opts = e.requestOptions;
-
-                // eski headerni yangilaymiz
                 opts.headers['Authorization'] = 'Bearer $newAccess';
-
                 final cloned = await _dio.fetch(opts);
                 return handler.resolve(cloned);
               } else {
-                // refresh bo‘lmadi -> tokenlarni tozalab, login chiqarish kerak (xohlasang qo‘shamiz)
-                // await local.clearAll();
+                await _forceLogout();
+                return handler.next(e);
               }
-            } catch (_) {}
+            } catch (_) {
+              await _forceLogout();
+              return handler.next(e);
+            }
           }
 
           return handler.next(e);
@@ -75,6 +79,37 @@ class StaffDioClient {
       ),
     );
   }
+
+  bool _looksLikeTokenError(DioException e) {
+    final code = e.response?.statusCode;
+
+    // Sizda token eskirganda 400 qaytayapti
+    if (code == 400 || code == 401 || code == 403) {
+      final data = e.response?.data;
+      final text = (data is String) ? data : data?.toString() ?? '';
+      final lower = text.toLowerCase();
+
+      return lower.contains('token') ||
+          lower.contains('expired') ||
+          lower.contains('not valid') ||
+          lower.contains('invalid') ||
+          lower.contains('unauthorized') ||
+          lower.contains('token_not_valid');
+    }
+
+    return false;
+  }
+
+  Future<void> _forceLogout() async {
+    await local.clearAll();
+
+    // stackni tozalab, boshidan login oqimiga qaytaramiz
+    appNavigatorKey.currentState?.pushNamedAndRemoveUntil(
+      RouteNames.carousel, // xohlasang RouteNames.customerLogin qilasan
+          (route) => false,
+    );
+  }
+
 
   Future<String?> _refreshTokenSafely() async {
     if (_isRefreshing) {
