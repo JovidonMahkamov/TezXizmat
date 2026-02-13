@@ -8,6 +8,7 @@ import 'package:tez_xizmat/features/customer_profile/presentation/bloc/profile_b
 import 'package:tez_xizmat/features/customer_profile/presentation/widgets/edit_profile_dialog.dart';
 import 'package:tez_xizmat/features/customer_profile/presentation/widgets/edit_profile_widget.dart';
 import 'package:tez_xizmat/features/customer_profile/presentation/widgets/profile_log_out_widget.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../worker_home/presentation/pages/worker_profile_image_view.dart';
 
@@ -19,6 +20,14 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
+  final Uri support = Uri.parse('https://t.me/MrJovidon');
+
+  Future<void> _support() async {
+    if (!await launchUrl(support, mode: LaunchMode.externalApplication)) {
+      throw 'Telegram ochilmadi: $support';
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -156,6 +165,14 @@ class _ProfilePageState extends State<ProfilePage> {
                       ),
                     );
                   },
+                  icon1: Icons.arrow_forward_ios_outlined,
+                  textStyle: TextStyle(fontSize: 18.sp),
+                ),
+
+                EditProfileWidget(
+                  text: "Biz bilan bog'lanish",
+                  icon: Icons.support_agent_outlined,
+                  onTab: _support,
                   icon1: Icons.arrow_forward_ios_outlined,
                   textStyle: TextStyle(fontSize: 18.sp),
                 ),

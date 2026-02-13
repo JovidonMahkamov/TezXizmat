@@ -10,6 +10,7 @@ import 'package:tez_xizmat/features/worker_profile/presentation/bloc/worker_prof
 import 'package:tez_xizmat/features/worker_profile/presentation/bloc/worker_profile_event.dart';
 import 'package:tez_xizmat/features/worker_profile/presentation/pages/rating_sheet_body_two.dart';
 import 'package:tez_xizmat/features/worker_profile/presentation/widgets/worker_log_out_widget.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class WorkerProfileSettingsPage extends StatefulWidget {
   const WorkerProfileSettingsPage({super.key});
@@ -20,6 +21,14 @@ class WorkerProfileSettingsPage extends StatefulWidget {
 }
 
 class _WorkerProfileSettingsPageState extends State<WorkerProfileSettingsPage> {
+  final Uri support = Uri.parse('https://t.me/MrJovidon');
+
+  Future<void> _support() async {
+    if (!await launchUrl(support, mode: LaunchMode.externalApplication)) {
+      throw 'Telegram ochilmadi: $support';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -76,6 +85,14 @@ class _WorkerProfileSettingsPageState extends State<WorkerProfileSettingsPage> {
                 },
               );
             },
+            icon1: Icons.arrow_forward_ios_outlined,
+            textStyle: TextStyle(fontSize: 18.sp),
+          ),
+
+          EditProfileWidget(
+            text: "Biz bilan bog'lanish",
+            icon: Icons.support_agent_outlined,
+            onTab: _support,
             icon1: Icons.arrow_forward_ios_outlined,
             textStyle: TextStyle(fontSize: 18.sp),
           ),
